@@ -71,10 +71,10 @@ $(function(){
     });
 
 
-/**
- * Form action generator
- * @returns {string}
- */
+    /**
+     * Form action generator
+     * @returns {string}
+     */
     function generateFormUri(){
         var uri = base_uri;
         var region = $('#regionAlias').val();
@@ -84,5 +84,20 @@ $(function(){
             uri += '/'+category;
         uri += '.html';
         return uri;
+    }
+
+    /**
+     * Category filters loading
+     */
+    function loadCategoryFilters(){
+        $.ajax({
+            type: "POST",
+            url: base_uri+ 'boardSearch/filters',
+            data: {'region_id':$(this).data('id')},
+            dataType: 'json',
+            success: function(data){
+                $('#filtersList').html(data.content);
+            }
+        });
     }
 });

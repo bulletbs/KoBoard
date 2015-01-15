@@ -4,10 +4,12 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
     public $json = array();
     public $skip_auto_content_apply = array(
         'cities',
+        'filters',
     );
     const REGION_LIST_CACHE = 'searchRegionRendered';
     const CITY_LIST_CACHE = 'searchCitiesRendered_';
     const CATEGORY_LIST_CACHE = 'searchCategoriesRendered';
+    const FILTER_LIST_CACHE = 'searchFiltersRendered_';
 
     public $template = 'widgets/board_search_form';    // Шаблон виждета
 
@@ -41,12 +43,36 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
         $region = ORM::factory('BoardCity', $region);
         if($region->loaded() && NULL === ($this->json['content'] = Cache::instance()->get(self::CITY_LIST_CACHE . $region->id))){
             $cities = DB::select('id', 'alias', 'parent_id', 'name')->from(ORM::factory('BoardCity')->table_name())->where('lvl','=',2)->where('parent_id','=',$region->id)->order_by('name')->as_assoc()->execute();
-            $template = View::factory('widgets/_board_cities_list')->set(array(
+            $template = View::factory('widgets/_board_cities_search_list')->set(array(
                 'cities' => $cities,
                 'region' => $region,
             ));
             $this->json['content'] = $template->render();
-            Cache::instance()->set(self::CITY_LIST_CACHE . $region->id, $this->json['content'], Date::HOUR*24);
+            Cache::instance()->set(self::CITY_LIST_CACHE . $region->id, $this->json['content'], Date::DAY*365);
+        }
+        echo json_encode($this->json);
+    }
+
+    /**
+     * Get filters and render filters list
+     * @return null
+     * @throws Cache_Exception
+     * @throws View_Exception
+     */
+    public function action_filters(){
+        $category = (int) Request::current()->post('category_id');
+        if(!$this->request->is_ajax() || !$category)
+            return NULL;
+
+        $category = ORM::factory('BoardCategory', $category);
+        if($category->loaded() && NULL === ($this->json['content'] = Cache::instance()->get(self::FILTER_LIST_CACHE. $category->id))){
+            $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
+            $template = View::factory('widgets/_board_filters_list')->set(array(
+                'filters' => $filters,
+                'category' => $category,
+            ));
+            $this->json['content'] = $template->render();
+            Cache::instance()->set(self::FILTER_LIST_CACHE . $category->id, $this->json['content'], Date::HOUR*24);
         }
         echo json_encode($this->json);
     }
@@ -97,5 +123,9 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             Cache::instance()->set(self::CATEGORY_LIST_CACHE, $content, Date::HOUR*24);
         }
         return $content;
+    }
+
+    protected function _filterListRender(){
+
     }
 }

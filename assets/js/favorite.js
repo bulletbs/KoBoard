@@ -1,4 +1,5 @@
 $(function(){
+    var base_uri = '/';
     $('#message_icons').on('click', '#ico_out_favorite, #ico_favorite', function(e){
         var oper = $(this).attr('id') == 'ico_favorite' ? 'add' : 'del';
         makeFavorite($(this).data('item'), oper);
@@ -32,7 +33,7 @@ $(function(){
             data: {id:id, oper:oper},
             type: 'post',
             datatype: 'json',
-            url: "/board/favset"
+            url: base_uri + "favset"
         }).done(function(data) {
                 if(data.message)
                     alert(data.message);

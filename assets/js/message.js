@@ -1,4 +1,5 @@
 $(function(){
+    var base_uri = '/';
 
     var myMap = null;
     var initMap = false;
@@ -10,7 +11,7 @@ $(function(){
         e.preventDefault();
         var this_id = $(this).data('id')
         $.ajax({
-            url: "/board/show_mailto/"+ this_id,
+            url: base_uri + "show_mailto/"+ this_id,
             dataType: "json",
             success: function(data){
                 $('#mailto').html(data.content);
@@ -23,7 +24,7 @@ $(function(){
                 $('body').on('submit', '#mailtoForm', function(e){
                     e.preventDefault();
                     $.ajax({
-                        url: "/board/show_mailto/"+ this_id,
+                        url: base_uri + "show_mailto/"+ this_id,
                         method: 'post',
                         dataType: "json",
                         data: {
@@ -46,7 +47,7 @@ $(function(){
     /* Показать телефон */
     $('#showContacts').click(function(e){
         e.preventDefault();
-        $('#hidden_contacts').html('<img src="/board/show_phone/'+ $(this).data('id')+'">');
+        $('#hidden_contacts').html('<img src="'+ base_uri +'show_phone/'+ $(this).data('id')+'">');
         $(this).remove();
     });
 

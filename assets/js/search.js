@@ -1,4 +1,5 @@
 $(function(){
+    var base_uri = '/';
 /**
  * Regions selector
  */
@@ -25,7 +26,7 @@ $(function(){
             var regionId = $(this).data('id');
             $.ajax({
                 type: "POST",
-                url: '/board/boardSearch/cities',
+                url: base_uri+ 'boardSearch/cities',
                 data: {'region_id':$(this).data('id')},
                 dataType: 'json',
                 success: function(data){
@@ -75,7 +76,7 @@ $(function(){
  * @returns {string}
  */
     function generateFormUri(){
-        var uri = '/board/';
+        var uri = base_uri;
         var region = $('#regionAlias').val();
         var category = $('#categoryAlias').val();
         uri += region ? region : 'all';

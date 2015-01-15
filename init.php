@@ -40,7 +40,7 @@ if(!Route::cache()){
             'action' => 'list',
         ));
 
-    Route::set('board_search_widget', 'board/boardSearch/cities')
+    Route::set('board_search_widget', $board_base_url . 'boardSearch/cities')
         ->defaults(array(
             'directory' => 'widgets',
             'controller' => 'BoardSearch',

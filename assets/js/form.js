@@ -1,4 +1,6 @@
 $(function(){
+    var base_uri = '/';
+
     $('#mainCategory').change(function(){
         loadFilters($(this));
     });
@@ -15,7 +17,7 @@ $(function(){
         var catVal = selectEl.val();
         if(catVal > 0){
             $.ajax({
-                url: "/board/ajax_filters" + (typeof(modelId) != 'undefined' ? '/'+modelId : ''),
+                url: base_uri + "ajax_filters" + (typeof(modelId) != 'undefined' ? '/'+modelId : ''),
                 type: "POST",
                 dataType: "json",
                 data: {'selectedCategory':catVal}
@@ -40,7 +42,7 @@ $(function(){
      */
     function loadSubFilter(id, parent, value){
         $.ajax({
-            url: "/board/sub_filter/" + id,
+            url: base_uri + "sub_filter/" + id,
             type: "POST",
             dataType: "json",
             data: {

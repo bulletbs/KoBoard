@@ -3,7 +3,13 @@
 
 if(!Route::cache()){
     $board_base_url = '';
-    Route::set('board', $board_base_url . '(<action>(/<id>)(/p<page>))', array('action' => '(all|most|main)', 'page' => '[0-9]+'))
+    $_init_actions = array(
+        'main',
+        'add',
+        'goto',
+
+    );
+    Route::set('board', $board_base_url . '(<action>(/<id>)(/p<page>))', array('action' => '('.implode('|', $_init_actions).')', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',
             'action' => 'main',

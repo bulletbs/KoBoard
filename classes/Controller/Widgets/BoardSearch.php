@@ -17,10 +17,18 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
     {
         $city_alias = Request::initial()->param('city_alias');
         $cat_alias = Request::initial()->param('cat_alias');
+        $category_id = Model_BoardCategory::getCategoryIdByAlias($cat_alias);
         $form_action = Route::get( $cat_alias ? 'board_cat' : 'board_city' )->uri(array(
             'city_alias' => $city_alias,
             'cat_alias' => $cat_alias,
         ));
+        if($category_id){
+            $filters = Model_BoardFilter::loadFiltersByCategory($category_id);
+            Model_BoardFilter::loadFilterValues($filters, Arr::get($_POST, 'filters', array()));
+            $filters_view = View::factory('widgets/_board_filters_search_list', array(
+                'filters' => $filters,
+            ))->render();
+        }
         $this->template->set(array(
             'form_action' => $form_action,
             'city_list' => $this->_regionListRender(),
@@ -29,6 +37,7 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             'category_name' => Request::current()->post('category_name'),
             'region_ailas' => $city_alias,
             'category_alias' => $cat_alias,
+            'filters' => isset($filters_view) ? $filters_view : '',
         ));
     }
 

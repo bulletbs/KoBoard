@@ -6,7 +6,7 @@
  */
 class Model_BoardFiltervalue extends ORM{
 
-    CONST OPTIONLIST_BYTES_LENGTH = 2;
+    CONST OPTIONLIST_BYTES_LENGTH = 2; // 16 options max
 
     protected $_table_name = 'ad_filter_values';
 

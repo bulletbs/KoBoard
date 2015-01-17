@@ -7,8 +7,8 @@
         <?= Form::label('title', 'Заголовок')?>
         <?= Form::input('title', Arr::get($_POST,'title', $model->title), array('class'=>isset($errors['title']) ? 'error-input': ''))?>
 
-        <?= Form::label('maincategory_id', 'Категория')?>
-        <?= Form::select('maincategory_id', $categories, Arr::get($_POST,'maincategory_id', $maincategory_id) , array('class'=>isset($errors['category_id']) ? 'error-input': '', 'id'=>'mainCategory')) ?>
+        <?= Form::label('category_id', 'Категория')?>
+        <?= Form::select('category_id', $categories, Arr::get($_POST,'category_id', $model->category_id) , array('class'=>isset($errors['category_id']) ? 'error-input': '', 'id'=>'mainCategory')) ?>
         <div id="filter_holder"><?= $filters ?></div>
 
         <?= Form::label('description', 'Описание')?>

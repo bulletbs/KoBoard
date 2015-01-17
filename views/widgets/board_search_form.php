@@ -14,6 +14,6 @@
     <?php echo Form::submit('posted', 'Найти', array('id'=>'boardTopSubmit'))?>
     <?php echo Form::hidden('category_alias', $category_alias, array('id'=>'categoryAlias'))?>
     <?php echo Form::hidden('region_ailas', $region_ailas, array('id'=>'regionAlias'))?>
-    <div id="filtersList"></div>
+    <div id="filtersList"><?php echo $filters?></div>
 <?php echo Form::close()?>
 </div>

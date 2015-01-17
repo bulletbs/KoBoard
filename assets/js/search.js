@@ -70,13 +70,24 @@ $(function(){
         }
     });
 
+/**
+ * Parent filter change event handlers
+ */
+    $('#filtersList select[data-parent]').each(function(){
+        var filter_id = $(this).data('id');
+        var parent_id = $(this).data('parent');
+        $('#filtersList select[data-id=' + parent_id + ']').change(function(){
+            $('#filter_holder select[data-id='+ filter_id +']').attr('disabled', true);
+            loadSubFilter(filter_id, parent_id, $(this).val());
+        });
+    });
 
     /**
      * Form action generator
      * @returns {string}
      */
     function generateFormUri(){
-        var uri = base_uri;
+        var uri = '/';
         var region = $('#regionAlias').val();
         var category = $('#categoryAlias').val();
         uri += region ? region : 'all';
@@ -98,6 +109,27 @@ $(function(){
             success: function(data){
                 $('#filtersList').html(data.content);
             }
+        });
+    }
+
+    /**
+     * Loading child filter
+     * @param id
+     * @param parent
+     * @param value
+     */
+    function loadSubFilter(id, parent, value){
+        $.ajax({
+            url: base_uri + "sub_filter/" + id,
+            type: "POST",
+            dataType: "json",
+            data: {
+                parent: parent,
+                value: value
+            }
+        })
+        .done(function(data){
+            $('#filtersList select[data-id='+ id +']').replaceWith(data.content);
         });
     }
 });

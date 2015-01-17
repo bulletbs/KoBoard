@@ -145,7 +145,7 @@ class Model_BoardCategory extends ORM_MPTT{
      * @return bool
      */
     public static function getCategoryIdByAlias($alias){
-        if(is_int($id = self::getAliases($alias))){
+        if((int) ($id = self::getAliases($alias))){
             return $id;
         }
         return false;

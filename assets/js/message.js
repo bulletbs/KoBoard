@@ -1,5 +1,5 @@
 $(function(){
-    var base_uri = '/';
+    var base_uri = '/board/';
 
     var myMap = null;
     var initMap = false;

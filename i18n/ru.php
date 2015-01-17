@@ -10,6 +10,8 @@ return array(
     'Your ad successfully added' => 'Ваше объявление добавлено',
     'Your ad successfully saved' => 'Ваше объявление сохранено',
     'Your ad successfully published' => 'Ваше объявление опубликовано',
+    'Your ad successfully turned off' => 'Ваше объявление отключен',
+    'Your ad successfully turned on' => 'Ваше объявление включено',
     'Ad publication' => 'Подтверждение публикации',
 
     'Added' => 'Добавлено',

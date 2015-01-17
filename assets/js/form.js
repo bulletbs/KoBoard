@@ -1,5 +1,5 @@
 $(function(){
-    var base_uri = '/';
+    var base_uri = '/board/';
 
     $('#mainCategory').change(function(){
         loadFilters($(this));

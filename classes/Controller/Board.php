@@ -305,7 +305,7 @@ class Controller_Board extends Controller_System_Page
                 $user = ORM::factory('User');
         }
 
-        $this->scripts[] = "assets/board/js/board/form.js";
+        $this->scripts[] = "assets/board/js/form.js";
         $categories = array(''=>"Выберите категорию");
         $categories += ORM::factory('BoardCategory')->getTwoLevelArray();
         $this->template->content->set('categories', $categories);
@@ -402,15 +402,15 @@ class Controller_Board extends Controller_System_Page
      * @var integer $id - model ID if edit form requested
      * @var integer $selectedCategory - selected category, sended by POST array
      */
-    public function action_render_filters(){
-        if($this->request->is_initial())
-            $this->go(Route::get('board')->uri());
-        $id = $this->request->param('id');
-        $category = ORM::factory('BoardCategory', Request::current()->post('selectedCategory'));
-        if($category->loaded())
-            $this->response->body($this->_render_filters_list($category, $id));
-        return false;
-    }
+//    public function action_render_filters(){
+//        if($this->request->is_initial())
+//            $this->go(Route::get('board')->uri());
+//        $id = $this->request->param('id');
+//        $category = ORM::factory('BoardCategory', Request::current()->post('selectedCategory'));
+//        if($category->loaded())
+//            $this->response->body($this->_render_filters_list($category, $id));
+//        return false;
+//    }
 
 
     /**
@@ -420,26 +420,26 @@ class Controller_Board extends Controller_System_Page
      * @var integer $id - model ID if edit form requested
      * @var integer $selectedCategory - selected category, sended by POST array
      */
-    public function action_render_subcategories(){
-        if($this->request->is_initial())
-            $this->go('board');
-
-        $subcategories = '';
-        if(Request::initial()->method() != Request::POST && $this->request->param('id'))
-            $category = ORM::factory('BoardAd', $this->request->param('id'))->category;
-        else
-            $category = ORM::factory('BoardCategory', Request::current()->post('category_id'));
-
-        if($category->loaded() && $category->lvl > 2){
-            $selected_parents = $category->parents(TRUE, TRUE)->as_array('lvl', 'id');
-            for($i=$category->lvl; $i>=2; $i--){
-                $_selected = isset($selected_parents[$i+1]) ? $selected_parents[$i+1] : NULL;
-                $subcategories = $this->_render_subcategory_list($category, $_selected, $subcategories);
-                $category = ORM::factory('BoardCategory', $category->parent_id);
-            }
-        }
-        $this->response->body($subcategories);
-    }
+//    public function action_render_subcategories(){
+//        if($this->request->is_initial())
+//            $this->go('board');
+//
+//        $subcategories = '';
+//        if(Request::initial()->method() != Request::POST && $this->request->param('id'))
+//            $category = ORM::factory('BoardAd', $this->request->param('id'))->category;
+//        else
+//            $category = ORM::factory('BoardCategory', Request::current()->post('category_id'));
+//
+//        if($category->loaded() && $category->lvl > 2){
+//            $selected_parents = $category->parents(TRUE, TRUE)->as_array('lvl', 'id');
+//            for($i=$category->lvl; $i>=2; $i--){
+//                $_selected = isset($selected_parents[$i+1]) ? $selected_parents[$i+1] : NULL;
+//                $subcategories = $this->_render_subcategory_list($category, $_selected, $subcategories);
+//                $category = ORM::factory('BoardCategory', $category->parent_id);
+//            }
+//        }
+//        $this->response->body($subcategories);
+//    }
 
     /**
      * @param ORM_MPTT $category

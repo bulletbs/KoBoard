@@ -105,21 +105,24 @@ class Model_BoardFilter extends ORM{
      * Loading filter values by Ad ID
      * Loading child filter options related to selected parent option
      * @param array $filters
-     * @param array $values
+     * @param array $post
      * @param int $model_id
      */
-    public static function loadFilterValues(&$filters, $values = array(), $model_id = NULL ){
+    public static function loadFilterValues(&$filters, $post = array(), $model_id = NULL ){
         /* If GET request and model ID - loading values from DB */
-        if($model_id && (Request::initial()->method() != Request::POST || Request::$initial->is_ajax()))
+        if($model_id && !count($post))
             $values = ORM::factory('BoardFiltervalue')->where('ad_id','=',$model_id)->find_all()->as_array('filter_id', 'value');
 
         foreach($filters as $id=>$filter){
             /* Setting values */
             if(isset($values[$id]))
                 $filters[$id]['value'] = $filter['type'] == 'optlist' ? Model_BoardFiltervalue::bin2optlist($values[$id]) : $values[$id];
+            elseif(isset($post[$id]))
+                $filters[$id]['value'] = $post[$id];
             /* Setting options if child filter */
-            if(isset($filter['parent']) && isset($filters[$filters[$id]['parent']]))
+            if(isset($filter['parent']) && isset($filters[$filters[$id]['parent']])){
                 $filters[$id]['options'] = self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value']);
+            }
         }
         return;
     }

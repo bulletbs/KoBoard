@@ -79,7 +79,7 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
      * @return array|bool|void
      */
     protected function _processForm($model, $data = array()){
-        $this->scripts[] = 'media/js/admin/board/filter_form.js';
+        $this->scripts[] = 'assets/board/js/admin/filter_form.js';
 
         /* Getting options for category list */
         $this->_form_fields['category_id']['data']['options'] = ORM::factory('BoardCategory')->getFullDepthArray();

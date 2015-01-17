@@ -337,8 +337,6 @@
 /****************
    SEARCH FORM
 *****************/
-
-
 .board_search_form{
     padding: 15px;
     background: #0078e7;
@@ -399,4 +397,22 @@
     .board_search_form .selector:hover .selectorWrapper .sub-level li{
         background: #fff;
         color: #333;
+    }
+
+/*********************************
+    BOARD SEARCH FORM FILTERS
+*********************************/
+.board_search_form .filter{
+    float: left;
+    margin: 0px 20px 5px 0;
+}
+    .board_search_form .filter label{
+        font-weight: bold;
+        color: #fff;
+    }
+    .board_search_form .filter input{
+        width: 70px;
+    }
+    .board_search_form .filter select{
+
     }

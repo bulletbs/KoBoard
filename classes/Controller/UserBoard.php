@@ -53,8 +53,7 @@ class Controller_UserBoard extends Controller_User
             if(Arr::get($_POST, 'cancel'))
                 $this->redirect(URL::site().Route::get('board_myads')->uri());
 
-            if($selected_category = Arr::get($_POST, 'subcategory'))
-                $ad->category_id = $selected_category[ max(array_keys($selected_category)) ];
+            $ad->category_id =  Arr::get($_POST, 'category_id');
 
             $ad->values($_POST);
             $ad->user_id = $this->current_user->id;
@@ -95,7 +94,6 @@ class Controller_UserBoard extends Controller_User
         /* Если была выбрана категория - загружаем дерево категорий и фильтры */
         $subcategories = '';
         $filters = '';
-        $maincategory_id = 0;
         if($ad->category_id > 0){
             $filters = $this->_render_filters_list($ad->category, $ad->id);
         }
@@ -105,7 +103,6 @@ class Controller_UserBoard extends Controller_User
             'model' => $ad,
             'photos' => $photos,
             'errors' => $errors,
-            'maincategory_id' => $maincategory_id,
             'filters' => $filters,
         ));
     }

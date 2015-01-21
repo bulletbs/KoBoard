@@ -22,8 +22,10 @@
 
 <div class="message">
     <div class="line"></div>
+    <?php if(!empty($ad->description)):?>
     <div class="detail-desc"><?php echo  nl2br($ad->description)?></div>
     <div class="line"></div>
+    <?php endif?>
     <dl>
         <dt><?php echo __('Price')?></dt>
         <dd><span class="price"><?php echo  $ad->price > 0? $ad->price.' '.$cfg['price_value']: __('negotiable')?></span></dd>

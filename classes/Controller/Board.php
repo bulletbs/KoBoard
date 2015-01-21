@@ -34,17 +34,18 @@ class Controller_Board extends Controller_System_Page
         $this->scripts[] = "/assets/board/js/favorite.js";
         $this->scripts[] = "/assets/board/js/search.js";
 
+        /* Config */
+        $this->board_cfg = Kohana::$config->load('board')->as_array();
+
         /* Bradcrumbs */
         if($this->auto_render){
             /* Bradcrumbs */
-            $this->breadcrumbs->add(__('Доска объявлений'), Route::get('board')->uri());
+            if($this->board_cfg['board_as_module'])
+                $this->breadcrumbs->add(__('Доска объявлений'), Route::get('board')->uri());
 
             /* Side widgets */
             $this->template->right_column = View::factory('board/side_column');
         }
-
-        /* Config */
-        $this->board_cfg = Kohana::$config->load('board')->as_array();
     }
 
     /**

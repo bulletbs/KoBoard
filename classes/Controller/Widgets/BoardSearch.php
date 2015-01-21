@@ -13,16 +13,19 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
 
     public $template = 'widgets/board_search_form';    // Шаблон виждета
 
+    /**
+     * Search form output
+     */
     public function action_index()
     {
         $city_alias = Request::initial()->param('city_alias');
         $cat_alias = Request::initial()->param('cat_alias');
-        $category_id = Model_BoardCategory::getCategoryIdByAlias($cat_alias);
         $form_action = Route::get( $cat_alias ? 'board_cat' : 'board_city' )->uri(array(
             'city_alias' => $city_alias,
             'cat_alias' => $cat_alias,
         ));
-        if($category_id){
+        if($cat_alias){
+            $category_id = Model_BoardCategory::getCategoryIdByAlias($cat_alias);
             $filters = Model_BoardFilter::loadFiltersByCategory($category_id);
             Model_BoardFilter::loadFilterValues($filters, Arr::get($_POST, 'filters', array()));
             $filters_view = View::factory('widgets/_board_filters_search_list', array(

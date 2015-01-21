@@ -11,19 +11,19 @@ class Task_BoardCounter extends Minion_Task
      */
     protected function _execute(Array $params){
         $start = time();
-        Kohana::$environment = Kohana::PRODUCTION;
+        Kohana::$environment = !isset($_SERVER['windir']) ? Kohana::PRODUCTION : Kohana::DEVELOPMENT;
 
         $categories = ORM::factory('BoardCategory')->where('lvl','=','1')->find_all()->as_array('id','id');
         foreach($categories as $categoryid=>$category){
-            $query = Model_BoardAd::boardOrmCounter()->where('pcategory_id','=',$categoryid)->cached( Model_BoardAd::CACHE_TIME )->execute();
+            $query = Model_BoardAd::boardOrmCounter()->where('pcategory_id','=',$category)->cached( Model_BoardAd::CACHE_TIME )->execute();
             print 'Category '. $categoryid .' have '.$query[0]['cnt'].' ads '.PHP_EOL;
             unset($query);
         }
         unset($categories);
 
-        $cities = ORM::factory('BoardCity')->where('lvl','=','1')->find_all()->as_array('id','name');
+        $cities = ORM::factory('BoardCity')->where('lvl','=','1')->find_all()->as_array('id','id');
         foreach($cities as $cityid=>$city){
-            $query = Model_BoardAd::boardOrmCounter()->where('pcity_id','=',$cityid)->cached( Model_BoardAd::CACHE_TIME )->execute();
+            $query = Model_BoardAd::boardOrmCounter()->where('pcity_id','=',$city)->cached( Model_BoardAd::CACHE_TIME )->execute();
             print 'City '. $cityid .' have '.$query[0]['cnt'].' ads '.PHP_EOL;
             unset($query);
         }

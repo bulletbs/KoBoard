@@ -2,7 +2,7 @@
 
 class Model_BoardAd extends ORM{
 
-    const CACHE_TIME = 3600;
+    const CACHE_TIME = 3700;
 
     protected $_table_name = 'ads';
 //    protected $_table_name = 'ads_inno';

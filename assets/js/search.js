@@ -6,9 +6,7 @@ $(function(){
     $('#regionLabel input').on('click', function(){
         $('.selectorWrapper:visible').hide(0);
         $('#regionsList').show(50);
-        $('#regionsList').mouseleave(function(){
-            $(this).hide(50);
-        });
+        addMouseUpEvent('#regionsList');
     });
     $(document).on('click', '#regionLabel li', function(){
         if($(this).data('action') == 'go'){
@@ -20,6 +18,7 @@ $(function(){
         else if($(this).data('action') == 'back'){
             $('#regionLabel .selectorWrapper:visible').slideUp(50);
             $('#regionLabel .st-level').slideDown(50);
+            addMouseUpEvent('#regionsList');
         }
         else{
             $('#regionsList').slideUp(50);
@@ -32,9 +31,7 @@ $(function(){
                 success: function(data){
                     $('#regionsList').after(data.content);
                     $('#regionsCities_'+ regionId).slideDown(50);
-                    $('#regionsCities_'+ regionId).mouseleave(function(){
-                        $(this).slideUp(50);
-                    });
+                    addMouseUpEvent('#regionsCities_'+ regionId);
                 }
             });
         }
@@ -45,10 +42,8 @@ $(function(){
  */
     $('#categoryLabel input').on('click', function(){
         $('.selectorWrapper:visible').hide(0);
-        var selector = $('#categoriesList');
-        selector.show(50).mouseleave(function(){
-            $(this).hide(50);
-        });
+        $('#categoriesList').show(50);;
+        addMouseUpEvent('#categoriesList');
     });
     $('#categoryLabel li').on('click', function(){
         if($(this).data('action') == 'go'){
@@ -60,13 +55,12 @@ $(function(){
         else if($(this).data('action') == 'back'){
             $('#categoryLabel .selectorWrapper:visible').slideUp(50);
             $('#categoryLabel .st-level').slideDown(50);
+            addMouseUpEvent('#categoriesList');
         }
         else{
             $('#categoriesList').slideUp(50);
             $('#categoriesSubcats_'+ $(this).data('id')).slideDown(50);
-            $('#categoriesSubcats_'+ $(this).data('id')).mouseleave(function(){
-                $(this).slideUp(50);
-            });
+            addMouseUpEvent('#categoriesSubcats_'+ $(this).data('id'));
         }
     });
 
@@ -81,11 +75,23 @@ $(function(){
             loadSubFilter(filter_id, parent_id, $(this).val());
         });
     });
+/**
+ * Click out of list of close button event handler
+ * @param target_id
+ */
+    function addMouseUpEvent(target_id){
+        $(document).mouseup(function (e){
+            var container = $(target_id);
+            if (!container.is(e.target) && container.has(e.target).length === 0)
+                $(target_id).hide(50);
+            $(document).unbind('mouseup');
+        });
+    }
 
-    /**
-     * Form action generator
-     * @returns {string}
-     */
+/**
+ * Form action generator
+ * @returns {string}
+ */
     function generateFormUri(){
         var uri = '/';
         var region = $('#regionAlias').val();
@@ -97,9 +103,9 @@ $(function(){
         return uri;
     }
 
-    /**
-     * Category filters loading
-     */
+/**
+ * Category filters loading
+ */
     function loadCategoryFilters(){
         $.ajax({
             type: "POST",
@@ -112,12 +118,12 @@ $(function(){
         });
     }
 
-    /**
-     * Loading child filter
-     * @param id
-     * @param parent
-     * @param value
-     */
+/**
+ * Loading child filter
+ * @param id
+ * @param parent
+ * @param value
+ */
     function loadSubFilter(id, parent, value){
         $.ajax({
             url: base_uri + "sub_filter/" + id,

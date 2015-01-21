@@ -1,6 +1,5 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 <?if(count($filters)):?>
-    <?echo Debug::vars($filters)?>
     <br>
     <?foreach($filters as $filter_id=>$data):?>
     <div class="filter">

@@ -74,7 +74,6 @@ class Controller_Board extends Controller_System_Page
     public function action_search(){
         $title = '';
         $ads = Model_BoardAd::boardOrmFinder();
-        $counter = Model_BoardAd::boardOrmCounter();
 
         /* Поиск по городу */
         $childs_cities = array();
@@ -89,11 +88,9 @@ class Controller_Board extends Controller_System_Page
             $descedants = $city->descendants(TRUE)->as_array('id');
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
-                $counter->and_where('pcity_id','=',$city->id);
             }
             else{
                 $ads->and_where('city_id','=',$city->id);
-                $counter->and_where('city_id','=',$city->id);
             }
             foreach($descedants as $_city)
                 if($_city->lvl == $city->lvl+1)
@@ -115,11 +112,9 @@ class Controller_Board extends Controller_System_Page
             $descedants = $category->descendants(TRUE)->as_array('id');
             if(!$category->parent_id){
                 $ads->and_where('pcategory_id','=',$category->id);
-                $counter->and_where('pcategory_id','=',$category->id);
             }
             else{
                 $ads->and_where('category_id','=',$category->id);
-                $counter->and_where('category_id','=',$category->id);
             }
 //            $ads->and_where('city_id','=',$city->id);
             foreach($descedants as $_cat)
@@ -136,48 +131,37 @@ class Controller_Board extends Controller_System_Page
             $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
 //            echo Debug::vars($filters);
 //            echo Debug::vars($filters_values);
-            $ads->join(array('ad_filter_values','afv'), 'INNER')->on('afv.ad_id', '=', 'ads.id');
-            $ads->where_open();
             foreach($filters_values as $_id=>$_val){
                 if(Model_BoardFiltervalue::haveValue($_val)){
-                    $ads->or_where_open();
+                    $ads->join(array('ad_filter_values','afv'.$_id), 'INNER');
+                    $ads->on('afv'.$_id.'.filter_id','=',DB::expr($_id));
+                    $ads->on('afv'.$_id.'.ad_id', '=', 'ads.id');
                     if($filters[$_id]['type'] == 'digit' && ((int) Arr::get($_val, 'from') || (int) Arr::get($_val, 'to') )){
-                        echo Debug::vars($_val);
-                        $ads->where('afv.filter_id','=',$_id);
                         $ads->where_open();
                         if((int)Arr::get($_val, 'from'))
-                            $ads->and_where('afv.value', '>=', $_val['from']);
+                            $ads->and_where('afv'.$_id.'.value', '>=', $_val['from']);
                         if((int)Arr::get($_val, 'to'))
-                            $ads->and_where('afv.value', '<=', $_val['to']);
+                            $ads->and_where('afv'.$_id.'.value', '<=', $_val['to']);
                         $ads->where_close();
                     }
                     elseif($filters[$_id]['type'] == 'optlist'){
-                        $ads->where('afv.filter_id','=',$_id);
                         $_bin = Model_BoardFiltervalue::optlist2mysqlBin( array_flip($_val) );
-                        $ads->and_where(DB::expr('afv.value & '. $_bin), '=', DB::expr($_bin));
+                        $ads->and_where(DB::expr('afv'.$_id.'.value & '. $_bin), '=', DB::expr($_bin));
                     }
                     elseif($filters[$_id]['type'] == 'select' && is_array($_val) && count($_val)){
-                        $ads->where('afv.filter_id','=',$_id);
-                        $ads->and_where('afv.value', 'IN', $_val);
+                        $ads->and_where('afv'.$_id.'.value', 'IN', $_val);
                     }
                     elseif(!empty($_val) && !is_array($_val)){
-                        $ads->where('afv.filter_id','=',$_id);
-                        $ads->and_where('afv.value', '=', $_val);
+                        $ads->and_where('afv'.$_id.'.value', '=', $_val);
                     }
-                    else
-                        $ads->and_where(DB::expr('1'), '=', 1);
-                    $ads->or_where_close();
                 }
             }
-            $ads->where_close();
             $ads->group_by('ads.id');
-//            echo $ads;
-//            die();
-
-            $counter->join(array('ad_filter_values','adv'), 'INNER')->on('adv.ad_id', '=', 'ads.id');
         }
 
         /* requesting Ads */
+        $counter = clone($ads);
+        $counter->select(DB::expr('count(*) cnt'));
         $count = $counter->cached(Model_BoardAd::CACHE_TIME)->as_assoc()->execute();
         $pagination = Pagination::factory(array(
             'total_items' => $count[0]['cnt'],
@@ -187,7 +171,9 @@ class Controller_Board extends Controller_System_Page
             'city_alias' => $city_alias,
             'cat_alias' => $category_alias,
         ));
-        $ads = $ads->offset($pagination->offset)->limit($pagination->items_per_page)->execute();
+
+        $ads->offset($pagination->offset)->limit($pagination->items_per_page);
+        $ads = $ads->execute();
         $ads_ids = array();
         foreach($ads as $_ad)
             $ads_ids[] = $_ad->id;

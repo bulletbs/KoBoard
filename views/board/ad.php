@@ -27,7 +27,7 @@
     <div class="line"></div>
     <?php endif?>
     <?php foreach($filters as $filter_id=>$filter): ?>
-        <?php if(Model_BoardFiltervalue::haveValue($filter['value'])): ?>
+        <?php if(isset($filter['value']) && Model_BoardFiltervalue::haveValue($filter['value'])): ?>
         <dl>
         <dt><?php echo $filter['name'] ?></dt>
         <dd><?php echo Model_BoardFiltervalue::echoFiltersValues($filter) ?></dd>

@@ -211,7 +211,8 @@ class Model_BoardAd extends ORM{
      * @return $this
      */
     public static function boardOrmFinder(){
-        $finder = DB::select()->from(ORM::factory('BoardAd')->table_name())
+        $table = ORM::factory('BoardAd')->table_name();
+        $finder = DB::select($table.'.*')->from($table)
             ->order_by('addtime', 'desc')
             ->as_object(get_class(ORM::factory('BoardAd')))
           ;

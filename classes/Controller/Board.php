@@ -28,16 +28,18 @@ class Controller_Board extends Controller_System_Page
         /* Script & style */
         $this->styles[] = "media/libs/pure-release-0.5.0/grids-min.css";
         $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
-        $this->styles[] = "/media/libs/pure-release-0.5.0/tables-min.css";
-        $this->styles[] = "/media/libs/pure-release-0.5.0/menus-min.css";
-        $this->styles[] = "/assets/board/css/board.css";
-        $this->scripts[] = "/assets/board/js/favorite.js";
-        $this->scripts[] = "/assets/board/js/search.js";
+        $this->styles[] = "media/libs/pure-release-0.5.0/tables-min.css";
+        $this->styles[] = "media/libs/pure-release-0.5.0/menus-min.css";
+        $this->styles[] = "assets/board/css/board.css";
+        $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
+
+        $this->scripts[] = "assets/board/js/favorite.js";
+        $this->scripts[] = "assets/board/js/search.js";
+        $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
 
         /* Config */
         $this->board_cfg = Kohana::$config->load('board')->as_array();
 
-        /* Bradcrumbs */
         if($this->auto_render){
             /* Bradcrumbs */
             if($this->board_cfg['board_as_module'])
@@ -85,10 +87,6 @@ class Controller_Board extends Controller_System_Page
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri());
             $this->breadcrumbs->add($city->name, $city->getUri());
             $descedants = $city->descendants(TRUE)->as_array('id');
-//            if(count($descedants) > 1){
-//                $ads->and_where('city_id','IN',array_keys($descedants));
-//                $counter->and_where('city_id','IN',array_keys($descedants));
-//            }
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
                 $counter->and_where('pcity_id','=',$city->id);
@@ -103,7 +101,6 @@ class Controller_Board extends Controller_System_Page
         }
         elseif($city_alias == 'all'){
             $title = $this->board_cfg['in_country'];
-//            $childs_cities = ORM::factory('BoardCity')->where('lvl','=','1')->find_all()->as_array('id');
         }
 
         /* Поиск по категории */
@@ -116,10 +113,6 @@ class Controller_Board extends Controller_System_Page
             foreach($parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri());
             $descedants = $category->descendants(TRUE)->as_array('id');
-//            if(count($descedants) > 1){
-//                $ads->and_where('category_id','IN',array_keys($descedants));
-//                $counter->and_where('category_id','IN',array_keys($descedants));
-//            }
             if(!$category->parent_id){
                 $ads->and_where('pcategory_id','=',$category->id);
                 $counter->and_where('pcategory_id','=',$category->id);
@@ -136,6 +129,52 @@ class Controller_Board extends Controller_System_Page
         }
         else{
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->find_all()->as_array('id');
+        }
+
+        /* Поиск по фильтрам */
+        if($category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
+            $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
+//            echo Debug::vars($filters);
+//            echo Debug::vars($filters_values);
+            $ads->join(array('ad_filter_values','afv'), 'INNER')->on('afv.ad_id', '=', 'ads.id');
+            $ads->where_open();
+            foreach($filters_values as $_id=>$_val){
+                if(Model_BoardFiltervalue::haveValue($_val)){
+                    $ads->or_where_open();
+                    if($filters[$_id]['type'] == 'digit' && ((int) Arr::get($_val, 'from') || (int) Arr::get($_val, 'to') )){
+                        echo Debug::vars($_val);
+                        $ads->where('afv.filter_id','=',$_id);
+                        $ads->where_open();
+                        if((int)Arr::get($_val, 'from'))
+                            $ads->and_where('afv.value', '>=', $_val['from']);
+                        if((int)Arr::get($_val, 'to'))
+                            $ads->and_where('afv.value', '<=', $_val['to']);
+                        $ads->where_close();
+                    }
+                    elseif($filters[$_id]['type'] == 'optlist'){
+                        $ads->where('afv.filter_id','=',$_id);
+                        $_bin = Model_BoardFiltervalue::optlist2mysqlBin( array_flip($_val) );
+                        $ads->and_where(DB::expr('afv.value & '. $_bin), '=', DB::expr($_bin));
+                    }
+                    elseif($filters[$_id]['type'] == 'select' && is_array($_val) && count($_val)){
+                        $ads->where('afv.filter_id','=',$_id);
+                        $ads->and_where('afv.value', 'IN', $_val);
+                    }
+                    elseif(!empty($_val) && !is_array($_val)){
+                        $ads->where('afv.filter_id','=',$_id);
+                        $ads->and_where('afv.value', '=', $_val);
+                    }
+                    else
+                        $ads->and_where(DB::expr('1'), '=', 1);
+                    $ads->or_where_close();
+                }
+            }
+            $ads->where_close();
+            $ads->group_by('ads.id');
+//            echo $ads;
+//            die();
+
+            $counter->join(array('ad_filter_values','adv'), 'INNER')->on('adv.ad_id', '=', 'ads.id');
         }
 
         /* requesting Ads */
@@ -395,52 +434,6 @@ class Controller_Board extends Controller_System_Page
         if(!empty($this->json['content']))
             $this->json['status'] = TRUE;
     }
-
-    /**
-     * Render filter list from POST or MODEL (by ID)
-     * @action HMVC render_filters
-     * @return bool
-     * @var integer $id - model ID if edit form requested
-     * @var integer $selectedCategory - selected category, sended by POST array
-     */
-//    public function action_render_filters(){
-//        if($this->request->is_initial())
-//            $this->go(Route::get('board')->uri());
-//        $id = $this->request->param('id');
-//        $category = ORM::factory('BoardCategory', Request::current()->post('selectedCategory'));
-//        if($category->loaded())
-//            $this->response->body($this->_render_filters_list($category, $id));
-//        return false;
-//    }
-
-
-    /**
-     * Render subcategories list from POST or MODEL (by ID)
-     * @action HMVC render_subcategories
-     * @return bool
-     * @var integer $id - model ID if edit form requested
-     * @var integer $selectedCategory - selected category, sended by POST array
-     */
-//    public function action_render_subcategories(){
-//        if($this->request->is_initial())
-//            $this->go('board');
-//
-//        $subcategories = '';
-//        if(Request::initial()->method() != Request::POST && $this->request->param('id'))
-//            $category = ORM::factory('BoardAd', $this->request->param('id'))->category;
-//        else
-//            $category = ORM::factory('BoardCategory', Request::current()->post('category_id'));
-//
-//        if($category->loaded() && $category->lvl > 2){
-//            $selected_parents = $category->parents(TRUE, TRUE)->as_array('lvl', 'id');
-//            for($i=$category->lvl; $i>=2; $i--){
-//                $_selected = isset($selected_parents[$i+1]) ? $selected_parents[$i+1] : NULL;
-//                $subcategories = $this->_render_subcategory_list($category, $_selected, $subcategories);
-//                $category = ORM::factory('BoardCategory', $category->parent_id);
-//            }
-//        }
-//        $this->response->body($subcategories);
-//    }
 
     /**
      * @param ORM_MPTT $category

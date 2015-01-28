@@ -13,7 +13,7 @@ $(function(){
             $('#regionAlias').val( $(this).data('alias') );
             $('#regionTopInput').val( $(this).data('title') );
             $(this).parents('.selectorWrapper').slideUp(50);
-            $('#boardTopForm').attr('action', generateFormUri()).submit();
+            $('#boardTopForm').submit();
         }
         else if($(this).data('action') == 'back'){
             $('#regionLabel .selectorWrapper:visible').slideUp(50);
@@ -50,7 +50,7 @@ $(function(){
             $('#categoryAlias').val( $(this).data('alias') );
             $('#categoryTopInput').val( $(this).text() );
             $(this).parents('.selectorWrapper').slideUp(50);
-            $('#boardTopForm').attr('action', generateFormUri()).submit();
+            $('#boardTopForm').submit();
         }
         else if($(this).data('action') == 'back'){
             $('#categoryLabel .selectorWrapper:visible').slideUp(50);
@@ -63,6 +63,12 @@ $(function(){
             addMouseUpEvent('#categoriesSubcats_'+ $(this).data('id'));
         }
     });
+
+$('#boardTopForm').submit(function(e){
+    e.preventDefault();
+    $(this).unbind('submit');
+    $(this).attr('action', generateFormUri()).submit();
+});
 
 /**
  * Parent filter change event handlers
@@ -80,11 +86,13 @@ $(function(){
  * @param target_id
  */
     function addMouseUpEvent(target_id){
+        $(document).unbind('mouseup');
         $(document).mouseup(function (e){
             var container = $(target_id);
-            if (!container.is(e.target) && container.has(e.target).length === 0)
+            if (!container.is(e.target) && container.has(e.target).length === 0){
                 $(target_id).hide(50);
-            $(document).unbind('mouseup');
+                $(document).unbind('mouseup');
+            }
         });
     }
 
@@ -100,6 +108,7 @@ $(function(){
         if(category)
             uri += '/'+category;
         uri += '.html';
+//        uri += '?' + $('#boardTopForm').serialize();
         return uri;
     }
 
@@ -125,17 +134,24 @@ $(function(){
  * @param value
  */
     function loadSubFilter(id, parent, value){
+        if(!value){
+            $('#filtersList select[data-id='+ id +']').attr("disabled", "disabled").html('');
+            return;
+        }
         $.ajax({
-            url: base_uri + "sub_filter/" + id,
+            url: base_uri+ "boardSearch/sub_filter/" + id,
             type: "POST",
             dataType: "json",
             data: {
                 parent: parent,
                 value: value
+            },
+            success: function(data){
+                if(data.content)
+                    $('#filtersList select[data-id='+ id +']').replaceWith(data.content).attr("disabled", false);
+                else
+                    $('#filtersList select[data-id='+ id +']').attr("disabled", "disabled").html('');
             }
         })
-        .done(function(data){
-            $('#filtersList select[data-id='+ id +']').replaceWith(data.content);
-        });
     }
 });

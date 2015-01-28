@@ -62,6 +62,10 @@ return array(
     'No filters found in selected category' => 'Фильтры в выбраной категории не найдены',
     '' => '',
 
+/* BOARD SEARCH */
+    'From' => 'От',
+    'To' => 'До',
+    'Any' => 'Все',
 
 /* OTHER */
     'Sell' => 'Продам',

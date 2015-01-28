@@ -402,6 +402,9 @@
 /*********************************
     BOARD SEARCH FORM FILTERS
 *********************************/
+#filtersList{
+    margin-top: 10px;
+}
 .board_search_form .filter{
     float: left;
     margin: 0px 20px 5px 0;
@@ -409,8 +412,16 @@
     .board_search_form .filter label{
         font-weight: bold;
         color: #fff;
+        margin: 0;
     }
-    .board_search_form .filter input{
+    .board_search_form .ms-drop li {
+        margin-left: 0;
+    }
+    .board_search_form .ms-drop label {
+        color: #333333;
+        font-weight: normal;
+    }
+    .board_search_form .filter input[type=text]{
         width: 70px;
     }
     .board_search_form .filter select{

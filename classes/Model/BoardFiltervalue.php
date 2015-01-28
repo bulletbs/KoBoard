@@ -51,8 +51,49 @@ class Model_BoardFiltervalue extends ORM{
      */
     public static function optlist2bin($optlist){
         $mask = 0;
-        foreach($optlist as $id=>$val)
-            $mask |= $val<<$id;
+//        foreach($optlist as $id=>$val)
+//            $mask |= $val<<$id;
+        for($i=0; $i < self::OPTIONLIST_BYTES_LENGTH * 8; $i++)
+            $mask |= isset($optlist[$i])<<$i;
         return $mask;
+    }
+
+    /**
+     * Convert options array to binary mysql argument
+     * @param $optlist
+     * @return string
+     */
+    public static function optlist2mysqlBin($optlist){
+        $bin = decbin(self::optlist2bin($optlist));
+        $bin = "b'".$bin."'";
+        return $bin;
+    }
+
+    /**
+     * Check if filter value exists
+     * @param $value
+     * @return bool
+     */
+    public static function haveValue($value){
+        if(is_array($value) && (isset($value['from']) || isset($value['to'])) )
+            return (int) Arr::get($value, 'from') || (int) Arr::get($value, 'to');
+        if(is_array($value) && count($value))
+            return true;
+        if(is_string($value) && !empty($value))
+            return true;
+        return false;
+
+    }
+
+    /**
+     * Check filters array values exists
+     * @param $values
+     * @return bool
+     */
+    public static function haveValues($values){
+        foreach($values as $value)
+            if(self::haveValue($value))
+                return true;
+        return false;
     }
 }

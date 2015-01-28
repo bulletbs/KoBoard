@@ -8,7 +8,7 @@ return array(
     'all_country'       => 'Вся Россия',
     'in_country'       => 'в России',
     'show_ads_on_main'       => true,
-    'price_value'       => 'грн.',
+    'price_value'       => 'руб.',
 
     /* TITLE settings */
     'refion_title'       => 'Бесплатные объявления <in_region>',

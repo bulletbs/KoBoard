@@ -5,6 +5,7 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
     public $skip_auto_content_apply = array(
         'cities',
         'filters',
+        'sub_filter',
     );
     const REGION_LIST_CACHE = 'searchRegionRendered';
     const CITY_LIST_CACHE = 'searchCitiesRendered_';
@@ -26,8 +27,8 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
         ));
         if($cat_alias){
             $category_id = Model_BoardCategory::getCategoryIdByAlias($cat_alias);
-            $filters = Model_BoardFilter::loadFiltersByCategory($category_id);
-            Model_BoardFilter::loadFilterValues($filters, Arr::get($_POST, 'filters', array()));
+            $filters = Model_BoardFilter::loadFiltersByCategory($category_id, TRUE);
+            Model_BoardFilter::loadSearchFilterValues($filters, Arr::get($_GET, 'filters', array()));
             $filters_view = View::factory('widgets/_board_filters_search_list', array(
                 'filters' => $filters,
             ))->render();
@@ -85,6 +86,31 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             ));
             $this->json['content'] = $template->render();
             Cache::instance()->set(self::FILTER_LIST_CACHE . $category->id, $this->json['content'], Date::HOUR*24);
+        }
+        echo json_encode($this->json);
+    }
+
+    /**
+     * Load subfilters
+     */
+    public function action_sub_filter(){
+        if(!$this->request->is_ajax() && $this->request->initial())
+            $this->go(Route::get('board')->uri());
+
+        $id = $this->request->param('id');
+        $parent = Arr::get($_POST, 'parent');
+        $value = Arr::get($_POST, 'value');
+
+        if($id && $parent && $value){
+            $parameters = array(
+                'data-id' => $id,
+                'data-parent' => $parent,
+            );
+            $options = Model_BoardFilter::loadSubFilterOptions($id, $value, TRUE);
+            if(!count($options))
+                $parameters['disabled'] = 'disabled';
+            $this->json['content'] = Form::select('filters['.$id.']', $options, $value, $parameters);
+            $this->json['status'] = TRUE;
         }
         echo json_encode($this->json);
     }

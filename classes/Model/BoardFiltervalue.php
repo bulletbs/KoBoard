@@ -39,7 +39,7 @@ class Model_BoardFiltervalue extends ORM{
     public static function bin2optlist($value){
         $optlist = array();
         for($i=0; $i < self::OPTIONLIST_BYTES_LENGTH * 8; $i++)
-            $optlist[$i] = $value & 1<<$i;
+            $optlist[$i] = ($value & 1<<$i) ? 1 : 0;
         return $optlist;
     }
 
@@ -95,5 +95,31 @@ class Model_BoardFiltervalue extends ORM{
             if(self::haveValue($value))
                 return true;
         return false;
+    }
+
+    /**
+     * Echoes filter value from filter item array
+     * received by Model_BoardFilter::loadFiltersByCategory
+     * and Model_BoardFilter::loadFilterValues
+     * @param $filter - $filters item array
+     * @return null|string
+     */
+    public static function echoFiltersValues($filter){
+        /* checkboxlist value */
+        if($filter['type'] == 'optlist'){
+            $values = array();
+            foreach(array_values($filter['options']) as $opt_id=>$opt)
+                if($filter['value'][$opt_id])
+                    $values[] = $opt;
+            return implode(', ', $values);
+        }
+        /* select options value */
+        elseif($filter['type'] == 'select' || $filter['type'] == 'childlist'){
+            if(isset($filter['options'][ $filter['value'] ]))
+                return $filter['options'][ $filter['value'] ];
+            return NULL;
+        }
+        /* simple value */
+        return $filter['value'];
     }
 }

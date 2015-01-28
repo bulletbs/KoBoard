@@ -18,6 +18,9 @@ return array(
     'Search for more user ads' => 'Найти другие объявления пользователя',
     'Send message to user' => 'Отправить пользователю сообщение',
     'Ad type' => 'Тип объявления',
+    'Business' => 'Комерческое',
+    'Private' => 'Частное',
+
     'Price' => 'Цена',
     'negotiable' => 'договорная',
     '' => '',

@@ -26,6 +26,14 @@
     <div class="detail-desc"><?php echo  nl2br($ad->description)?></div>
     <div class="line"></div>
     <?php endif?>
+    <?php foreach($filters as $filter_id=>$filter): ?>
+        <?php if(Model_BoardFiltervalue::haveValue($filter['value'])): ?>
+        <dl>
+        <dt><?php echo $filter['name'] ?></dt>
+        <dd><?php echo Model_BoardFiltervalue::echoFiltersValues($filter) ?></dd>
+        </dl>
+        <?php endif; ?>
+    <?php endforeach; ?>
     <dl>
         <dt><?php echo __('Price')?></dt>
         <dd><span class="price"><?php echo  $ad->price > 0? $ad->price.' '.$cfg['price_value']: __('negotiable')?></span></dd>

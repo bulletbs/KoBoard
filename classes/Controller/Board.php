@@ -218,6 +218,9 @@ class Controller_Board extends Controller_System_Page
                 $this->scripts[] = 'media/libs/bxSlider/jquery.bxslider.min.js';
                 $this->scripts[] = 'assets/board/js/board_gallery.js';
             }
+            /* Filters */
+            $filters = Model_BoardFilter::loadFiltersByCategory($ad->category_id);
+            Model_BoardFilter::loadFilterValues($filters, NULL, $ad->id);
 
             $this->scripts[] = 'assets/board/js/message.js';
 
@@ -225,6 +228,7 @@ class Controller_Board extends Controller_System_Page
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,
+                'filters' => $filters,
                 'city' => $city,
                 'cfg' => $this->board_cfg,
             ));

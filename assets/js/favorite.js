@@ -7,12 +7,17 @@ $(function(){
         $(this).text(oper == 'del' ? 'В избранное':'Удалить из избранного');
         e.preventDefault();
     });
-    $('#adList').on('click', '.ico_out_favorite, .ico_favorite', function(e){
+    $('#adList').on('click', '.ico_out_favorite, .ico_favorite, .remove_favorite', function(e){
+        e.preventDefault();
+        if($(this).hasClass('remove_favorite')){
+            makeFavorite($(this).data('id'), 'del');
+            $(this).parents('tr').fadeOut(200);
+            return;
+        }
         var oper = $(this).hasClass('ico_favorite') ? 'add' : 'del';
         makeFavorite($(this).data('item'), oper);
         $(this).attr('class', oper == 'del' ? 'ico_favorite' : 'ico_out_favorite');
         $(this).attr('title', oper == 'del' ? 'В избранное':'Удалить из избранного');
-        e.preventDefault();
     });
 
     /* After load favorite icons checker */
@@ -32,14 +37,13 @@ $(function(){
         $.ajax({
             data: {id:id, oper:oper},
             type: 'post',
-            datatype: 'json',
+            dataType: 'json',
             url: base_uri + "favset"
         }).done(function(data) {
-                if(data.message)
-                    alert(data.message);
-                if(data.favcount)
-                    $('#favCount').text(data.favcount)
-            });
+            if(data.message)
+                alert(data.message);
+            $('#favCount').text(data.favcount > 0 ? ' ('+data.favcount+')' : '');
+        });
     }
 
     /**

@@ -31,7 +31,7 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
             'list'=>array(0=>'Корневая категория'),
             'selected'=>0,
         )),
-        'subcats' => array('type'=>'call_view', 'data'=>'admin/categories/formOptions'),
+        'subcats' => array('type'=>'call_view', 'data'=>'admin/categories/boardCategoryOptions'),
     );
 
     public $_sort_fields = array(

@@ -87,6 +87,31 @@ $(function(){
         return null;
     });
 
+    /* Жалоба */
+    $('#ico_note').click(function(e){
+        e.preventDefault();
+        $('#addabuse').toggle();
+        $('#abuseform').submit(function(e){
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: base_uri+ 'addabuse',
+                dataType: 'json',
+                data: {
+                    'ad_id':$(this).data('id'),
+                    'type': $('#abuseType').val()
+                },
+                success: function(data){
+                    $('#addabuse').html(data.message);
+                    $('#addabuse').addClass('alert-box success');
+                }
+            });
+        });
+    });
+
+/**
+ * FUNCTIONS
+ * */
     function show_address(showAddr){
         ymaps.geocode(showAddr, { results: 1 }).then(function (res) {
             var firstGeoObject = res.geoObjects.get(0);

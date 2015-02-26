@@ -1,13 +1,13 @@
 <?php
 
-class Controller_Admin_BoardNewCategories extends Controller_Admin_Crud{
+class Controller_Admin_BoardCategoriesNew extends Controller_Admin_Crud{
 
     public $submenu = 'adminBoardMenu';
 
     protected $_item_name = 'category';
     protected $_crud_name = 'Board categories';
 
-    protected $_model_name = 'BoardCategory';
+    protected $_model_name = 'BoardCategoryNew';
 
     /**
      * Actions with manual rendering
@@ -31,7 +31,7 @@ class Controller_Admin_BoardNewCategories extends Controller_Admin_Crud{
             'list'=>array(0=>'Корневая категория'),
             'selected'=>0,
         )),
-        'subcats' => array('type'=>'call_view', 'data'=>'admin/categories/formOptions'),
+        'subcats' => array('type'=>'call_view', 'data'=>'admin/categories/boardCategoryOptions'),
     );
 
     public $_sort_fields = array(
@@ -67,7 +67,7 @@ class Controller_Admin_BoardNewCategories extends Controller_Admin_Crud{
 
         /* Parent_id field intialize */
         $this->_form_fields['parent_id']['data']['options'][0] = 'Основные категории';
-        $this->_form_fields['parent_id']['data']['options'] += ORM::factory('BoardCategory')->getFullDepthArray();
+        $this->_form_fields['parent_id']['data']['options'] += ORM::factory($this->_model_name)->getFullDepthArray();
         if(!$model->loaded() && $parent_id = Arr::get($this->request->query(),'parent_id'))
             $this->_form_fields['parent_id']['data']['selected'] = $parent_id;
         else
@@ -92,8 +92,8 @@ class Controller_Admin_BoardNewCategories extends Controller_Admin_Crud{
         if(Arr::get($_POST, 'parent_id') && $model->parent_id != Arr::get($_POST, 'parent_id')){
             if($model->loaded())
                 $model->delete();
-            $parent = ORM::factory('BoardCategory', Arr::get($_POST, 'parent_id'));
-            $model = ORM::factory('BoardCategory');
+            $parent = ORM::factory($this->_model_name, Arr::get($_POST, 'parent_id'));
+            $model = ORM::factory($this->_model_name);
             $model->values(Arr::extract($_POST, array('name', 'alias')));
             if(empty($model->alias))
                 $model->alias = Text::transliterate($model->name, true);
@@ -105,7 +105,7 @@ class Controller_Admin_BoardNewCategories extends Controller_Admin_Crud{
 
         /* Save New Options */
         foreach(Arr::get($_POST,'newOptions', array()) as $option){
-            $newOption = ORM::factory('BoardCategory')->values(array('name'=>$option));
+            $newOption = ORM::factory($this->_model_name)->values(array('name'=>$option));
             $newOption->alias = Text::transliterate($newOption->name, true);
             $newOption->insert_as_last_child($model);
         }
@@ -113,7 +113,7 @@ class Controller_Admin_BoardNewCategories extends Controller_Admin_Crud{
         /* Save Present Options */
         echo Debug::vars($_POST);
         foreach(Arr::get($_POST,'options', array()) as $k=>$option){
-            $option = ORM::factory('BoardCategory', $k)->values(array('name'=>$option));
+            $option = ORM::factory($this->_model_name, $k)->values(array('name'=>$option));
             if(empty($option->alias))
                 $option->alias = Text::transliterate($option->name, true);
             $option->update();
@@ -121,7 +121,7 @@ class Controller_Admin_BoardNewCategories extends Controller_Admin_Crud{
 
         /* Delete Options */
         foreach(Arr::get($_POST,'deleted', array()) as $option)
-            ORM::factory('BoardCategory', $option)->delete();
+            ORM::factory($this->_model_name, $option)->delete();
 
         Cache::instance()->delete('fullDepthCategories');
         Cache::instance()->delete('firstLevelCategories');

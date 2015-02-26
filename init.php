@@ -1,12 +1,12 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-
 if(!Route::cache()){
     $board_base_url = '';
     $_init_actions = array(
         'main',
         'add',
         'goto',
+        'favorites',
 
     );
     Route::set('board', $board_base_url . '(<action>(/<id>)(/p<page>))', array('action' => '('.implode('|', $_init_actions).')', 'page' => '[0-9]+'))

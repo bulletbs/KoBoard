@@ -25,6 +25,9 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             'city_alias' => $city_alias,
             'cat_alias' => $cat_alias,
         ));
+
+        /* CATEGORY NAME & FILTERS */
+        $category_name = '';
         if($cat_alias){
             $category_id = Model_BoardCategory::getCategoryIdByAlias($cat_alias);
             $filters = Model_BoardFilter::loadFiltersByCategory($category_id, TRUE);
@@ -32,13 +35,24 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             $filters_view = View::factory('widgets/_board_filters_search_list', array(
                 'filters' => $filters,
             ))->render();
+            if($category_id)
+                $category_name = Model_BoardCategory::getField('name', $category_id);
         }
+
+        /* REGION NAME */
+        $region_name = '';
+        if($city_alias){
+            $region_id = Model_BoardCity::getCityIdByAlias($city_alias);
+            if($region_id)
+                $region_name = Model_BoardCity::getField('name', $region_id);
+        }
+
         $this->template->set(array(
             'form_action' => $form_action,
             'city_list' => $this->_regionListRender(),
             'category_list' => $this->_categoryListRender(),
-            'region_name' =>  Request::current()->post('region_name'),
-            'category_name' => Request::current()->post('category_name'),
+            'region_name' =>  $region_name,
+            'category_name' => $category_name,
             'region_ailas' => $city_alias,
             'category_alias' => $cat_alias,
             'filters' => isset($filters_view) ? $filters_view : '',

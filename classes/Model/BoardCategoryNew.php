@@ -1,22 +1,22 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
-class Model_BoardCategory extends ORM_MPTT{
+class Model_BoardCategoryNew extends ORM_MPTT{
 
-    CONST BOARD_CATEGORIES_CACHE = 'boardCategoriesList';
-    CONST BOARD_TREE_CACHE = 'boardCategoriesTree';
-    CONST BOARD_ALIASES_CACHE = 'boardCategoriesAliases';
-    CONST BOARD_NAMES_CACHE = 'boardCategoriesNames';
+    CONST BOARD_CATEGORIES_CACHE = 'boardCategoriesListNew';
+    CONST BOARD_TREE_CACHE = 'boardCategoriesTreeNew';
+    CONST BOARD_ALIASES_CACHE = 'boardCategoriesAliasesNew';
+    CONST BOARD_NAMES_CACHE = 'boardCategoriesNamesNew';
 
-    CONST TWO_LEVEL_CACHE = 'boardTwoLevelCategories';
-    CONST FULL_DEPTH_CACHE = 'boardFullDepthCategories';
-    CONST PARENTS_CACHE = 'boardCategoryParents_';
-    CONST CHILDREN_CACHE = 'boardCategoryChilds_';
+    CONST TWO_LEVEL_CACHE = 'boardTwoLevelCategoriesNew';
+    CONST FULL_DEPTH_CACHE = 'boardFullDepthCategoriesNew';
+    CONST PARENTS_CACHE = 'boardCategoryParentsNew_';
+    CONST CHILDREN_CACHE = 'boardCategoryChildsNew_';
 
     CONST CATEGORIES_CACHE_TIME = 86400;
 
     protected $_reload_on_wakeup   = FALSE;
 
-    protected $_table_name = 'ad_categories';
+    protected $_table_name = 'ad_categories_new';
     protected $_uriToMe;
 
     public static $categories;

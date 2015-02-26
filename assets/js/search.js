@@ -1,5 +1,22 @@
 $(function(){
     var base_uri = '/';
+
+/**
+ * Города показать все или только крупные
+ */
+    $('#showAllCity').click(function(e){
+        $(this).addClass('active');
+        $('#showBigCity').removeClass('active');
+        $('#city_list li.smallcity').show();
+        e.preventDefault();
+    });
+    $('#showBigCity').click(function(e){
+        $(this).addClass('active');
+        $('#showAllCity').removeClass('active');
+        $('#city_list li.smallcity').hide();
+        e.preventDefault();
+    });
+
 /**
  * Regions selector
  */

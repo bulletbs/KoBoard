@@ -8,7 +8,7 @@
     <?endforeach;?>
     </div>
     <br>
-    <?= Form::input('add', 'Add subcat', array('id'=>'addButton', 'type'=>'button'))?>
+    <?= Form::input('add', __('Add category'), array('type'=>'button', 'class'=>'btn addButton'))?>
 </div>
 <div id="deletedOptions"></div>
 

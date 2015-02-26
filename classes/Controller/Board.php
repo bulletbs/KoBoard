@@ -46,7 +46,7 @@ class Controller_Board extends Controller_System_Page
                 $this->breadcrumbs->add(__('Доска объявлений'), Route::get('board')->uri());
 
             /* Side widgets */
-            $this->template->right_column = View::factory('board/side_column');
+//            $this->template->right_column = View::factory('board/side_column');
         }
     }
 
@@ -55,14 +55,10 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_main(){
 //        if(!$content = Cache::instance()->get("BoardMainPage")){
-            $categories[0] = ORM::factory('BoardCategory')->where('lvl','=','1')->find_all();
-            $result = ORM::factory('BoardCategory')->where('lvl','=','2')->find_all();
-            foreach($result as $subcat)
-                $categories[$subcat->parent_id][] = $subcat;
-            $content = View::factory('board/main')->set(array(
-                'categories'=>$categories,
-                'categories_count'=>count($categories, COUNT_RECURSIVE),
-            ))->render();
+            $this->breadcrumbs = Breadcrumbs::factory();
+            $this->scripts[] = "assets/board/js/jquery.highlight.js";
+            $this->scripts[] = "assets/board/js/jquery.tooltip.js";
+            $content = View::factory('board/map');
             Cache::instance()->set("BoardMainPage", $content, 600);
 //        }
         $this->template->content = $content;
@@ -85,16 +81,20 @@ class Controller_Board extends Controller_System_Page
             foreach($parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri());
             $this->breadcrumbs->add($city->name, $city->getUri());
-            $descedants = $city->descendants(TRUE)->as_array('id');
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
+                $city_counter = DB::select('city_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $city->id)->group_by('city_id')->order_by('cnt', 'DESC')->cached(Model_BoardAd::CACHE_TIME)->execute();
+                foreach($city->descendants(TRUE)->as_array('id') as $_city)
+                    if($_city->lvl == $city->lvl+1)
+                        $childs_cities[$_city->alias] = $_city->name;
+                $this->template->content->set(array(
+                    'childs_cities' => $childs_cities,
+                    'city_counter'=> $city_counter,
+                ));
             }
             else{
                 $ads->and_where('city_id','=',$city->id);
             }
-            foreach($descedants as $_city)
-                if($_city->lvl == $city->lvl+1)
-                    $childs_cities[$_city->alias] = $_city->name;
         }
         elseif($city_alias == 'all'){
             $title = $this->board_cfg['in_country'];
@@ -179,11 +179,11 @@ class Controller_Board extends Controller_System_Page
             $ads_ids[] = $_ad->id;
         $photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
 
+        $this->template->search_form = Widget::factory('BoardSearch')->render();
         $this->template->content->set(array(
             'title' => $title,
             'city' => $city,
             'category' => $category,
-            'childs_cities' => $childs_cities,
             'childs_categories' => $childs_categories,
             'ads' => $ads,
             'photos' => $photos,
@@ -200,15 +200,18 @@ class Controller_Board extends Controller_System_Page
         $alias = $this->request->param('alias');
         $ad = Model_BoardAd::boardOrmFinder()->and_where('id','=',$id)->limit(1)->execute();
         $ad = $ad[0];
-        if($ad->loaded() && Text::transliterate($ad->title, true) == $alias){
-            $ad->views += 1;
-            $ad->update();
+        if($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) == $alias){
+            $ad->increaseViews();
 
-            /* Breadcrumbs */
-            $city = ORM::factory('BoardCity', $ad->city_id);
-            $this->breadcrumbs->add($city->name, $city->getUri());
-            $parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true)->as_array('id');
-            foreach($parents as $_parent)
+            /* Breadcrumbs & part parents */
+            $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
+            foreach($city_parents as $_parent)
+                $this->breadcrumbs->add($_parent->name, $_parent->getUri());
+            $city =& $city_parents[$ad->city_id];
+            $region =& $city_parents[$city->parent_id];
+
+            $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
+            foreach($category_parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri());
 
             /* Photos */
@@ -218,19 +221,67 @@ class Controller_Board extends Controller_System_Page
                 $this->scripts[] = 'media/libs/bxSlider/jquery.bxslider.min.js';
                 $this->scripts[] = 'assets/board/js/board_gallery.js';
             }
+
+            /* Other user ads */
+            if($ad->user_id>0 || !empty($ad->email)){
+                $user_ads = Model_BoardAd::boardOrmFinder()
+                    ->and_where('id', '<>', $ad->id)
+                    ->limit(10);
+                if($ad->user_id > 0)
+                    $user_ads->and_where('user_id', '=', $ad->user_id);
+                elseif(!empty($ad->email))
+                    $user_ads->and_where('email', '=', $ad->email);
+                $user_ads = $user_ads->execute();
+                if(count($user_ads)){
+                    $user_ads_ids = array();
+                    foreach($user_ads as $_ad)
+                        $user_ads_ids[] = $_ad->id;
+
+                    $this->template->content->set(array(
+                        'user_ads' => $user_ads,
+                        'user_ads_photos' => Model_BoardAdphoto::adsPhotoList($user_ads_ids),
+                    ));
+                }
+            }
+
+            /* Similar ads */
+            $table = ORM::factory('BoardAd')->table_name();
+            $sim_ads = DB::select($table.'.*')->from($table)
+                ->select(array(DB::expr('round(MATCH (title) AGAINST ("'.$ad->title.'"))'), 'rel'))
+                ->and_where('publish', '=', 1)
+                ->and_where('category_id', '=', $ad->category_id)
+                ->and_where('id', '<>', $ad->id)
+                ->order_by('rel', 'DESC')
+                ->limit(10)
+                ->as_object(get_class(ORM::factory('BoardAd')))
+                ->execute();
+            if(count($sim_ads)){
+                $sim_ads_ids = array();
+                foreach($sim_ads as $_ad)
+                    $sim_ads_ids[] = $_ad->id;
+                $this->template->content->set(array(
+                    'sim_ads' => $sim_ads,
+                    'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList($sim_ads_ids),
+                ));
+            }
+
             /* Filters */
             $filters = Model_BoardFilter::loadFiltersByCategory($ad->category_id);
             Model_BoardFilter::loadFilterValues($filters, NULL, $ad->id);
 
             $this->scripts[] = 'assets/board/js/message.js';
 
-            $this->template->right_column = View::factory('board/side_ad_column');
+            $this->template->search_form = Widget::factory('BoardSearch')->render();
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,
                 'filters' => $filters,
+                'region_cities_ids' => $region->getChildrenId(),
                 'city' => $city,
-                'cfg' => $this->board_cfg,
+                'city_parents' => $city_parents,
+                'category_parents' => $category_parents,
+                'config' => $this->config,
+                'board_config' => $this->board_cfg,
             ));
         }
         else
@@ -475,6 +526,7 @@ class Controller_Board extends Controller_System_Page
     public function action_favorites(){
         $ads = array();
         $photos = array();
+        $pagination = '';
         if(isset($_COOKIE['board_favorites']) && count($_COOKIE['board_favorites'])){
             $count = count($_COOKIE['board_favorites']);
             $pagination = Pagination::factory(array(
@@ -550,6 +602,29 @@ class Controller_Board extends Controller_System_Page
         }
         else{
             throw new HTTP_Exception_404('Requested page not found');
+        }
+    }
+
+    /**
+     * Add user abuse to DB
+     * @throws Kohana_Exception
+     */
+    public function action_addabuse(){
+        if(!$this->request->is_ajax())
+            $this->go(Route::get('board')->uri());
+
+        $this->json['status'] = TRUE;
+        $type = Request::$current->post('type');
+        $ad_id = Request::$current->post('ad_id');
+        if(!is_null($type) && $ad_id){
+            ORM::factory('BoardAbuse')
+                ->set('ad_id', $ad_id)
+                ->set('type', $type)
+                ->save();
+            $this->json['message'] = __('Your complaint was sent to administration');
+        }
+        else{
+            $this->json['message'] = __('Error occurred while sending complaint');
         }
     }
 
@@ -636,10 +711,10 @@ class Controller_Board extends Controller_System_Page
             ->from($this->config->robot_email)
             ->subject($this->config['project']['name'] .': '. __('New classified ad confirmation'))
             ->message(View::factory('board/ad_confirm_letter', array(
-                        'user'=>$user,
-                        'site_name'=> $this->config['project']['name'],
-                        'server_name'=> $_SERVER['HTTP_HOST'],
-                        'activation_link'=> 'board/confirm/'.$ad->id.'-'.$ad->key,
+                    'user'=>$user,
+                    'site_name'=> $this->config['project']['name'],
+                    'server_name'=> $_SERVER['HTTP_HOST'],
+                    'activation_link'=> 'board/confirm/'.$ad->id.'-'.$ad->key,
                 ))->render()
                 , true)
             ->send();

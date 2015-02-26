@@ -10,7 +10,7 @@ class Model_BoardAbuse extends ORM{
         4 => 'Не актуально',
     );
 
-    protected $_table_name = 'ad_complaints';
+    protected $_table_name = 'ad_abuses';
 
     protected $_belongs_to = array(
         'ad' => array(

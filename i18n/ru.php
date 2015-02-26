@@ -31,6 +31,8 @@ return array(
     'Send message' => 'Отправить сообщение',
     'Message from bulletin board' => 'сообщение с доски объявений',
     'Your message successfully sended' => 'Ваше сообщение успешно отправлено',
+    'Your complaint was sent to administration' => 'Ваше жалоба успешно отправлена',
+    'Error occurred while sending complaint' => 'Возникла ошибка во время отправки жалобы',
     '' => '',
 
     'My ads' => 'Мои объявления',

@@ -104,12 +104,12 @@ class Model_BoardCity extends ORM_MPTT{
      * @return array|mixed
      */
     public static function getField($field, $id = null){
-        $benchmark = Profiler::start('Cities', __FUNCTION__);
+//        $benchmark = Profiler::start('Cities', __FUNCTION__);
         if(isset(self::$fields[$field])){
-            if($id == 0){
-                echo Debug::vars($field);
-                die($id);
-            }
+//            if($id == 0){
+//                echo Debug::vars($field);
+//                die($id);
+//            }
             return !is_null($id) ? self::$fields[$field][$id] : self::$fields[$field];
         }
         if(NULL === $array = Cache::instance()->get('BoardCityFieldArray'.ucfirst($field))){
@@ -117,7 +117,7 @@ class Model_BoardCity extends ORM_MPTT{
             Cache::instance()->set('BoardCityFieldArray'.ucfirst($field), $array, self::CITIES_CACHE_TIME);
         }
         self::$fields[$field] = $array;
-        Profiler::stop($benchmark);
+//        Profiler::stop($benchmark);
         return !is_null($id) ? self::$fields[$field][$id] : self::$fields[$field];;
     }
 
@@ -127,12 +127,9 @@ class Model_BoardCity extends ORM_MPTT{
      * @return bool
      */
     public static function getCityIdByAlias($alias){
-        $benchmark = Profiler::start('Cities', __FUNCTION__);
-        if(is_int($id = self::getAliases($alias))){
-            Profiler::stop($benchmark);
+        if((int) ($id = self::getAliases($alias))){
             return $id;
         }
-        Profiler::stop($benchmark);
         return false;
     }
 
@@ -224,8 +221,8 @@ class Model_BoardCity extends ORM_MPTT{
         return $this->_uriToMe;
     }
 
-    public static function generateUri($alias){
-        $cat = Request::initial()->param('cat_alias');
+    public static function generateUri($alias, $cat_alias=NULL){
+        $cat = !empty($cat_alias) ? $cat_alias : Request::initial()->param('cat_alias');
         $uri = Route::get($cat ? 'board_cat' : 'board_city')->uri(array(
             'cat_alias' => $cat,
             'city_alias' => $alias,

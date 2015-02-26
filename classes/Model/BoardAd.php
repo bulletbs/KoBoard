@@ -267,6 +267,17 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Return ad print uri
+     * @return string
+     */
+    public function getPrintLink(){
+        return URL::base().Route::get('board')->uri(array(
+            'action' => 'print',
+            'id' => $this->id,
+        ));
+    }
+
+    /**
      * Redirection to source url
      */
     public function gotoSource(){
@@ -349,5 +360,13 @@ class Model_BoardAd extends ORM{
             return (date('d.m.Y', $this->addtime). ' - <small class="quiet">' .date('H:i', $this->addtime) .'</small>');
         }
         return parent::__get($name);
+    }
+
+    /**
+     * Increase AD view counter
+     */
+    public function increaseViews(){
+        $this->views += 1;
+        $this->update();
     }
 }

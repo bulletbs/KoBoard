@@ -103,7 +103,7 @@ $(function(){
                 },
                 success: function(data){
                     $('#addabuse').html(data.message);
-                    $('#addabuse').addClass('alert-box success');
+                    $('#addabuse').addClass('pure-alert pure-alert-`success');
                 }
             });
         });

@@ -65,6 +65,13 @@ return array(
     'Filter options' => 'Значения фильтра',
     'Add option' => 'Добавить значение',
     'No filters found in selected category' => 'Фильтры в выбраной категории не найдены',
+
+    'Abuses' => 'Жалобы',
+    'Abuse type' => 'Тип жалобы',
+    'Ad title' => 'Заголовок объявления',
+    'All abuses (:count) was successfully deleted' => 'Все жалобы (:count) были успешно удалены',
+    'Delete all' => 'Удалить все',
+    'Delete selected' => 'Удалить выбраные',
     '' => '',
 
 /* BOARD SEARCH */

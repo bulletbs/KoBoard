@@ -34,7 +34,6 @@ class Controller_Board extends Controller_System_Page
         $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
 
         $this->scripts[] = "assets/board/js/favorite.js";
-        $this->scripts[] = "assets/board/js/search.js";
         $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
 
         /* Config */
@@ -70,6 +69,8 @@ class Controller_Board extends Controller_System_Page
     public function action_search(){
         $title = '';
         $ads = Model_BoardAd::boardOrmFinder();
+
+        $this->scripts[] = "assets/board/js/search.js";
 
         /* Поиск по городу */
         $childs_cities = array();

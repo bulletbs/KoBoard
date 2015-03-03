@@ -1,15 +1,15 @@
 <div id="categoriesList" class="pure-g selectorWrapper st-level">
     <ul class="top_link"><li data-action="go" data-alias="" data-title="Категория">Искать по всем разделам</li></ul>
     <h3>Разделы</h3>
-    <div class="pure-u-1-3">
+    <div class="pure-u-1-4">
         <?$_i = 0;?>
         <ul>
             <?foreach($categories as $category):?>
-            <?if($_i>1 && $_i>ceil(count($categories) / 3)):?>
+            <?if($_i>1 && $_i>ceil(count($categories) / 4)):?>
             <?$_i = 0?>
         </ul>
     </div>
-    <div class="pure-u-1-3">
+    <div class="pure-u-1-4">
         <ul><?endif;?><?$_i++?><li data-action="children" data-id="<?php echo $category['id']?>" data-alias="<?php echo $category['alias']?>" data-title="<?php echo $category['name']?>"><?php echo $category['name']?></li><?endforeach?></ul>
     </div>
 </div>

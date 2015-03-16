@@ -1,6 +1,6 @@
 <?php
 
-class Controller_Admin_BoardCategoriesNew extends Controller_Admin_Crud{
+class Controller_Admin_BoardCategoriesJB extends Controller_Admin_Crud{
 
     public $submenu = 'adminBoardMenu';
 

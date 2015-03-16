@@ -72,6 +72,7 @@ return array(
     'All abuses (:count) was successfully deleted' => 'Все жалобы (:count) были успешно удалены',
     'Delete all' => 'Удалить все',
     'Delete selected' => 'Удалить выбраные',
+    'Move ads' => 'Перенести объявления',
     '' => '',
 
 /* BOARD SEARCH */

@@ -22,7 +22,8 @@ $(document).ready(function(){
             method: 'post',
             data: {
                 type_id: type_id ,
-                model_id: model_id
+                model_id: model_id,
+                category_id: $('#form_select_category_id').val()
             }
         }).done(function(data){
             $('#filterOptions').html(data.content);
@@ -37,7 +38,7 @@ $(document).ready(function(){
 
 
     /**
-     * Type Selector
+     * Parent options selector
      * @type {*|jQuery|HTMLElement}
      */
     $('#filterOptions').on('change', '#parentFilter', function(){
@@ -48,7 +49,8 @@ $(document).ready(function(){
             data: {
                 type_id: $('#form_select_type').val(),
                 model_id: model_id,
-                parent_id: $('#parentFilter').val()
+                parent_id: $('#parentFilter').val(),
+                category_id: $('#form_select_category_id').val()
             }
         }).done(function(data){
             $('#filterOptions').html(data.content);

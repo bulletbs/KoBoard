@@ -18,6 +18,7 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
     public $_form_fields = array(
         'name' => array('type'=>'text'),
         'units' => array('type'=>'text'),
+        'main' => array('type'=>'checkbox'),
         'category_id' => array('type'=>'select', 'data'=>array(
             'list'=>array(),
             'selected'=>0,
@@ -36,7 +37,7 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
     );
 
     public $form_fields_save_extra = array(
-        'parent_id'
+        'parent_id',
     );
 
     public $_sort_fields = array(
@@ -56,6 +57,16 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
 
     protected $_ordeby_field = 'ordr';
     protected $_ordeby_direction = 'ASC';
+
+    public function before(){
+        $this->skip_auto_render[] = 'showGeo';
+        $this->skip_auto_render[] = 'showCats';
+        $this->skip_auto_render[] = 'showSubCats';
+        $this->skip_auto_render[] = 'showFilters';
+        $this->skip_auto_render[] = 'showParams';
+        $this->skip_auto_render[] = 'filtersFromJSON';
+        parent::before();
+    }
 
     public function action_index(){
         /* TYPE_ID filter field init */
@@ -196,6 +207,8 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
         elseif($type == 5){
             $view = 'admin/filters/boardChildlistOptions';
             $model = ORM::factory('BoardFilter', $model_id);
+            if(!$model->category_id && Arr::get('category_id', $_POST))
+                $model->category_id = Arr::get('category_id', $_POST);
             if($this->request->post('category_id'))
                 $model->category_id = $this->request->post('category_id');
             $parent_filters = ORM::factory('BoardFilter')->where('type', '=', 0)->and_where('parent_id', '=', 0)->and_where('category_id', '=', $model->category_id)->order_by('ordr')->find_all()->as_array('id', 'name');
@@ -225,5 +238,143 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
         if(isset($view))
             return View::factory($view)->set($data)->render();
         return NULL;
+    }
+
+    /* Show OLX GEO data */
+    public function action_showGeo(){
+        $str = file_get_contents(MODPATH.'board/data/geotop.json');
+        $var = json_decode($str);
+        echo Debug::vars( $var );
+    }
+
+    /* Show OLX CATEGORIES data */
+    public function action_showCats(){
+        $str = file_get_contents(MODPATH.'board/data/categories.json');
+        $var = json_decode($str);
+        echo Debug::vars( $var );
+    }
+
+    /* Show OLX SUBCATEGORIES data */
+    public function action_showSubCats(){
+        $str = file_get_contents(MODPATH.'board/data/subcategories.json');
+        $var = json_decode($str);
+        echo Debug::vars( $var );
+    }
+
+    /* Show OLX FILERS data */
+    public function action_showFilters(){
+        $str = file_get_contents(MODPATH.'board/data/filters.json');
+        $var = json_decode($str);
+        echo Debug::vars( $var );
+    }
+
+    /* Show OLX FILERS data */
+    public function action_showParams(){
+        $str = file_get_contents(MODPATH.'board/data/params.json');
+        $var = json_decode($str);
+        echo Debug::vars( $var );
+    }
+
+    public function action_filtersFromJSON(){
+        DB::delete('ad_category_filters')->execute();
+        DB::delete('ad_category_filter_options')->execute();
+        DB::query(NULL, 'ALTER TABLE ad_category_filters AUTO_INCREMENT=1')->execute();
+        DB::query(NULL, 'ALTER TABLE ad_category_filter_options AUTO_INCREMENT=1')->execute();
+
+        $olx_to_our = array();
+        $olx_to_filter = array();
+        $olx_to_option = array();
+        $subfilter_to_our = array();
+        $filter_params = array();
+        $filter_cats = array();
+
+        $our_cats = ORM::factory('BoardCategory')->find_all()->as_array('name', 'id');
+
+        $cats = json_decode(file_get_contents(MODPATH.'board/data/categories.json'));
+        $subcats = json_decode(file_get_contents(MODPATH.'board/data/subcategories.json'));
+        $filters = json_decode(file_get_contents(MODPATH.'board/data/filters.json'));
+
+        $params = json_decode(file_get_contents(MODPATH.'board/data/params.json'));
+        foreach($params as $param)
+            $filter_params[$param->parameter->key] = $param;
+
+        /* setting our cat ids */
+        foreach($cats as $catid=>$cat){
+            if(isset($our_cats[$cat->name]))
+                $olx_to_our[$cat->id] = $our_cats[$cat->name];
+            foreach($cat->children as $subcatid=>$subcat){
+                if(isset($our_cats[$subcat->name]))
+                    $olx_to_our[$subcat->id] = $our_cats[$subcat->name];
+            }
+        }
+
+        /* create first level filters */
+        foreach($subcats as $filters_id => $_filters){
+            if(isset($olx_to_our[$filters_id])){
+                $label = ORM::factory('BoardFilter')->values(array(
+                    'category_id' => $olx_to_our[$filters_id],
+                    'name' => $_filters->search_label,
+                    'main' => 1,
+                ))->save();
+
+                foreach($_filters->children as $option_id => $option){
+                    $value = ORM::factory('BoardOption')->values(array(
+                        'filter_id' => $label->pk(),
+                        'value' => $option->label,
+                        'alias' => $option->code,
+                    ))->save();
+                        $olx_to_option[$option_id] = $value->pk();
+                    $filter_cats[$option_id] = $olx_to_our[$filters_id];
+                    $olx_to_filter[$option_id] = $label->pk();
+                }
+            }
+        }
+
+//        echo Debug::vars($olx_to_option);
+        /* create second level filters and parameter-filters */
+        foreach($filters as $filters_id => $_filters){
+            $param_id = each($_filters->k);
+            $param_id = $param_id['key'];
+            $param = $filter_params[ $param_id ];
+            $category = each($param->categories);
+            $category = $category['key'];
+
+            /* Getting our category */
+            $our_category = 0;
+            if(isset($olx_to_our[$category]))
+                $our_category = $olx_to_our[$category];
+            elseif(isset($filter_cats[$category]))
+                $our_category = $filter_cats[$category];
+
+            /* Create filters */
+            if($our_category){
+                /* Create filter label */
+                if(!isset($subfilter_to_our[$param_id])){
+                    $label = ORM::factory('BoardFilter')->values(array(
+                        'category_id' => $our_category,
+                        'name' => $param->parameter->label,
+                        'type' => isset($olx_to_option[$category]) ? Model_BoardFilter::CHILDLIST_TYPE : Model_BoardFilter::SELECT_TYPE ,
+                    ));
+                    if(isset($olx_to_filter[$category]))
+                        $label->set('parent_id', $olx_to_filter[$category]);
+                    $label->save();
+                    $subfilter_to_our[$param_id] = $label->pk();
+                }
+
+                /* Create filter options */
+                foreach($_filters->v as $option_id => $option){
+                    $value = ORM::factory('BoardOption')->values(array(
+                        'filter_id' => $subfilter_to_our[$param_id],
+                        'value' => $option,
+                    ));
+                    if(isset($olx_to_option[$category])){
+                        $value->set('parent_id', $olx_to_option[$category]);
+                    }
+                    $value->save();
+                }
+            }
+        }
+
+
     }
 }

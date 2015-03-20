@@ -8,7 +8,7 @@ var multiselect_options = {
     selectAll: false
 };
 </script>
-<?//echo Debug::vars($filters)?>
+<? // echo Debug::vars($filters); die(); ?>
 <?if(count($filters)):?>
     <?foreach($filters as $filter_id=>$data):?>
     <div class="filter">

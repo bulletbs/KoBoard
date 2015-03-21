@@ -132,7 +132,7 @@ class Controller_Board extends Controller_System_Page
 //            echo Debug::vars($filters);
 //            echo Debug::vars($filters_values);
             foreach($filters_values as $_id=>$_val){
-                if(Model_BoardFiltervalue::haveValue($_val)){
+                if(Model_BoardFiltervalue::haveValue($_val) && isset($filters[$_id])){
                     $ads->join(array('ad_filter_values','afv'.$_id), 'INNER');
                     $ads->on('afv'.$_id.'.filter_id','=',DB::expr($_id));
                     $ads->on('afv'.$_id.'.ad_id', '=', 'ads.id');

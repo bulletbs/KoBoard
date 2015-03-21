@@ -341,15 +341,22 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
 
             /* Getting our category */
             $our_category = 0;
-            if(isset($olx_to_our[$category]))
-                $our_category = $olx_to_our[$category];
-            elseif(isset($filter_cats[$category]))
+            if(isset($olx_to_filter[$category])){
                 $our_category = $filter_cats[$category];
+                $parent_filter_id = $olx_to_filter[$category];
+//                if($category == 264){
+//                    echo Debug::vars($our_category);
+//                }
+            }
+            elseif(isset($olx_to_our[$category])){
+                $our_category = $olx_to_our[$category];
+                $parent_filter_id = $filters_id * -1;
+            }
 
             /* Create filters */
             if($our_category){
                 /* Create filter label */
-                if(!isset($subfilter_to_our[$param_id])){
+                if(!isset($subfilter_to_our[$parent_filter_id])){
                     $label = ORM::factory('BoardFilter')->values(array(
                         'category_id' => $our_category,
                         'name' => $param->parameter->label,
@@ -358,13 +365,13 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
                     if(isset($olx_to_filter[$category]))
                         $label->set('parent_id', $olx_to_filter[$category]);
                     $label->save();
-                    $subfilter_to_our[$param_id] = $label->pk();
+                    $subfilter_to_our[$parent_filter_id] = $label->pk();
                 }
 
                 /* Create filter options */
                 foreach($_filters->v as $option_id => $option){
                     $value = ORM::factory('BoardOption')->values(array(
-                        'filter_id' => $subfilter_to_our[$param_id],
+                        'filter_id' => $subfilter_to_our[$parent_filter_id],
                         'value' => $option,
                     ));
                     if(isset($olx_to_option[$category])){

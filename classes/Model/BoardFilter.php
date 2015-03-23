@@ -3,6 +3,7 @@
 class Model_BoardFilter extends ORM{
 
     CONST SELECT_TYPE = 0;
+    CONST NUMERIC_TYPE = 2;
     CONST OPTLIST_TYPE = 4;
     CONST CHILDLIST_TYPE = 5;
 

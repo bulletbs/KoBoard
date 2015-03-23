@@ -382,6 +382,24 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
             }
         }
 
-
+        /* Create numerical filters */
+        $ignore_params = array(
+            'filter_both_price' => 1,
+        );
+        foreach($params as $param_id=>$_param){
+            if($_param->parameter->isNumeric){
+                foreach($_param->categories as $category=>$tmp){
+                    if(isset($olx_to_our[$category]) && !isset($ignore_params[$_param->parameter->solr_column_name])){
+                        $label = ORM::factory('BoardFilter')->values(array(
+                            'category_id' => $olx_to_our[$category],
+                            'name' => $_param->parameter->label,
+                            'units' => $_param->parameter->suffix,
+                            'type' => Model_BoardFilter::NUMERIC_TYPE,
+                        ));
+                        $label->save();
+                    }
+                }
+            }
+        }
     }
 }

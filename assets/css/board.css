@@ -547,6 +547,7 @@ table.tableccat tr:nth-child(2n) td {
             font-weight: bold;
             color: #fff;
             margin: 0;
+            display: block;
         }
         .board_search_form .ms-drop li {
             margin-left: 0;

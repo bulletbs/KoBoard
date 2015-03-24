@@ -14,11 +14,11 @@ class Controller_UserBoard extends Controller_User
 
     public function before(){
         /* Путь к шаблону */
-
         $this->uri = 'board/cabinet/'. $this->request->action();
         parent::before();
 
         $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
+        $this->styles[] = "media/libs/pure-release-0.5.0/tables.css";
         $this->styles[] = "/assets/board/css/board.css";
         $this->board_cfg = Kohana::$config->load('board')->as_array();
     }
@@ -29,7 +29,7 @@ class Controller_UserBoard extends Controller_User
      */
     public function action_list(){
         $ads = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->find_all();
-        $this->template->content->set(array(
+        $this->user_content->set(array(
             'ads' => $ads,
         ));
     }
@@ -87,9 +87,9 @@ class Controller_UserBoard extends Controller_User
 
         $categories = array(''=>"Выберите категорию");
         $categories += ORM::factory('BoardCategory')->getTwoLevelArray();
-        $this->template->content->set('categories', $categories);
-        $this->template->content->set('cities', ORM::factory('BoardCity')->getTwoLevelArray());
-        $this->template->content->set('price_value', $this->board_cfg['price_value']);
+        $this->user_content->set('categories', $categories);
+        $this->user_content->set('cities', ORM::factory('BoardCity')->getTwoLevelArray());
+        $this->user_content->set('price_value', $this->board_cfg['price_value']);
 
         /* Если была выбрана категория - загружаем дерево категорий и фильтры */
         $subcategories = '';
@@ -98,7 +98,7 @@ class Controller_UserBoard extends Controller_User
             $filters = $this->_render_filters_list($ad->category, $ad->id);
         }
 
-        $this->template->content->set(array(
+        $this->user_content->set(array(
             'user' => $this->current_user,
             'model' => $ad,
             'photos' => $photos,

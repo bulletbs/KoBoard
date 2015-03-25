@@ -11,7 +11,7 @@ class Task_BoardCounter extends Minion_Task
      */
     protected function _execute(Array $params){
         $start = time();
-        Kohana::$environment = !isset($_SERVER['windir']) ? Kohana::PRODUCTION : Kohana::DEVELOPMENT;
+        Kohana::$environment = !isset($_SERVER['windir']) && !isset($_SERVER['GNOME_DESKTOP_SESSION_ID']) ? Kohana::PRODUCTION : Kohana::DEVELOPMENT;
 
         $categories = ORM::factory('BoardCategory')->where('lvl','=','1')->find_all()->as_array('id','id');
         foreach($categories as $categoryid=>$category){

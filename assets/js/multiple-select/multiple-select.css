@@ -18,7 +18,7 @@
     border: 1px solid #aaa;
     text-align: left;
     white-space: nowrap;
-    line-height: 26px;
+    line-height: 34px;
     color: #444;
     text-decoration: none;
     -webkit-border-radius: 4px;
@@ -52,7 +52,7 @@
 
 .ms-choice > div {
     position: absolute;
-    top: 0;
+    top: 5px;
     right: 0;
     width: 20px;
     height: 25px;

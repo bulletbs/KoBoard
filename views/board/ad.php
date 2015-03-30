@@ -134,7 +134,7 @@
             <li> <?if(isset($_COOKIE['board_favorites']) && isset($_COOKIE['board_favorites'][$ad->id])):?> <a rel="nofollow" data-item="<?= $ad->id?>" href="#" id="ico_out_favorite">Удалить из избранного</a>
             <?else:?> <a rel="nofollow" href="#" data-item="<?= $ad->id ?>" id="ico_favorite">В избранное</a>
             <?endif?></li>
-            <li><a rel="nofollow" href="#" onclick="window.open(<?php echo $ad->getPrintLink()?>,'qq','resizable=yes, scrollbars=yes, width=560, height=700'); return false;" id="ico_print">Печать</a></li>
+            <li><a rel="nofollow" href="#" data-link="<?php echo $ad->getPrintLink()?>" id="ico_print">Печать</a></li>
             <li><a rel="nofollow" href="/profile" id="ico_edit">Изменить</a></li>
             <li><a rel="nofollow" href="#" id="ico_note">Жалоба</a></li>
         </ul>

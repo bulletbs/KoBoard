@@ -109,7 +109,14 @@ $(function(){
         });
     });
 
-/**
+    /* Печать */
+    $('#ico_print').click(function(e){
+        e.preventDefault();
+        window.open($(this).data('link'),'qq','resizable=yes, scrollbars=yes, width=560, height=700');
+    });
+
+
+    /**
  * FUNCTIONS
  * */
     function show_address(showAddr){

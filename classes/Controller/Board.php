@@ -198,6 +198,16 @@ class Controller_Board extends Controller_System_Page
     public function action_ad(){
         $id = $this->request->param('id');
         $alias = $this->request->param('alias');
+        $print = $this->request->param('print');
+
+        if($print){
+            $this->template = View::factory('global/print');
+            $this->template->content = View::factory('board/ad_print');
+            $this->_setTemplateMeta();
+            $this->_setTemplateAssets();
+        }
+
+        /** @var Model_BoardAd $ad */
         $ad = Model_BoardAd::boardOrmFinder()->and_where('id','=',$id)->limit(1)->execute();
         $ad = $ad[0];
         if($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) == $alias){
@@ -271,7 +281,7 @@ class Controller_Board extends Controller_System_Page
 
             $this->scripts[] = 'assets/board/js/message.js';
 
-            $this->template->search_form = Widget::factory('BoardSearch')->render();
+//            $this->template->search_form = Widget::factory('BoardSearch')->render();
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,

@@ -271,8 +271,10 @@ class Model_BoardAd extends ORM{
      * @return string
      */
     public function getPrintLink(){
-        return URL::base().Route::get('board')->uri(array(
-            'action' => 'print',
+        return URL::base().Route::get('board_ad_print')->uri(array(
+            'city_alias' => Model_BoardCity::getField('alias', $this->city_id),
+            'cat_alias' => Model_BoardCategory::getField('alias', $this->category_id),
+            'alias' => Text::transliterate($this->title, true),
             'id' => $this->id,
         ));
     }

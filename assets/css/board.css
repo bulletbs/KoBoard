@@ -407,6 +407,20 @@ table.tableccat tr:nth-child(2n) td {
     /* margin-top: 15px; */
     padding: 8px 12px;
 }
+.print{
+    width: 540px;
+}
+.ad_print{
+    width: 530px;
+    margin: 5px 10px;
+}
+    .ad_print dl{
+        width: 500px;
+    }
+    .ad_print dt{}
+    .ad_print dd{
+        width: 370px;
+    }
 
 .searchform{
     background: #5AABE1;

@@ -25,6 +25,12 @@ if(!Route::cache()){
             'controller' => 'board',
             'action' => 'ad',
         ));
+    Route::set('board_ad_print', $board_base_url . '<city_alias>/<cat_alias>/print-<id>-<alias>.html', array( 'city_alias' => '([\w\-_]+)', 'cat_alias' => '[\d\w\-_]+', 'id' => '[0-9]+', 'alias' => '[\d\w\-_]+'))
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'ad',
+            'print' => true,
+        ));
 
     Route::set('board_city', $board_base_url . '<city_alias>(/p<page>).html', array('city_alias' => '[\w\-_]+', 'page' => '[0-9]+'))
         ->defaults(array(

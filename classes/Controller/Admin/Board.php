@@ -1,4 +1,4 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+    <?php defined('SYSPATH') or die('No direct script access.');
 
 class Controller_Admin_Board extends Controller_Admin_Crud
 {
@@ -146,9 +146,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         /* Deleting photos */
         $files = Arr::get($_POST, 'delphotos', array());
         foreach($files as $file_id){
-            $photo = ORM::factory('BoardAdphoto', $file_id)
-                ->where('ad_id','=',$model->id)
-                ->delete();
+            $model->deletePhoto($file_id);
         }
 
         /* Setting up main photo */

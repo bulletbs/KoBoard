@@ -126,6 +126,22 @@ class Controller_Board extends Controller_System_Page
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->find_all()->as_array('id');
         }
 
+        /* Поиск по тексту */
+        $_query = Arr::get($_GET, 'query');
+        if(!empty($_query)){
+            $ads->and_where(DB::expr('MATCH(`title`'.(Arr::get($_GET, 'wdesc') > 0 ? ',description': '').')'), 'AGAINST', DB::expr("('".Arr::get($_GET, 'query')."' IN BOOLEAN MODE)"));
+        }
+
+        /* Поиск по типу Все/Бизнес/Частное */
+        if(Arr::get($_GET, 'type')){
+            $ads->and_where('type', '=', Arr::get($_GET, 'type'));
+        }
+
+        /* Фильтр по "только фото" */
+        if(Arr::get($_GET, 'wphoto') > 0){
+            $ads->and_where('photo_count', '>', 0);
+        }
+
         /* Поиск по фильтрам */
         if($category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
             $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
@@ -173,6 +189,7 @@ class Controller_Board extends Controller_System_Page
         ));
 
         $ads->offset($pagination->offset)->limit($pagination->items_per_page);
+//        echo $ads;
         $ads = $ads->execute();
         $ads_ids = array();
         foreach($ads as $_ad)

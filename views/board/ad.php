@@ -135,7 +135,7 @@
             <?else:?> <a rel="nofollow" href="#" data-item="<?= $ad->id ?>" id="ico_favorite">В избранное</a>
             <?endif?></li>
             <li><a rel="nofollow" href="#" data-link="<?php echo $ad->getPrintLink()?>" id="ico_print">Печать</a></li>
-            <li><a rel="nofollow" href="/profile" id="ico_edit">Изменить</a></li>
+            <li><a rel="nofollow" href="/profile/board" id="ico_edit">Изменить</a></li>
             <li><a rel="nofollow" href="#" id="ico_note">Жалоба</a></li>
         </ul>
         <div class="clear"></div>

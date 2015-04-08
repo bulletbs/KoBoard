@@ -10,7 +10,7 @@ return array(
     'Your ad successfully added' => 'Ваше объявление добавлено',
     'Your ad successfully saved' => 'Ваше объявление сохранено',
     'Your ad successfully published' => 'Ваше объявление опубликовано',
-    'Your ad successfully turned off' => 'Ваше объявление отключен',
+    'Your ad successfully turned off' => 'Ваше объявление отключено',
     'Your ad successfully turned on' => 'Ваше объявление включено',
     'Ad publication' => 'Подтверждение публикации',
 
@@ -20,6 +20,8 @@ return array(
     'Ad type' => 'Тип объявления',
     'Business' => 'Комерческое',
     'Private' => 'Частное',
+    'with photo only' => 'только с фото',
+    'search in title and description' => 'искать в заголовке и описании',
 
     'Price' => 'Цена',
     'negotiable' => 'договорная',
@@ -73,12 +75,12 @@ return array(
     'Delete all' => 'Удалить все',
     'Delete selected' => 'Удалить выбраные',
     'Move ads' => 'Перенести объявления',
-    '' => '',
 
 /* BOARD SEARCH */
     'From' => 'От',
     'To' => 'До',
     'Any' => 'Все',
+    'Select one' => '...',
 
 /* OTHER */
     'Sell' => 'Продам',

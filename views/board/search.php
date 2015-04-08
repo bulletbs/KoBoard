@@ -1,8 +1,12 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 
 <h1><?php echo $title ?></h1>
-
 <div class="col_main">
+    <div class="type_selector right">
+        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>NULL)), __('Any'), array('class' => is_null(Arr::get($_GET, 'type')) ? 'active':''))?>
+        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>Model_BoardAd::PRIVATE_TYPE)), __('Private'), array('class' => Arr::get($_GET, 'type')=== (string) Model_BoardAd::PRIVATE_TYPE ? 'active':''))?>
+        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>Model_BoardAd::BUSINESS_TYPE)), __('Business'), array('class' => Arr::get($_GET, 'type')=== (string) Model_BoardAd::BUSINESS_TYPE? 'active':''))?>
+    </div>
     <?if(isset($city_counter)):?>
         <div class="line"></div>
         <span class="showcity">

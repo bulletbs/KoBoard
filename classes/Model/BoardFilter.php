@@ -127,6 +127,14 @@ class Model_BoardFilter extends ORM{
             elseif(isset($post[$id]))
                 $filters[$id]['value'] = $post[$id];
 
+            /* Add SELECT VALUE option in the top of list */
+            if($filter['type'] == 'select'){
+                $filters[$id]['options'] = Arr::merge(
+                    array(NULL => __('Select one')),
+                    $filters[$id]['options']
+                );
+            }
+
             /* Setting options if child filter */
             if(isset($filter['parent']) && isset($filters[$filter['parent']])){
                 if(!isset($filters[ $filter['parent'] ]['value']) && count($filters[ $filter['parent'] ]['options']))

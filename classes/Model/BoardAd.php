@@ -5,8 +5,9 @@ class Model_BoardAd extends ORM{
     const CACHE_TIME = 3700;
 
     protected $_table_name = 'ads';
-//    protected $_table_name = 'ads_inno';
 
+    const PRIVATE_TYPE = 0;
+    const BUSINESS_TYPE = 1;
     public static $adType = array(
         'Private',
         'Business',
@@ -126,6 +127,20 @@ class Model_BoardAd extends ORM{
         $photo->savePhoto($file);
         $photo->saveThumb($file);
         $photo->update();
+        $this->increasePhotos();
+    }
+
+    /**
+     * Удалить фото из объхявления
+     * @param $file_id
+     * @throws Kohana_Exception
+     */
+    public function deletePhoto($file_id){
+        $photo = ORM::factory('BoardAdphoto', $file_id);
+        if($photo->loaded()){
+            $photo->delete();
+            $this->decreasePhotos();
+        }
     }
 
     /**
@@ -370,5 +385,17 @@ class Model_BoardAd extends ORM{
     public function increaseViews(){
         $this->views += 1;
         $this->update();
+    }
+
+    public function increasePhotos(){
+        $this->photo_count += 1;
+        $this->update();
+    }
+
+    public function decreasePhotos(){
+        if($this->photo_count > 0){
+            $this->photo_count -= 1;
+            $this->update();
+        }
     }
 }

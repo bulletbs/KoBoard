@@ -111,8 +111,7 @@
 }
 
 
-/* CLASSIFIED BOARD */
-
+/* SEARCH */
 .goroda{
     background-color: #CCCCCC;
     border-bottom: 0 none;
@@ -144,18 +143,26 @@
 .bigcity{
 
 }
+.type_selector{
+
+}
+    .type_selector a{
+        padding-left: 5px;
+    }
+    .type_selector a.active{
+        font-weight: bold;
+    }
 
 .tableccat{
     margin-right: 12px;
     float:left;
-    width: 734px;
 }
 
 table.tableccat tr:nth-child(2n) td {
     background-color: #EEEEEE;
 }
 .tableccat table{
-    width: 734px;
+    width: 725px;
 }
 .google_ad {
     width: 300px;
@@ -512,6 +519,17 @@ table.tableccat tr:nth-child(2n) td {
     .board_search_form .selector .top_link li{
         float: right;
         margin-left: 15px;
+    }
+    .board_search_form .checkboxLabel{
+        margin: 10px 10px 0 0;
+        float: left;
+    }
+    .board_search_form .checkboxLabel label{
+        color: #ffffff;
+        position: relative;
+    }
+    .board_search_form .checkboxLabel input{
+        margin-top: 3px;
     }
 .board_search_form .selector .selectorWrapper{
     display: none;

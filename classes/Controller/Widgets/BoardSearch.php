@@ -21,10 +21,20 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
     {
         $city_alias = Request::initial()->param('city_alias');
         $cat_alias = Request::initial()->param('cat_alias');
-        $form_action = Route::get( $cat_alias ? 'board_cat' : 'board_city' )->uri(array(
-            'city_alias' => $city_alias,
-            'cat_alias' => $cat_alias,
-        ));
+        $filter_alias = Request::initial()->param('filter_alias');
+        if($filter_alias){
+            $form_action = Route::get('board_subcat')->uri(array(
+                'city_alias' => $city_alias,
+                'cat_alias' => $cat_alias,
+                'filter_alias' => $filter_alias,
+            ));
+        }
+        else{
+            $form_action = Route::get( $cat_alias ? 'board_cat' : 'board_city' )->uri(array(
+                'city_alias' => $city_alias,
+                'cat_alias' => $cat_alias,
+            ));
+        }
 
         /* CATEGORY NAME & FILTERS */
         $category_name = '';
@@ -38,6 +48,8 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             if($category_id)
                 $category_name = Model_BoardCategory::getField('name', $category_id);
         }
+        if(!$price_filter = Arr::get($_GET, 'price'))
+            $price_filter = array('from'=>NULL, 'to'=>NULL);
 
         /* REGION NAME */
         $region_name = '';
@@ -56,6 +68,7 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             'region_ailas' => $city_alias,
             'category_alias' => $cat_alias,
             'filters' => isset($filters_view) ? $filters_view : '',
+            'price_filter' => $price_filter,
         ));
     }
 

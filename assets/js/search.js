@@ -90,15 +90,32 @@ $('#boardTopForm').submit(function(e){
 /**
  * Parent filter change event handlers
  */
-    $('#filtersList select[data-parent]').each(function(){
-        var filter_id = $(this).data('id');
-        var parent_id = $(this).data('parent');
-        $('#filtersList select[data-id=' + parent_id + ']').change(function(){
-            $('#filter_holder select[data-id='+ filter_id +']').attr('disabled', true);
-            loadSubFilter(filter_id, parent_id, $(this).val());
-        });
-    });
+    //$('#filtersList select[data-parent]').each(function(){
+    //    var filter_id = $(this).data('id');
+    //    var parent_id = $(this).data('parent');
+    //    $('#filtersList select[data-id=' + parent_id + ']').change(function(){
+    //        $('#filter_holder select[data-id='+ filter_id +']').attr('disabled', true);
+    //        loadSubFilter(filter_id, parent_id, $(this).val());
+    //    });
+    //});
+
 /**
+ * Переключение main-фильтра
+ */
+$('#filtersList select[data-main="1"]').change(function(){
+    if(typeof subcat_options != 'undefined' && typeof subcat_options[$(this).val()] != 'undefined'){
+        var alias = subcat_options[$(this).val()];
+        var uri = basecat_uri.replace('{{ALIAS}}', alias);
+    }
+    else{
+        var uri = basecat_uri.replace('/{{ALIAS}}', '');
+        $("#filtersList select[data-parent="+$(this).data('id')+"]").val(null);
+    }
+    $('#boardTopForm').unbind('submit');
+    $('#boardTopForm').attr('action', uri).submit();
+});
+
+    /**
  * Click out of list of close button event handler
  * @param target_id
  */
@@ -121,9 +138,12 @@ $('#boardTopForm').submit(function(e){
         var uri = '/';
         var region = $('#regionAlias').val();
         var category = $('#categoryAlias').val();
+        var mainfilter = $('#filtersList select[data-main="1"]').val();
         uri += region ? region : 'all';
         if(category)
             uri += '/'+category;
+        if(mainfilter && typeof subcat_options != undefined && subcat_options[mainfilter])
+            uri += '/'+subcat_options[mainfilter];
         uri += '.html';
 //        uri += '?' + $('#boardTopForm').serialize();
         return uri;

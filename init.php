@@ -46,6 +46,13 @@ if(!Route::cache()){
             'city_alias' => 'all',
         ));
 
+    Route::set('board_subcat', $board_base_url . '<city_alias>(/<cat_alias>)(/<filter_alias>)(/p<page>).html', array('cat_alias' => '[\d\w\-_]+', 'subcat_alias' => '[\d\w\-_]+', 'page' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'search',
+            'city_alias' => 'all',
+        ));
+
     Route::set('board_myads', 'profile/board(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'userBoard',

@@ -14,7 +14,11 @@ var multiselect_options = {
     <div class="filter">
         <label><?= $data['name'] ?></label>
         <? if($data['type'] == 'select' && isset($data['is_parent'])): ?>
-            <?= Form::select('filters['.$filter_id.']', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, array('data-id'=>$filter_id)) ?>
+            <?
+            $params = array('data-id'=>$filter_id);
+            if(isset($data['main']) && $data['main'] > 0) $params['data-main'] = 1;
+            ?>
+            <?= Form::select('filters['.$filter_id.']', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, $params) ?>
         <? elseif($data['type'] == 'childlist'): ?>
             <?= Form::select('filters['.$filter_id.']', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, Arr::merge(array('data-id'=>$filter_id, 'data-parent'=>$data['parent']), !isset($data['options']) || !count($data['options']) ? array('disabled'=>'disabled') : array()) ) ?>
         <? elseif($data['type'] == 'select'): ?>
@@ -37,5 +41,4 @@ var multiselect_options = {
         <?endif;?>
     </div>
     <?endforeach;?>
-    <div class="clear"></div>
 <?endif;?>

@@ -15,7 +15,15 @@
     <div class="checkboxLabel"><?php echo Form::checkbox('wphoto', 1, Arr::get($_GET,'wphoto')>0)?> <label><?php echo __('with photo only')?></label></div>
     <div class="checkboxLabel"><?php echo Form::checkbox('wdesc', 1, Arr::get($_GET,'wdesc')>0)?> <label><?php echo __('search in title and description')?></label></div>
     <div class="clear"></div>
-    <div id="filtersList"><?php echo $filters?></div>
+    <div id="filtersList">
+        <?php echo $filters?>
+        <div class="filter">
+            <label><?php echo __('Price')?></label>
+            <?= Form::input('price[from]', isset($price_filter['from']) ? $price_filter['from'] : NULL, array('placeholder'=>__('From'))) ?>
+            <?= Form::input('price[to]', isset($price_filter['to']) ? $price_filter['to'] : NULL, array('placeholder'=>__('To'))) ?>
+        </div>
+        <div class="clear"></div>
+    </div>
     <?php echo Form::hidden(NULL, $category_alias, array('id'=>'categoryAlias'))?>
     <?php echo Form::hidden(NULL, $region_ailas, array('id'=>'regionAlias'))?>
     <?php echo Form::submit(NULL, 'Найти', array('id'=>'boardTopSubmit', 'class'=>'pure-button'))?>

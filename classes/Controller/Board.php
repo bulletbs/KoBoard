@@ -133,7 +133,7 @@ class Controller_Board extends Controller_System_Page
         }
 
         /* Поиск по типу Все/Бизнес/Частное */
-        if(Arr::get($_GET, 'type')){
+        if(!is_null(Arr::get($_GET, 'type'))){
             $ads->and_where('type', '=', Arr::get($_GET, 'type'));
         }
 
@@ -142,9 +142,31 @@ class Controller_Board extends Controller_System_Page
             $ads->and_where('photo_count', '>', 0);
         }
 
+        /* Фильтр по цене */
+        if(is_array($price = Arr::get($_GET, 'price')) && ($price['from'] > 0 || $price['from'] > 0)){
+            if((int) Arr::get($price, 'from'))
+                $ads->and_where('price', '>=', $price['from']);
+            if((int) Arr::get($price, 'to'))
+                $ads->and_where('price', '<=', $price['to']);
+        }
+
+        /* Поиск по главному фильтру (подкатегория) */
+        if($category instanceof ORM && FALSE !== ($main_filter = Model_BoardFilter::loadMainFilter($category->id))){
+            $main_filter['base_uri'] = URL::site(Route::get('board_subcat')->uri(array(
+                'cat_alias' => Request::$current->param('cat_alias'),
+                'city_alias' => Request::$current->param('city_alias'),
+                'filter_alias' => '{{ALIAS}}',
+            )));
+            $this->template->content->set('main_filter', $main_filter);
+            if(NULL !== ($filter_alias = Request::$current->param('filter_alias')))
+                $_GET['filters'][$main_filter['id']] = $main_filter['aliases'][$filter_alias];
+        }
+
         /* Поиск по фильтрам */
         if($category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
             $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
+            if(isset($main_filter))
+                $filters[$main_filter['id']] = $main_filter;
 //            echo Debug::vars($filters);
 //            echo Debug::vars($filters_values);
             foreach($filters_values as $_id=>$_val){

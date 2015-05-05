@@ -8,6 +8,7 @@ class Model_BoardFilter extends ORM{
     CONST CHILDLIST_TYPE = 5;
 
     CONST CATEGORY_FILTERS_CACHE = 'BoardCategoryFiltersCache_';
+    CONST MAIN_FILTERS_CACHE = 'BoardMainFiltersCache_';
 
     protected $_table_name = 'ad_category_filters';
 
@@ -91,6 +92,8 @@ class Model_BoardFilter extends ORM{
             foreach(ORM::factory('BoardFilter')->where('category_id','IN',$categories)->order_by('ordr')->find_all() as $filter){
                 $filters[$filter->id]['name'] = $filter->name;
                 $filters[$filter->id]['type'] = $filter->type_list[$filter->type];
+                if($filter->main > 0)
+                    $filters[$filter->id]['main'] = $filter->main;
                 if($filter->isOptional()){
                     $filters[$filter->id]['options'] = array();
                     /* Load options related to selected parent option */
@@ -107,6 +110,28 @@ class Model_BoardFilter extends ORM{
         return $filters;
     }
 
+    /**
+     * Loads category main filter with options an options aliases
+     * @param $category_id
+     * @return array|mixed|ORM
+     * @throws Cache_Exception
+     * @throws Kohana_Exception
+     */
+    public static function loadMainFilter($category_id){
+        if(NULL === ($filter = Cache::instance()->get(self::MAIN_FILTERS_CACHE . $category_id))) {
+            $filter = ORM::factory('BoardFilter')->where('category_id', '=', $category_id)->and_where('main', '=', 1)->find();
+            if ($filter->loaded()) {
+                $filter = $filter->as_array();
+                $options = ORM::factory('BoardOption')->where('filter_id', '=', $filter['id'])->find_all();
+                $filter['options'] = $options->as_array('id', 'value');
+                $filter['aliases'] = $options->as_array('alias', 'id');
+            }
+            else
+                $filter = FALSE;
+            Cache::instance()->set(self::MAIN_FILTERS_CACHE . $category_id, $filter, Date::MONTH);
+        }
+        return $filter;
+    }
 
     /**
      * Loading filter values by Ad ID
@@ -159,6 +184,8 @@ class Model_BoardFilter extends ORM{
                 $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>__('Any')), $filters[ $filter['parent'] ]['options']);
                 if(isset($post[$filter['parent']]) && $post[$filter['parent']] > 0)
                     $filters[$id]['options'] = self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE);
+                else
+                    unset($filters[$id]);
 //                else
 //                    $filters[ $filter['parent'] ]['value'] = 0;
             }
@@ -178,5 +205,20 @@ class Model_BoardFilter extends ORM{
         if($search)
             $options = Arr::merge(array(null=>__('Any')), $options);
         return $options;
+    }
+
+    /**
+     * Generate URI to main filter
+     * @param $alias
+     * @return string
+     * @throws Kohana_Exception
+     */
+    public static function generateUri($alias){
+        $uri = Route::get('board_subcat')->uri(array(
+            'cat_alias' => Request::$current->param('cat_alias'),
+            'city_alias' => Request::$current->param('city_alias'),
+            'filter_alias' => $alias,
+        ));
+        return $uri;
     }
 }

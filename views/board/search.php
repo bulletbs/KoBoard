@@ -25,7 +25,17 @@
     <!--<li>--><?php //echo HTML::anchor($_cat->geturi(), $_cat->name) ?><!--</li>-->
     <?endforeach;?></ul>
     <div class="clear"></div>
-
+    <?endif?>
+    <?if(isset($main_filter)):?>
+    <script type="text/javascript">
+        var basecat_uri = '<?php echo $main_filter['base_uri'] ;?>';
+        var subcat_options = <?php echo json_encode(array_flip($main_filter['aliases'])) ?>;
+    </script>
+    <div class="line"></div>
+    <ul class="category_list"><?foreach($main_filter['options'] as $_catid=>$_cat):?>
+    <li><?php echo HTML::anchor(Model_BoardFilter::generateUri(array_flip($main_filter['aliases'])[$_catid]), $_cat) ?></li>
+    <?endforeach;?></ul>
+    <div class="clear"></div>
     <?endif?>
     <div class="line"></div>
 

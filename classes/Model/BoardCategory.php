@@ -30,6 +30,8 @@ class Model_BoardCategory extends ORM_MPTT{
             'id' => 'Id',
             'name' => 'Name',
             'alias' => 'Alias',
+            'job' => 'Job category',
+            'noprice' => 'No prices category',
             'parent_id' => 'Parent category',
             'subcats' => 'Sub Categories',
         );

@@ -20,6 +20,8 @@ return array(
     'Ad type' => 'Тип объявления',
     'Business' => 'Комерческое',
     'Private' => 'Частное',
+    'Resume' => 'Резюме',
+    'Vacancy' => 'Вакансии',
     'with photo only' => 'только с фото',
     'search in title and description' => 'искать в заголовке и описании',
 
@@ -49,8 +51,12 @@ return array(
     'Site Ads' => 'Объявления',
     'category' => 'категория',
     'Board categories' => 'Категории',
+    'Parent category' => 'Родительская категория',
+    'Sub Categories' => 'Дочерние категория',
     'filter' => 'фильтр',
     'Category filters' => 'Фильтры категорий',
+    'Job category' => 'Категория РАБОТА',
+    'No prices category' => 'Категория без цены',
 
     'Board cities' => 'Регионы и города',
     'Parent region' => 'Относится к региону',

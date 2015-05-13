@@ -12,6 +12,10 @@ class Model_BoardAd extends ORM{
         'Private',
         'Business',
     );
+    public static $jobType = array(
+        'Resume',
+        'Vacancy',
+    );
 
     public $image;
     public $thumb;

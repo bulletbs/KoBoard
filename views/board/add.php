@@ -20,6 +20,9 @@
         <?= Form::label('price', 'Цена ('.$price_value.')')?>
         <?= Form::input('price', $model->price, array('class'=>(isset($errors['price']) ? 'error-input': ''))) ?>
 
+        <?= Form::label('type', 'Тип объявления')?>
+        <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''))) ?>
+
         <legend>Фотографии</legend>
         <div class="pure-g">
             <div class="pure-u-1-2">

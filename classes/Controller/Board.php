@@ -351,9 +351,6 @@ class Controller_Board extends Controller_System_Page
                 $this->go('/board');
 
             $ad = ORM::factory('BoardAd')->values($_POST);
-//            if($selected_category = Arr::get($_POST, 'subcategory'))
-//                $ad->category_id = $selected_category[ max(array_keys($selected_category)) ];
-//            else
             $ad->category_id =  Arr::get($_POST, 'maincategory_id');
             try{
                 /**
@@ -377,8 +374,7 @@ class Controller_Board extends Controller_System_Page
                     $userdata['email'] = Arr::get($_POST,'email');
                     $userdata['password'] = substr(md5($userdata['email'] . time()), 0,7);
                     $user->create_user($userdata, array('email', 'username', 'password'));
-//                    $role = ORM::factory('Role')->where('name', '=', 'login')->find();
-//                    $user->add('roles', $role);
+
                     /* Creating profile */
                     $profile = ORM::factory('Profile');
                     $profile->user_id = $user->id;

@@ -46,7 +46,7 @@
 
         <dl class="description">
             <dt><?php echo __('Ad type')?></dt>
-            <dd><?php echo __(Model_BoardAd::$adType[$ad->type]) ?></dd>
+            <dd><?php echo __(Model_BoardCategory::getField('job', $ad->category_id) ? Model_BoardAd::$jobType[$ad->type] : Model_BoardAd::$adType[$ad->type]) ?></dd>
 
             <dt>Автор</dt>
             <dd><strong><?php echo  $ad->name?></strong> <?if($ad->user_id>0):?><small class="quiet"><a href="#">(<?php echo __('Search for more user ads') ?>)</a></small><?endif?></dd>

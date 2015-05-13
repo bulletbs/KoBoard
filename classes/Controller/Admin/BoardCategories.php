@@ -27,6 +27,8 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
     public $_form_fields = array(
         'name' => array('type'=>'text'),
         'alias' => array('type'=>'text'),
+        'job' => array('type'=>'checkbox'),
+        'noprice' => array('type'=>'checkbox'),
         'parent_id' => array('type'=>'select', 'data'=>array(
             'list'=>array(0=>'Корневая категория'),
             'selected'=>0,

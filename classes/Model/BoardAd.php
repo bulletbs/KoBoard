@@ -52,13 +52,15 @@ class Model_BoardAd extends ORM{
         return array(
             'title' => array(
                 array('not_empty'),
+                array(array($this, 'checkStopWords'), array(':validation', ':field')),
                 array('min_length', array(':value',3)),
                 array('max_length', array(':value',255)),
             ),
-//            'description' => array(
-//                array('not_empty'),
-//                array('max_length', array('value:',1024)),
-//            ),
+            'description' => array(
+                array('not_empty'),
+                array(array($this, 'checkStopWords'), array(':validation', ':field')),
+                array('max_length', array('value:',1024)),
+            ),
             'price' => array(
                 array('not_empty'),
                 array('not_empty'),
@@ -91,6 +93,7 @@ class Model_BoardAd extends ORM{
             'city_id' => 'Регион',
             'text' => 'Текст',
             'description' => 'Описание',
+            'descriptionHide' => 'Описание',
             'video' => 'Видео',
             'photo' => 'Фотографии',
             'name' => 'Имя',
@@ -380,6 +383,9 @@ class Model_BoardAd extends ORM{
         if($name == 'addTime'){
             return (date('d.m.Y', $this->addtime). ' - <small class="quiet">' .date('H:i', $this->addtime) .'</small>');
         }
+        elseif($name == 'descriptionHide'){
+            return HTML::anchor('#', 'Hidden text', array('title' => $this->description));
+        }
         return parent::__get($name);
     }
 
@@ -401,5 +407,20 @@ class Model_BoardAd extends ORM{
             $this->photo_count -= 1;
             $this->update();
         }
+    }
+
+
+    public static function countNotModerated(){
+        $count = ORM::factory('BoardAd')->where('moderated', '=', 0)->count_all();
+        return $count;
+    }
+
+
+    public function checkStopWords(Validation $validation, $field){
+        $cfg = Kohana::$config->load('stopwords')->as_array();
+        $value = mb_strtolower($this->{$field});
+        foreach($cfg['stopwords'] as $word)
+            if(strpos($value, $word) !== FALSE)
+                $validation->error($field, 'stopwords');
     }
 }

@@ -92,6 +92,7 @@ class Model_BoardFilter extends ORM{
             foreach(ORM::factory('BoardFilter')->where('category_id','IN',$categories)->order_by('ordr')->find_all() as $filter){
                 $filters[$filter->id]['name'] = $filter->name;
                 $filters[$filter->id]['type'] = $filter->type_list[$filter->type];
+                $filters[$filter->id]['units'] = $filter->units;
                 if($filter->main > 0)
                     $filters[$filter->id]['main'] = $filter->main;
                 if($filter->isOptional()){

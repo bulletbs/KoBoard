@@ -3,7 +3,7 @@
 <?=Form::open('', array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'addForm'))?>
 <?if(isset($errors)) echo View::factory('error/validation', array('errors'=>$errors))->render()?>
     <fieldset>
-        <legend>Подать бесплатное объявление</legend>
+        <legend>Описание объявления</legend>
         <?= Form::label('title', 'Заголовок')?>
         <?= Form::input('title', Arr::get($_POST,'title', $model->title), array('class'=>isset($errors['title']) ? 'error-input': ''))?>
 

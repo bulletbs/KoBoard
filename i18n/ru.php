@@ -10,8 +10,9 @@ return array(
     'Your ad successfully added' => 'Ваше объявление добавлено',
     'Your ad successfully saved' => 'Ваше объявление сохранено',
     'Your ad successfully published' => 'Ваше объявление опубликовано',
-    'Your ad successfully turned off' => 'Ваше объявление отключено',
-    'Your ad successfully turned on' => 'Ваше объявление включено',
+    'Your ad successfully turned off' => 'Ваше объявление снято с публикации',
+    'Your ad successfully turned on' => 'Ваше объявление опубликовано',
+    'Your ad has been removed' => 'Ваше объявление было удалено',
     'Ad publication' => 'Подтверждение публикации',
 
     'Added' => 'Добавлено',
@@ -81,6 +82,8 @@ return array(
     'Delete all' => 'Удалить все',
     'Delete selected' => 'Удалить выбраные',
     'Move ads' => 'Перенести объявления',
+
+    'Ads moderating' => 'Модерирование объявлений',
 
 /* BOARD SEARCH */
     'From' => 'От',

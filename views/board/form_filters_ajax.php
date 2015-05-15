@@ -9,7 +9,9 @@
         <? elseif($data['type'] == 'text'): ?>
             <?= Form::input('filters['.$filter_id.']', isset($data['value']) ? $data['value'] : NULL) ?>
         <? elseif($data['type'] == 'digit'): ?>
-            <?= Form::input('filters['.$filter_id.']', isset($data['value']) ? $data['value'] : NULL) ?>
+            <?= Form::input('filters['.$filter_id.']', isset($data['value']) ? $data['value'] : NULL, array('class' => 'left')) ?>
+            <span><?= $data['units'] ?></span>
+            <div class="clear"></div>
         <? elseif($data['type'] == 'checkbox'): ?>
             <?= Form::checkbox('filters['.$filter_id.']', 1, isset($data['value']) && $data['value'] ? TRUE : FALSE) ?>
         <? elseif($data['type'] == 'optlist'): ?>

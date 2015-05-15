@@ -16,10 +16,6 @@ class Controller_UserBoard extends Controller_User
         /* Путь к шаблону */
         $this->uri = 'board/cabinet/'. $this->request->action();
         parent::before();
-
-        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
-        $this->styles[] = "media/libs/pure-release-0.5.0/tables.css";
-        $this->styles[] = "/assets/board/css/board.css";
         $this->board_cfg = Kohana::$config->load('board')->as_array();
     }
 
@@ -137,7 +133,7 @@ class Controller_UserBoard extends Controller_User
         }
         else{
             $model->delete();
-            Flash::success(__('Your ad successfully removed'));
+            Flash::success(__('Your ad has been removed'));
             $this->redirect(URL::site().Route::get('board_myads')->uri());
 
         }

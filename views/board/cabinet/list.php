@@ -34,3 +34,9 @@
 <?endif?>
 </tbody>
 </table>
+<script type="text/javascript">
+$('.pure-button-error').on('click', function(e){
+    if(!confirm('<?php echo __('Are you sure?')?>'))
+        e.preventDefault();
+});
+</script>

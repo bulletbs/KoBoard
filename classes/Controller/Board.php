@@ -143,7 +143,7 @@ class Controller_Board extends Controller_System_Page
         }
 
         /* Фильтр по цене */
-        if(is_array($price = Arr::get($_GET, 'price')) && ($price['from'] > 0 || $price['from'] > 0)){
+        if(is_array($price = Arr::get($_GET, 'price')) && ($price['from'] > 0 || $price['to'] > 0)){
             if((int) Arr::get($price, 'from'))
                 $ads->and_where('price', '>=', $price['from']);
             if((int) Arr::get($price, 'to'))
@@ -357,6 +357,7 @@ class Controller_Board extends Controller_System_Page
                  * Try to find existing user OR Create New User
                  * @var $user Model_User
                  */
+                $ad->check();
                 if($this->logged_in)
                     $ad->publish = 1;
                 if(is_null($user) && !empty($_POST['email']) && Valid::email($_POST['email'])){
@@ -465,12 +466,14 @@ class Controller_Board extends Controller_System_Page
              */
             $user = ORM::factory('User', $ad->user_id);
             if($user->loaded()){
+                $user->load_roles();
                 if(!$user->has_role('login')){
                     $role = ORM::factory('Role')->where('name', '=', 'login')->find();
                     $user->add('roles', $role);
                 }
                 Auth::instance()->force_login($user);
                 $ad->key = '';
+                $ad->publish = 1;
                 $ad->save();
 
                 Flash::success(__('Your registration successfully finished').'!');
@@ -759,7 +762,7 @@ class Controller_Board extends Controller_System_Page
                     'user'=>$user,
                     'site_name'=> $this->config['project']['name'],
                     'server_name'=> $_SERVER['HTTP_HOST'],
-                    'activation_link'=> 'board/confirm/'.$ad->id.'-'.$ad->key,
+                    'activation_link'=> Route::get('board_ad_confirm')->uri(array('id'=>$ad->id, 'key'=>$ad->key)),
                 ))->render()
                 , true)
             ->send();

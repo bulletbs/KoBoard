@@ -24,6 +24,7 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
 
     protected $_moderate_uri;
     protected $_crud_uri;
+    protected $_user_uri;
 
     public $skip_auto_content_apply = array(
         'index',
@@ -47,6 +48,7 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
             'controller'=>lcfirst($this->request->controller()),
             'id'=>NULL,
         );
+        $this->_user_uri = 'admin/users';
         $this->_crud_uri = 'admin/board';
         $this->_moderate_uri = Route::get('admin')->uri($route_params);
         $this->_moderate_name = __('Ads moderating');
@@ -85,12 +87,15 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
             ->limit($pagination->items_per_page)
             ->offset($pagination->offset);
         $items = $orm->find_all();
+        $photos = Model_BoardAdphoto::adsFullPhotoList($items->as_array('id','id'));
         $this->template->content = View::factory('admin/board/moderate')
             ->set('pagination', $pagination)
             ->set('items', $items)
+            ->set('photos', $photos)
 
             ->set('list_fields',$this->list_fields)
             ->set('crud_uri',$this->_crud_uri)
+            ->set('user_uri',$this->_user_uri)
             ->set('moderate_uri',$this->_moderate_uri)
             ->set('moderate_name',$this->_moderate_name)
             ->set('moderate_field',$this->moderate_field)

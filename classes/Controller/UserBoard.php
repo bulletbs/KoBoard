@@ -54,6 +54,7 @@ class Controller_UserBoard extends Controller_User
             $ad->values($_POST);
             $ad->user_id = $this->current_user->id;
             try{
+                $ad->moderated = 0;
                 $ad->save();
 
                 /* Save photos */

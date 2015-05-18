@@ -82,7 +82,7 @@ class Model_BoardAd extends ORM{
             'id' => '№',
             'title' => 'Заголовок',
             'addtime' => 'Дата добавления',
-            'addTime' => 'Дата добавления',
+            'addTime' => 'Добавлено',
             'type' => 'Куплю / Продам',
             'business' => 'Business',
             'name' => 'Название',
@@ -381,7 +381,7 @@ class Model_BoardAd extends ORM{
      */
     public function __get($name){
         if($name == 'addTime'){
-            return (date('d.m.Y', $this->addtime). ' - <small class="quiet">' .date('H:i', $this->addtime) .'</small>');
+            return (date('d.m.Y', $this->addtime). ' <small class="quiet">' .date('H:i', $this->addtime) .'</small>');
         }
         elseif($name == 'descriptionHide'){
             return HTML::anchor('#', 'Hidden text', array('title' => $this->description));

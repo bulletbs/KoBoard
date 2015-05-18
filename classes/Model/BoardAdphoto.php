@@ -126,4 +126,28 @@ class Model_BoardAdphoto extends ORM{
         return $photos;
     }
 
+
+    /**
+     * Find list of photos by requested ads ids
+     * @param array $ids - Ads IDs array
+     * @return array|object - Photos objects array
+     */
+    public static function adsFullPhotoList(Array $ids){
+        $photos = array();
+        if(count($ids)){
+            $db_photos = DB::select()
+                ->distinct('ad_id')
+                ->from(ORM::factory('BoardAdphoto')->table_name())
+                ->where('ad_id', 'IN', $ids)
+                ->as_object('Model_BoardAdphoto')
+                ->execute();
+            ;
+            foreach($db_photos as $photo)
+                $photos[$photo->ad_id][] = $photo;
+        }
+        return $photos;
+    }
+
+
+
 }

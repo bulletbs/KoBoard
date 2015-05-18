@@ -365,6 +365,11 @@ class Controller_Board extends Controller_System_Page
                     $user = ORM::factory('User')->where('email','=',$_POST['email'])->find();
                     if(!$user->loaded())
                         $user = NULL;
+                    else{
+                        $user->load_roles();
+                        if($user->has_role('banned'))
+                            throw new Kohana_HTTP_Exception_403(__('Your account is banned'));
+                    }
                     $ad->publish = 0;
                     $ad->key = md5($ad->title . time());
                 }
@@ -424,6 +429,11 @@ class Controller_Board extends Controller_System_Page
                 /* Валидация полей объявления */
                 if($e->alias() == 'user')
                     $errors = array_merge( $errors, $ad->validateData($this->request->post()) );
+            }
+            catch(Kohana_HTTP_Exception_403 $e){
+                $errors = $e->errors('', TRUE);
+                /* Валидация полей объявления */
+                $errors = array_merge( $errors, $ad->validateData($this->request->post()) );
             }
         }
         else{

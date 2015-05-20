@@ -67,6 +67,7 @@ $(function(){
             $('#categoryAlias').val( $(this).data('alias') );
             $('#categoryTopInput').val( $(this).text() );
             $(this).parents('.selectorWrapper').slideUp(50);
+            $('#filtersList').html('');
             $('#boardTopForm').submit();
         }
         else if($(this).data('action') == 'back'){
@@ -145,7 +146,6 @@ $('#filtersList select[data-main="1"]').change(function(){
         if(mainfilter && typeof subcat_options != undefined && subcat_options[mainfilter])
             uri += '/'+subcat_options[mainfilter];
         uri += '.html';
-//        uri += '?' + $('#boardTopForm').serialize();
         return uri;
     }
 

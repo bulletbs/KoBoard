@@ -165,36 +165,38 @@ class Controller_Board extends Controller_System_Page
         /* Поиск по фильтрам */
         if($category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
             $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
-            if(isset($main_filter))
-                $filters[$main_filter['id']] = $main_filter;
-//            echo Debug::vars($filters);
-//            echo Debug::vars($filters_values);
-            foreach($filters_values as $_id=>$_val){
-                if(Model_BoardFiltervalue::haveValue($_val) && isset($filters[$_id])){
-                    $ads->join(array('ad_filter_values','afv'.$_id), 'INNER');
-                    $ads->on('afv'.$_id.'.filter_id','=',DB::expr($_id));
-                    $ads->on('afv'.$_id.'.ad_id', '=', 'ads.id');
-                    if($filters[$_id]['type'] == 'digit' && ((int) Arr::get($_val, 'from') || (int) Arr::get($_val, 'to') )){
-                        $ads->where_open();
-                        if((int)Arr::get($_val, 'from'))
-                            $ads->and_where('afv'.$_id.'.value', '>=', $_val['from']);
-                        if((int)Arr::get($_val, 'to'))
-                            $ads->and_where('afv'.$_id.'.value', '<=', $_val['to']);
-                        $ads->where_close();
-                    }
-                    elseif($filters[$_id]['type'] == 'optlist'){
-                        $_bin = Model_BoardFiltervalue::optlist2mysqlBin( array_flip($_val) );
-                        $ads->and_where(DB::expr('afv'.$_id.'.value & '. $_bin), '=', DB::expr($_bin));
-                    }
-                    elseif($filters[$_id]['type'] == 'select' && is_array($_val) && count($_val)){
-                        $ads->and_where('afv'.$_id.'.value', 'IN', $_val);
-                    }
-                    elseif(!empty($_val) && !is_array($_val)){
-                        $ads->and_where('afv'.$_id.'.value', '=', $_val);
+            if(count($filters)){
+                if(isset($main_filter))
+                    $filters[$main_filter['id']] = $main_filter;
+//                echo Debug::vars($filters);
+//                echo Debug::vars($filters_values);
+                foreach($filters_values as $_id=>$_val){
+                    if(Model_BoardFiltervalue::haveValue($_val) && isset($filters[$_id])){
+                        $ads->join(array('ad_filter_values','afv'.$_id), 'INNER');
+                        $ads->on('afv'.$_id.'.filter_id','=',DB::expr($_id));
+                        $ads->on('afv'.$_id.'.ad_id', '=', 'ads.id');
+                        if($filters[$_id]['type'] == 'digit' && ((int) Arr::get($_val, 'from') || (int) Arr::get($_val, 'to') )){
+                            $ads->where_open();
+                            if((int)Arr::get($_val, 'from'))
+                                $ads->and_where('afv'.$_id.'.value', '>=', $_val['from']);
+                            if((int)Arr::get($_val, 'to'))
+                                $ads->and_where('afv'.$_id.'.value', '<=', $_val['to']);
+                            $ads->where_close();
+                        }
+                        elseif($filters[$_id]['type'] == 'optlist'){
+                            $_bin = Model_BoardFiltervalue::optlist2mysqlBin( array_flip($_val) );
+                            $ads->and_where(DB::expr('afv'.$_id.'.value & '. $_bin), '=', DB::expr($_bin));
+                        }
+                        elseif($filters[$_id]['type'] == 'select' && is_array($_val) && count($_val)){
+                            $ads->and_where('afv'.$_id.'.value', 'IN', $_val);
+                        }
+                        elseif(!empty($_val) && !is_array($_val)){
+                            $ads->and_where('afv'.$_id.'.value', '=', $_val);
+                        }
                     }
                 }
+                $ads->group_by('ads.id');
             }
-            $ads->group_by('ads.id');
         }
 
         /* requesting Ads */

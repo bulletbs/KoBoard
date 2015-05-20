@@ -45,6 +45,14 @@ class Controller_Admin_Board extends Controller_Admin_Crud
             'type'=>'text',
             'oper'=>'=',
         ),
+        '1' => array(
+            'type'=>'nl',
+        ),
+        'user_id' => array(
+            'label' => 'User',
+            'type'=>'text',
+            'oper'=>'=',
+        ),
     );
 
 
@@ -62,6 +70,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
 
         $this->_sort_fields['title']['data'] = $this->_sort_values['title'];
         $this->_sort_fields['id']['data'] = $this->_sort_values['id'];
+        $this->_sort_fields['user_id']['data'] = $this->_sort_values['user_id'];
 
         parent::action_index();
     }

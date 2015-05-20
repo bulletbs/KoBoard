@@ -45,8 +45,12 @@
                 </td>
                 <td class="small"><?php echo Model_BoardCategory::getField('name', $item->pcategory_id) ?> &raquo; <?php echo Model_BoardCategory::getField('name', $item->category_id) ?></td>
                 <td><?php echo $item->addTime ?></td>
-                <td><?php echo $item->descriptionHide ?></td>
-                <td><?php echo HTML::anchor($user_uri.'/edit/'.$item->user_id, $item->name, array('target'=>'_blank'))?></td>
+                <td><?php echo HTML::anchor('#', '<i class="glyphicon glyphicon-list-alt"></i>', array('target'=>'_blank', 'class'=>'btn btn-inverse ', 'title'=>$item->description))?></td>
+                <td>
+                    <?php echo $item->name?>
+                    <?if($item->user_id > 0):?>&nbsp;<?php echo HTML::anchor($user_uri.'/edit/'.$item->user_id, '<i class="glyphicon glyphicon-user"></i>', array('target'=>'_blank', 'title'=>__('Edit user')))?><?endif?>
+                    <?if($item->user_id > 0):?><?php echo HTML::anchor($crud_uri.'?user_id=1', '<i class="glyphicon glyphicon-list"></i>', array('target'=>'_blank', 'class'=>'btn btn-inverse ', 'title'=>__('All user ads')))?><?endif?>
+                </td>
                 <td style="width: 150px;">
                     <div class="btn-group">
                         <a target="_blank" href="<?=URL::site( $crud_uri.'/edit/'.$item->id . URL::query())?>" class='btn btn-inverse' title='<?=__('Edit')?>'><i class="glyphicon glyphicon-edit"></i></a>

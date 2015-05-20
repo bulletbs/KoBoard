@@ -84,6 +84,7 @@ return array(
     'Move ads' => 'Перенести объявления',
 
     'Ads moderating' => 'Модерирование объявлений',
+    'All user ads' => 'Все объявления пользователя',
 
 /* BOARD SEARCH */
     'From' => 'От',

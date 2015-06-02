@@ -10,12 +10,18 @@ $(document).ready(function(){
     optionsList = $('#optionsList');
     deletedList = $('#deletedOptions');
 
+    hintsByType($('#form_select_type').val());
     /**
      * Type Selector
      * @type {*|jQuery|HTMLElement}
      */
     $('#form_select_type').change(function(){
         var type_id = $(this).val();
+
+        /* Hints show/hide */
+        hintsByType(type_id);
+
+        /* Filter options load */
         $.ajax({
             url: '/admin/boardFilters/getoptions',
             dataType: 'json',
@@ -74,5 +80,16 @@ $(document).ready(function(){
             deletedList.append(deletedOptionHtml.replace('optionKey', id));
         $(this).parent().remove();
     });
+
+    /**
+     * Show / hide hints by type
+     * @param type_id
+     */
+    function hintsByType(type_id){
+        if(type_id == 2)
+            $('#control_group_hints').show();
+        else
+            $('#control_group_hints').hide();
+    }
 
 });

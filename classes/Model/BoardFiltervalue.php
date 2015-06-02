@@ -120,6 +120,8 @@ class Model_BoardFiltervalue extends ORM{
             return NULL;
         }
         /* simple value */
-        return $filter['value'];
+        else{
+            return $filter['value'] . (!empty($filter['units']) ? ' '.$filter['units'] : '');
+        }
     }
 }

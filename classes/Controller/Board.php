@@ -27,7 +27,7 @@ class Controller_Board extends Controller_System_Page
 
         /* Script & style */
         $this->styles[] = "media/libs/pure-release-0.5.0/grids-min.css";
-        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
+//        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
         $this->styles[] = "media/libs/pure-release-0.5.0/tables-min.css";
         $this->styles[] = "media/libs/pure-release-0.5.0/menus-min.css";
         $this->styles[] = "assets/board/css/board.css";
@@ -158,7 +158,7 @@ class Controller_Board extends Controller_System_Page
                 'filter_alias' => '{{ALIAS}}',
             )));
             $this->template->content->set('main_filter', $main_filter);
-            if(NULL !== ($filter_alias = Request::$current->param('filter_alias')))
+            if(NULL !== ($filter_alias = Request::$current->param('filter_alias')) && isset($main_filter['aliases'][$filter_alias]))
                 $_GET['filters'][$main_filter['id']] = $main_filter['aliases'][$filter_alias];
         }
 
@@ -221,6 +221,8 @@ class Controller_Board extends Controller_System_Page
         $photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
 
         $this->template->search_form = Widget::factory('BoardSearch')->render();
+        $this->scripts[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.js";
+        $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
         $this->template->content->set(array(
             'title' => $title,
             'city' => $city,

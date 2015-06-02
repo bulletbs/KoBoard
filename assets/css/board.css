@@ -583,7 +583,10 @@ table.tableccat tr:nth-child(2n) td {
     }
     .board_search_form .filter{
         float: left;
-        margin: 0px 20px 5px 0;
+        margin-bottom: 7px;
+        width: 194px;
+        font-size: 12px;
+        font-family: Verdana;
     }
         .board_search_form .filter label{
             font-weight: bold;
@@ -599,8 +602,12 @@ table.tableccat tr:nth-child(2n) td {
             font-weight: normal;
         }
         .board_search_form .filter input[type=text]{
-            width: 70px;
+
         }
         .board_search_form .filter select{
-
+            width: 185px;
+            height: 30px;
+            border-radius: 0;
+            font-size: 12px;
+            background: #fff;
         }

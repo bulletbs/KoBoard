@@ -16,6 +16,7 @@ $(function(){
         $('#city_list li.smallcity').hide();
         e.preventDefault();
     });
+    $('#filtersList').slideDown(500);
 
 /**
  * Regions selector
@@ -85,36 +86,26 @@ $(function(){
 $('#boardTopForm').submit(function(e){
     e.preventDefault();
     $(this).unbind('submit');
+    disableEmptyFilters();
     $(this).attr('action', generateFormUri()).submit();
 });
 
 /**
- * Parent filter change event handlers
- */
-    //$('#filtersList select[data-parent]').each(function(){
-    //    var filter_id = $(this).data('id');
-    //    var parent_id = $(this).data('parent');
-    //    $('#filtersList select[data-id=' + parent_id + ']').change(function(){
-    //        $('#filter_holder select[data-id='+ filter_id +']').attr('disabled', true);
-    //        loadSubFilter(filter_id, parent_id, $(this).val());
-    //    });
-    //});
-
-/**
  * Переключение main-фильтра
  */
-$('#filtersList select[data-main="1"]').change(function(){
-    if(typeof subcat_options != 'undefined' && typeof subcat_options[$(this).val()] != 'undefined'){
-        var alias = subcat_options[$(this).val()];
-        var uri = basecat_uri.replace('{{ALIAS}}', alias);
-    }
-    else{
-        var uri = basecat_uri.replace('/{{ALIAS}}', '');
-        $("#filtersList select[data-parent="+$(this).data('id')+"]").val(null);
-    }
-    $('#boardTopForm').unbind('submit');
-    $('#boardTopForm').attr('action', uri).submit();
-});
+    $('#filtersList select[data-main="1"]').change(function(){
+        if(typeof subcat_options != 'undefined' && typeof subcat_options[$(this).val()] != 'undefined'){
+            var alias = subcat_options[$(this).val()];
+            var uri = basecat_uri.replace('{{ALIAS}}', alias);
+        }
+        else{
+            var uri = basecat_uri.replace('/{{ALIAS}}', '');
+            $("#filtersList select[data-parent="+$(this).data('id')+"]").val(null);
+        }
+        disableEmptyFilters();
+        $('#boardTopForm').unbind('submit');
+        $('#boardTopForm').attr('action', uri).submit();
+    });
 
     /**
  * Click out of list of close button event handler
@@ -190,5 +181,17 @@ $('#filtersList select[data-main="1"]').change(function(){
                     $('#filtersList select[data-id='+ id +']').attr("disabled", "disabled").html('');
             }
         })
+    }
+
+    /**
+     *  Disable empty fields
+     */
+    function disableEmptyFilters(){
+        $('#filtersList input[type=text], #filtersList select').each(function(){
+            if( !$(this).val() || $(this).data('main'))
+                $(this).attr('disabled', 'disabled');
+        });
+        if(!$('#serchformQuery').val())
+            $('#serchformQuery').attr('disabled', 'disabled');
     }
 });

@@ -34,6 +34,8 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
                 'preloaded'=>'',
             )
         ),
+        'hints' => array('type'=>'text'),
+        'no_digits' => array('type'=>'checkbox'),
     );
 
     public $form_fields_save_extra = array(

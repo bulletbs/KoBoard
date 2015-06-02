@@ -72,6 +72,8 @@ return array(
     'Filter units' => 'Единицы измерения фильтра',
     'Filter type' => 'Тип фильтра',
     'Filter options' => 'Значения фильтра',
+    'Filter hints' => 'Подсказки для фильтра',
+    'No digits' => 'Без разрядов',
     'Add option' => 'Добавить значение',
     'No filters found in selected category' => 'Фильтры в выбраной категории не найдены',
 
@@ -87,8 +89,8 @@ return array(
     'All user ads' => 'Все объявления пользователя',
 
 /* BOARD SEARCH */
-    'From' => 'От',
-    'To' => 'До',
+    'From' => 'от',
+    'To' => 'до',
     'Any' => 'Все',
     'Select one' => '...',
 

@@ -6,7 +6,7 @@
         $('#map').maphilight({
             fill: true,
             fillColor: 'E1210C',
-            fillOpacity: 1,
+            fillOpacity: 1
         });
     });
 </script>
@@ -112,7 +112,7 @@
 </div>
 <div class="container">
 <map name="rf">
-    <area href="/new.html" title="Подать объявление" alt="" shape="rect" coords="22,33,220,63" data-maphilight='{"stroke":0,"fill":0}'>
+    <area href="/add" title="Подать объявление" alt="" shape="rect" coords="22,33,220,63" data-maphilight='{"stroke":0,"fill":0}'>
     <area href="/belgorodskaya_obl.html" title="Белгородская область" alt="" shape="poly" coords="38,305,38,310,42,314,46,315,47,318,48,322,48,326,49,328,54,323,55,316,54,312,51,309,47,308,41,304">
     <area href="/bryanskaya_obl.html" title="Брянская область" alt="" shape="poly" coords="37,268,33,274,35,276,37,277,37,282,44,282,44,287,48,288,53,282,54,278,56,274,56,270,47,271,42,271">
     <area href="/vladimirskaya_obl.html" title="Владимирская область." alt="" shape="poly" coords="94,272,95,280,98,282,98,284,96,287,97,290,100,294,103,295,114,289,109,284,102,278,103,274,100,274,97,273">

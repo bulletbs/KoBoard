@@ -1,0 +1,53 @@
+.tipcomplete{
+    position: relative;
+    border: 1px solid #dadada;
+    background: #fff;
+    width: 183px;
+    height: 25px;
+    font-size: 12px;
+    color: #aaaaaa;
+    margin-bottom: 7px;
+}
+    .tipcomplete a{
+
+    }
+    .tipcomplete span{
+        display: block;
+        margin: 5px;
+        font-size: 12px;
+        font-family: Verdana;
+    }
+    .tipcomplete label{
+        display: none;
+    }
+    .tipcomplete input{
+        display: none;
+        width: 95%;
+        border: 0;
+        margin: 5px;
+        font-size: 12px;
+        font-family: Verdana;
+    }
+    .tipcomplete ul{
+        display: none;
+        position: absolute;
+        top: 26px;
+        left: -1px;
+        width: 183px;
+        background: #fff;
+        z-index: 100;
+        border: 1px solid #dadada;
+        max-height: 150px;
+        overflow-y: scroll;
+    }
+    .tipcomplete ul li{
+        color: #333;
+        height: 25px;
+        display: block;
+        cursor: pointer;
+        border-bottom: #fafafa;
+        line-height: 24px;
+    }
+    .tipcomplete ul li:hover{
+        background: #dadada;
+    }

@@ -63,6 +63,8 @@ class Model_BoardFilter extends ORM{
             'ordr'      => __('Sort order'),
             'type'      => __('Filter type'),
             'options'   => __('Filter options'),
+            'hints'   => __('Filter hints'),
+            'no_digits'   => __('No digits'),
         );
     }
 
@@ -92,7 +94,9 @@ class Model_BoardFilter extends ORM{
             foreach(ORM::factory('BoardFilter')->where('category_id','IN',$categories)->order_by('ordr')->find_all() as $filter){
                 $filters[$filter->id]['name'] = $filter->name;
                 $filters[$filter->id]['type'] = $filter->type_list[$filter->type];
-                $filters[$filter->id]['units'] = $filter->units;
+                $filters[$filter->id]['units'] = html_entity_decode($filter->units, ENT_NOQUOTES, 'UTF-8');
+//                echo html_entity_decode($filter->units, ENT_NOQUOTES, 'UTF-8')."<br>";
+//                echo $filter->units."<br>";
                 if($filter->main > 0)
                     $filters[$filter->id]['main'] = $filter->main;
                 if($filter->isOptional()){
@@ -104,6 +108,10 @@ class Model_BoardFilter extends ORM{
                     else{
                         $filters[$filter->id]['parent'] = $filter->parent_id;
                     }
+                }
+                if($filter->type == self::NUMERIC_TYPE){
+                    $filters[$filter->id]['hints'] = $filter->hints;
+                    $filters[$filter->id]['no_digits'] = $filter->no_digits;
                 }
             }
             Cache::instance()->set(self::CATEGORY_FILTERS_CACHE . $category, $filters, Date::MONTH);
@@ -182,9 +190,10 @@ class Model_BoardFilter extends ORM{
             /* Setting child options, adding ANY position in parent filter, parent default value is 0 (ANY) */
             if(isset($filter['parent']) && isset($filters[$filter['parent']])){
                 $filters[ $filter['parent'] ]['is_parent'] = TRUE;
-                $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>__('Any')), $filters[ $filter['parent'] ]['options']);
+//                $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>__('Any')), $filters[ $filter['parent'] ]['options']);
+                $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>$filters[ $filter['parent'] ]['name']), $filters[ $filter['parent'] ]['options']);
                 if(isset($post[$filter['parent']]) && $post[$filter['parent']] > 0)
-                    $filters[$id]['options'] = self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE);
+                    $filters[$id]['options'] = Arr::merge(array(null=>$filter['name']), self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE));
                 else
                     unset($filters[$id]);
 //                else
@@ -203,8 +212,8 @@ class Model_BoardFilter extends ORM{
      */
     public static function loadSubFilterOptions($id, $parent, $search = false){
         $options = ORM::factory('BoardOption')->where('filter_id','=',$id)->and_where('parent_id', '=', $parent)->order_by('value', 'ASC')->find_all()->as_array('id', 'value');
-        if($search)
-            $options = Arr::merge(array(null=>__('Any')), $options);
+//        if($search)
+//            $options = Arr::merge(array(null=>__('Any')), $options);
         return $options;
     }
 

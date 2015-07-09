@@ -5,7 +5,6 @@
     <ul>
         <?foreach($cities as $city):?>
             <li><?php echo HTML::anchor($city->getUri(), $city->name)?></li>
-<!--            <li>--><?php //echo HTML::anchor(Model_BoardCity::generateUri($city->alias), $city->name)?><!--</li>-->
         <?endforeach?>
     </ul>
 </div>

@@ -1,4 +1,4 @@
-<?php
+<?php defined('SYSPATH') OR die('No direct script access.');
 
 class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
 
@@ -124,12 +124,22 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
         /* Then save list options, if filter type is select */
         if($model->loaded() && $model->changed('type') && $model->type > 0){
             ORM::factory('BoardOption')->where('filter_id','=',$model->id)->delete();
+            ORM::factory('BoardHint')->where('filter_id','=',$model->id)->delete();
+        }
+        /* Child hints */
+        if($model->type == Model_BoardFilter::CHILDNUM_TYPE){
+            $exists = ORM::factory('BoardHint')->where('filter_id','=',$model->id)->find_all()->as_array('parent_id');
+            $hints = Arr::get($_POST,'childhints', array());
+            foreach($hints as $parent_id=>$_hint){
+                $hint_model = isset($exists[$parent_id]) ? $exists[$parent_id] : ORM::factory('BoardHint');
+                $hint_model->values(array('hints'=>$_hint, 'filter_id'=>$model->id, 'parent_id'=>$parent_id))->save();
+            }
         }
         elseif($model->isOptional()){
             /* Save New Options */
             $newOptions = Arr::get($_POST,'newOptions', array());
             /* Child options saving with parent_id attribute */
-            if($model->type == 5){
+            if($model->type == Model_BoardFilter::CHILDLIST_TYPE){
                 foreach($newOptions as $parent_id=>$_options)
                     foreach($_options as $option)
                         ORM::factory('BoardOption')->values(array('value'=>$option, 'filter_id'=>$model->id, 'parent_id'=>$parent_id))->save();
@@ -192,21 +202,21 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
      * @return string
      */
     protected function _renderFilterOptions($type, $model_id, $parent_id = NULL){
-        if($type == 0){
+        if($type == Model_BoardFilter::SELECT_TYPE){
             $view = 'admin/filters/boardListOptions';
             $data = array(
                 'model' => ORM::factory('BoardFilter', $model_id),
             );
         }
         /* OPTIONLIST filter options*/
-        elseif($type == 4){
+        elseif($type == Model_BoardFilter::OPTLIST_TYPE){
             $view = 'admin/filters/boardListOptions';
             $data = array(
                 'model' => ORM::factory('BoardFilter', $model_id),
             );
         }
         /* CHILDLIST filter options*/
-        elseif($type == 5){
+        elseif($type == Model_BoardFilter::CHILDLIST_TYPE){
             $view = 'admin/filters/boardChildlistOptions';
             $model = ORM::factory('BoardFilter', $model_id);
             if(!$model->category_id && Arr::get('category_id', $_POST))
@@ -234,6 +244,32 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
                 'parent_filters' => $parent_filters,
                 'parent_options' => $parent_options,
                 'options' => $options,
+            );
+        }
+
+        /* DIGIT CHILD FILTER HINTS  */
+        elseif($type == Model_BoardFilter::CHILDNUM_TYPE){
+            $view = 'admin/filters/boardChildnumHints';
+            $model = ORM::factory('BoardFilter', $model_id);
+
+            $parent_filters = ORM::factory('BoardFilter')->where('type', '=', 0)->and_where('parent_id', '=', 0)->and_where('category_id', '=', $model->category_id)->order_by('ordr')->find_all()->as_array('id', 'name');
+            if(!count($parent_filters)){
+                return "Нет родительских фильтров в выбраной категории";
+            }
+            if($parent_id)
+                $model->parent_id = $parent_id;
+            if(!$model->parent_id)
+                $model->parent_id = key($parent_filters);
+            $parent_options = ORM::factory('BoardOption')->where('filter_id','=',$model->parent_id)->order_by('value')->find_all()->as_array('id', 'value');
+            $hints = array();
+            $values = ORM::factory('BoardHint')->where('filter_id','=',$model->id)->find_all()->as_array('parent_id', 'hints');
+            foreach($parent_options as $opt_id => $opt)
+                $hints[$opt_id] = Arr::get($values, $opt_id);
+            $data = array(
+                'model' => $model,
+                'parent_filters' => $parent_filters,
+                'parent_options' => $parent_options,
+                'hints' => $hints,
             );
         }
 

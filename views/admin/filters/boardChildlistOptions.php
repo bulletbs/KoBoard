@@ -13,7 +13,7 @@
         <?= Form::input('add', __('Add option'), array('type'=>'button', 'class'=>'btn addButton', 'data-id'=>$parent_option_id))?>
         <hr>
     <? endforeach ?>
-    </div>
+</div>
 <br>
 <script type="text/javascript">
     optionHtml = '<div><?= Form::input('newOptions[PARENT_ID][]', '', array('class'=>'span4'))?>&nbsp;<?= Form::input('del','X',array('class'=>'btn del', 'type'=>'button'))?><br></div>';

@@ -27,7 +27,6 @@ class Controller_Board extends Controller_System_Page
 
         /* Script & style */
         $this->styles[] = "media/libs/pure-release-0.5.0/grids-min.css";
-//        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
         $this->styles[] = "media/libs/pure-release-0.5.0/tables-min.css";
         $this->styles[] = "media/libs/pure-release-0.5.0/menus-min.css";
         $this->styles[] = "assets/board/css/board.css";
@@ -54,12 +53,13 @@ class Controller_Board extends Controller_System_Page
      * Главная страница
      */
     public function action_main(){
+        $this->breadcrumbs = Breadcrumbs::factory();
 //        if(!$content = Cache::instance()->get("BoardMainPage")){
-            $this->breadcrumbs = Breadcrumbs::factory();
             $this->scripts[] = "assets/board/js/jquery.highlight.js";
             $this->scripts[] = "assets/board/js/jquery.tooltip.js";
             $content = View::factory('board/map');
-            Cache::instance()->set("BoardMainPage", $content, 600);
+            $content->set('site_name', $this->config['project']['name']);
+            Cache::instance()->set("BoardMainPage", $content->render(), 600);
 //        }
         $this->template->content = $content;
     }
@@ -419,6 +419,7 @@ class Controller_Board extends Controller_System_Page
                 $files = Arr::get($_FILES, 'photos', array('tmp_name' => array()));
                 foreach($files['tmp_name'] as $file)
                     $ad->addPhoto($file);
+                $ad->setMainPhoto();
 
                 /* Finalize ads saving */
                 Flash::success(__('Your ad successfully added'));
@@ -446,7 +447,9 @@ class Controller_Board extends Controller_System_Page
                 $user = ORM::factory('User');
         }
 
+        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
         $this->scripts[] = "assets/board/js/form.js";
+
         $categories = array(''=>"Выберите категорию");
         $categories += ORM::factory('BoardCategory')->getTwoLevelArray();
         $this->template->content->set('categories', $categories);

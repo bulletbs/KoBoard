@@ -1,5 +1,20 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
-
+<div class="line"></div>
+<ul class="city_list">
+    <li><a href="/moskva.html" tooltip="Объявления в Москве">Москва</a></li>
+    <li><a href="/volgograd.html" tooltip="Объявления в Волгограде">Волгоград</a></li>
+    <li><a href="/kazan.html" tooltip="Объявления в Казани">Казань</a></li>
+    <li><a href="/nizhniy_novgorod.html" tooltip="Объявления в Нижнем Новгороде">Нижний Новгород</a></li>
+    <li><a href="/rostov-na-donu.html" tooltip="Объявления в Ростове-на-Дону">Ростов-на-Дону</a></li>
+    <li><a href="/ufa.html" tooltip="Объявления в Уфе">Уфа</a></li>
+    <li><a href="/sankt-peterburg.html" tooltip="Объявления в Санкт-Петербурге">Санкт-Петербург</a></li>
+    <li><a href="/ekaterinburg.html" tooltip="Объявления в Екатеринбурге">Екатеринбург</a></li>
+    <li><a href="/krasnodar.html" tooltip="Объявления в Краснодаре">Краснодар</a></li>
+    <li><a href="/perm.html" tooltip="Объявления в Перми">Пермь</a></li>
+    <li><a href="/samara.html" tooltip="Объявления в Самаре">Самара</a></li>
+    <li><a href="/chelyabinsk.html" tooltip="Объявления в Челябинске">Челябинск</a></li>
+</ul>
+<div class="line"></div>
 <img src="/assets/board/css/images/map2.png" alt="" class="map" usemap="#rf" id="map">
 <script type="text/javascript">
     $(function() {
@@ -104,9 +119,9 @@
         <div class="clear"></div>
         <div class="line"></div>
         <div class="text_block quiet">Частные бесплатные объявления в России<br>
-            Бесплатные объявления на Rokvel - здесь вы найдете то, что искали! Нажав на кнопку "Подать объявление", вы перейдете на форму, заполнив которую<br>
+            Бесплатные объявления на <?php echo $site_name?> - здесь вы найдете то, что искали! Нажав на кнопку "Подать объявление", вы перейдете на форму, заполнив которую<br>
             сможете разместить объявление на любую необходимую  вам тематику абсолютно бесплатно и без регистрации.<br>
-            С помощью сайта объявлений Rokvel вы можете купить или продать из рук в руки практически все, что угодно.<br>
+            С помощью сайта объявлений <?php echo $site_name?> вы можете купить или продать из рук в руки практически все, что угодно.<br>
         </div>
     </div>
 </div>

@@ -1,45 +1,44 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 
 <h1><?php echo $title ?></h1>
-<div class="col_main">
-    <div class="type_selector right">
-        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>NULL)), __('Any'), array('class' => is_null(Arr::get($_GET, 'type')) ? 'active':''))?>
-        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>Model_BoardAd::PRIVATE_TYPE)), __(!is_null($category) && $category->job ? 'Resume' : 'Private'), array('class' => Arr::get($_GET, 'type')=== (string) Model_BoardAd::PRIVATE_TYPE ? 'active':''))?>
-        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>Model_BoardAd::BUSINESS_TYPE)), __(!is_null($category) && $category->job ? 'Vacancy' : 'Business'), array('class' => Arr::get($_GET, 'type')=== (string) Model_BoardAd::BUSINESS_TYPE? 'active':''))?>
-    </div>
-    <?if(isset($city_counter)):?>
-        <div class="line"></div>
-        <span class="showcity">
-        <a href="#" id="showBigCity" class="active">крупные города</a>
-        <a href="#" id="showAllCity">все</a>
-        </span>
-        <ul class="category_list" id="city_list"><?foreach($city_counter as $_cnt):?>
+<?if(isset($city_counter)):?>
+    <div class="line"></div>
+    <span class="showcity">
+    <a href="#" id="showBigCity" class="active">крупные города</a>
+    <a href="#" id="showAllCity">все</a>
+    </span>
+    <ul class="category_list" id="city_list"><?foreach($city_counter as $_cnt):?>
             <li <?php echo $_cnt['cnt']>100 ? 'class="bigcity"' : 'class="smallcity"'?>><?php echo HTML::anchor(Model_BoardCity::generateUri( Model_BoardCity::getField('alias', $_cnt['city_id'])), Model_BoardCity::getField('name', $_cnt['city_id']) . ' <span>' .$_cnt['cnt']. '</span>') ?></li>
         <?endforeach;?></ul>
-        <div class="clear"></div>
-    <?endif?>
-    <?if(count($childs_categories)):?>
+    <div class="clear"></div>
+<?endif?>
+<?if(count($childs_categories)):?>
     <div class="line"></div>
     <ul class="category_list"><?foreach($childs_categories as $_cat):?>
-    <li><?php echo HTML::anchor(Model_BoardCategory::generateUri($_cat->alias), $_cat->name) ?></li>
-    <!--<li>--><?php //echo HTML::anchor($_cat->geturi(), $_cat->name) ?><!--</li>-->
-    <?endforeach;?></ul>
+            <li><?php echo HTML::anchor(Model_BoardCategory::generateUri($_cat->alias), $_cat->name) ?></li>
+            <!--<li>--><?php //echo HTML::anchor($_cat->geturi(), $_cat->name) ?><!--</li>-->
+        <?endforeach;?></ul>
     <div class="clear"></div>
-    <?endif?>
-    <?if(isset($main_filter)):?>
+<?endif?>
+<?if(isset($main_filter)):?>
     <script type="text/javascript">
         var basecat_uri = '<?php echo $main_filter['base_uri'] ;?>';
         var subcat_options = <?php echo json_encode(array_flip($main_filter['aliases'])) ?>;
     </script>
     <div class="line"></div>
     <ul class="category_list"><?foreach($main_filter['options'] as $_catid=>$_cat):?>
-    <li><?php echo HTML::anchor(Model_BoardFilter::generateUri(array_flip($main_filter['aliases'])[$_catid]), $_cat) ?></li>
-    <?endforeach;?></ul>
+            <li><?php echo HTML::anchor(Model_BoardFilter::generateUri(array_flip($main_filter['aliases'])[$_catid]), $_cat) ?></li>
+        <?endforeach;?></ul>
     <div class="clear"></div>
-    <?endif?>
-    <div class="line"></div>
-
-
+<?endif?>
+<div class="line"></div>
+<div class="col_main col_type_selection">
+    <div class="type_selector">
+        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>NULL)), __('Any'), array('class' => is_null(Arr::get($_GET, 'type')) ? 'active':''))?>
+        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>Model_BoardAd::PRIVATE_TYPE)), __(!is_null($category) && $category->job ? 'Resume' : 'Private'), array('class' => Arr::get($_GET, 'type')=== (string) Model_BoardAd::PRIVATE_TYPE ? 'active':''))?>
+        <?php echo HTML::anchor(Request::$current->uri() . URL::query(array('type'=>Model_BoardAd::BUSINESS_TYPE)), __(!is_null($category) && $category->job ? 'Vacancy' : 'Business'), array('class' => Arr::get($_GET, 'type')=== (string) Model_BoardAd::BUSINESS_TYPE? 'active':''))?>
+        <div class="clear"></div>
+    </div>
     <?if(count($ads)):?>
     <table class="tableccat" id="adList">
     <?foreach($ads as $ad):?>

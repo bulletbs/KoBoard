@@ -1,4 +1,4 @@
-<?php
+<?php defined('SYSPATH') OR die('No direct script access.');
 
 class Model_BoardFilter extends ORM{
 
@@ -6,6 +6,7 @@ class Model_BoardFilter extends ORM{
     CONST NUMERIC_TYPE = 2;
     CONST OPTLIST_TYPE = 4;
     CONST CHILDLIST_TYPE = 5;
+    CONST CHILDNUM_TYPE = 6;
 
     CONST CATEGORY_FILTERS_CACHE = 'BoardCategoryFiltersCache_';
     CONST MAIN_FILTERS_CACHE = 'BoardMainFiltersCache_';
@@ -37,6 +38,7 @@ class Model_BoardFilter extends ORM{
         3 => 'Да/Нет (checkbox)',
         4 => 'Список опций',
         5 => 'Список дочерний',
+        6 => 'Числовой дочерний',
     );
 
     /**
@@ -50,6 +52,7 @@ class Model_BoardFilter extends ORM{
         3 => 'checkbox',
         4 => 'optlist',
         5 => 'childlist',
+        6 => 'childnum',
     );
 
     public function labels(){
@@ -94,9 +97,8 @@ class Model_BoardFilter extends ORM{
             foreach(ORM::factory('BoardFilter')->where('category_id','IN',$categories)->order_by('ordr')->find_all() as $filter){
                 $filters[$filter->id]['name'] = $filter->name;
                 $filters[$filter->id]['type'] = $filter->type_list[$filter->type];
-                $filters[$filter->id]['units'] = html_entity_decode($filter->units, ENT_NOQUOTES, 'UTF-8');
-//                echo html_entity_decode($filter->units, ENT_NOQUOTES, 'UTF-8')."<br>";
-//                echo $filter->units."<br>";
+//                $filters[$filter->id]['units'] = html_entity_decode($filter->units, ENT_NOQUOTES, 'UTF-8');
+                $filters[$filter->id]['units'] = $filter->units;
                 if($filter->main > 0)
                     $filters[$filter->id]['main'] = $filter->main;
                 if($filter->isOptional()){
@@ -105,11 +107,9 @@ class Model_BoardFilter extends ORM{
                     if(!$filter->parent_id){
                         $filters[$filter->id]['options'] = ORM::factory('BoardOption')->where('filter_id','=',$filter->id)->find_all()->as_array('id', 'value');
                     }
-                    else{
-                        $filters[$filter->id]['parent'] = $filter->parent_id;
-                    }
                 }
-                if($filter->type == self::NUMERIC_TYPE){
+                $filters[$filter->id]['parent'] = $filter->parent_id;
+                if($filter->type == self::NUMERIC_TYPE || $filter->type == self::CHILDNUM_TYPE){
                     $filters[$filter->id]['hints'] = $filter->hints;
                     $filters[$filter->id]['no_digits'] = $filter->no_digits;
                 }
@@ -168,9 +168,8 @@ class Model_BoardFilter extends ORM{
                     $filters[$id]['options']
                 );
             }
-
-            /* Setting options if child filter */
-            if(isset($filter['parent']) && isset($filters[$filter['parent']])){
+            /* Setting options if child list filter */
+            if(isset($filter['parent']) && $filter['type']=='childlist' && isset($filters[$filter['parent']]) ){
                 if(!isset($filters[ $filter['parent'] ]['value']) && count($filters[ $filter['parent'] ]['options']))
                     $filters[ $filter['parent'] ]['value'] = key($filters[ $filter['parent'] ]['options']);
                 if(isset($filters[ $filter['parent'] ]['value']))
@@ -189,15 +188,22 @@ class Model_BoardFilter extends ORM{
 
             /* Setting child options, adding ANY position in parent filter, parent default value is 0 (ANY) */
             if(isset($filter['parent']) && isset($filters[$filter['parent']])){
-                $filters[ $filter['parent'] ]['is_parent'] = TRUE;
-//                $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>__('Any')), $filters[ $filter['parent'] ]['options']);
-                $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>$filters[ $filter['parent'] ]['name']), $filters[ $filter['parent'] ]['options']);
-                if(isset($post[$filter['parent']]) && $post[$filter['parent']] > 0)
-                    $filters[$id]['options'] = Arr::merge(array(null=>$filter['name']), self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE));
-                else
+                /* Hide filter while main filter not selected */
+                if(!isset($post[$filter['parent']]) || !$post[$filter['parent']] > 0){
                     unset($filters[$id]);
-//                else
-//                    $filters[ $filter['parent'] ]['value'] = 0;
+                    continue;
+                }
+                $filters[ $filter['parent'] ]['is_parent'] = TRUE;
+
+                /* Setting child digit filter hints */
+                if(isset($filter['parent']) && $filter['type']=='childnum' && isset($filters[$filter['parent']]['value']) ){
+                    $filters[$id]['hints'] = self::loadSubFilterHints($id, $filters[ $filter['parent'] ]['value']);
+                }
+                /* Setting options if child num filter */
+                if(isset($filter['parent']) && $filter['type']=='childlist' && isset($filters[$filter['parent']]) ){
+                    $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>$filters[ $filter['parent'] ]['name']), $filters[ $filter['parent'] ]['options']);
+                    $filters[$id]['options'] = Arr::merge(array(null=>$filter['name']), self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE));
+                }
             }
         }
         return;
@@ -215,6 +221,18 @@ class Model_BoardFilter extends ORM{
 //        if($search)
 //            $options = Arr::merge(array(null=>__('Any')), $options);
         return $options;
+    }
+
+    /**
+     * Load subfilter hints
+     * @param $id       - filter ID
+     * @param $parent   - value of parent filter
+     * @param $search   - TRUE if loading for search form (adding ANY option)
+     * @return array
+     */
+    public static function loadSubFilterHints($id, $parent){
+        $hints = ORM::factory('BoardHint')->where('filter_id','=',$id)->and_where('parent_id', '=', $parent)->find()->as_array();
+        return $hints['hints'];
     }
 
     /**

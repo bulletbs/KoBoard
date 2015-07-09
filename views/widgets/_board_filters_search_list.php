@@ -3,7 +3,6 @@
 <?if(count($filters)):?>
     <?foreach($filters as $filter_id=>$data):?>
     <div class="filter">
-<!--        <label>--><?//= $data['name'] ?><!--</label>-->
         <? if($data['type'] == 'select' && isset($data['is_parent'])): ?>
             <?
             $params = array('data-id'=>$filter_id);
@@ -25,7 +24,7 @@
             </script>
         <? elseif($data['type'] == 'text'): ?>
             <?= Form::input('filters['.$filter_id.']', isset($data['value']) ? $data['value'] : NULL) ?>
-        <? elseif($data['type'] == 'digit'): ?>
+        <? elseif($data['type'] == 'digit' || $data['type'] == 'childnum'): ?>
             <?= Form::input('filters['.$filter_id.'][from]', isset($data['value']['from']) ? $data['value']['from'] : NULL, array('id'=>'fromFilter'.$filter_id, 'placeholder'=>$data['name'] .' '. __('From'), 'autocomplete'=>'off')) ?>
             <?= Form::input('filters['.$filter_id.'][to]', isset($data['value']['to']) ? $data['value']['to'] : NULL, array('id'=>'toFilter'.$filter_id, 'placeholder'=>$data['name'] .' '.__('To'), 'autocomplete'=>'off')) ?>
             <script type="text/javascript">
@@ -37,7 +36,7 @@
                 });
                 $('#toFilter<?php echo $filter_id?>').TipComplete({
                     values : [<?php echo $data['hints'] ?>],
-                    prefix: '<?php echo __('From')?>',
+                    prefix: '<?php echo __('To')?>',
                     suffix: '<?php echo $data['units']?>',
                     no_digits: '<?php echo $data['no_digits']?>'
                 });

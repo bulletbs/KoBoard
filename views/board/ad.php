@@ -39,14 +39,14 @@
             <?php endif; ?>
         <?php endforeach; ?>
         <dl>
-            <dt><?php echo __('Price')?></dt>
+            <dt><?php echo __( $is_job_category ? 'Salary' : 'Price' )?></dt>
             <dd><span class="price"><?php echo  $ad->price > 0? $ad->price.' '.$board_config['price_value']: __('negotiable')?></span></dd>
         </dl>
         <div class="line"></div>
 
         <dl class="description">
             <dt><?php echo __('Ad type')?></dt>
-            <dd><?php echo __(Model_BoardCategory::getField('job', $ad->category_id) ? Model_BoardAd::$jobType[$ad->type] : Model_BoardAd::$adType[$ad->type]) ?></dd>
+            <dd><?php echo __( $is_job_category ? Model_BoardAd::$jobType[$ad->type] : Model_BoardAd::$adType[$ad->type]) ?></dd>
 
             <dt>Автор</dt>
             <dd><strong><?php echo  $ad->name?></strong> <?if($ad->user_id>0):?><small class="quiet"><a href="#">(<?php echo __('Search for more user ads') ?>)</a></small><?endif?></dd>

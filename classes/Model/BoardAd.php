@@ -63,7 +63,6 @@ class Model_BoardAd extends ORM{
             ),
             'price' => array(
                 array('not_empty'),
-                array('not_empty'),
             ),
             'category_id' => array(
                 array('not_empty'),
@@ -199,6 +198,15 @@ class Model_BoardAd extends ORM{
         foreach( ORM::factory('BoardFiltervalue')->where('ad_id','=',$this->pk())->find_all()  as $item)
             $item->delete();
         parent::delete();
+    }
+
+    /**
+     *
+     * @throws Kohana_Exception
+     */
+    public function refresh(){
+        $this->addtime = time();
+        $this->update();
     }
 
     /**

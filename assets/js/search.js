@@ -107,7 +107,7 @@ $('#boardTopForm').submit(function(e){
         $('#boardTopForm').attr('action', uri).submit();
     });
 
-    /**
+/**
  * Click out of list of close button event handler
  * @param target_id
  */

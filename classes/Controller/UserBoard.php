@@ -10,6 +10,7 @@ class Controller_UserBoard extends Controller_User
     public $skip_auto_content_apply = array(
         'enable',
         'remove',
+        'refresh',
     );
 
     public function before(){
@@ -24,7 +25,7 @@ class Controller_UserBoard extends Controller_User
      * Companies list action
      */
     public function action_list(){
-        $ads = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->find_all();
+        $ads = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->order_by('addtime', 'DESC')->find_all();
         $this->user_content->set(array(
             'ads' => $ads,
         ));
@@ -34,6 +35,7 @@ class Controller_UserBoard extends Controller_User
      * Ad add & edit action
      */
     public function action_edit(){
+        $this->styles[] = "assets/board/css/board.css";
         $this->scripts[] = "assets/board/js/form.js";
 
         $errors = array();
@@ -82,11 +84,7 @@ class Controller_UserBoard extends Controller_User
             }
         }
 
-        $categories = array(''=>"Выберите категорию");
-        $categories += ORM::factory('BoardCategory')->getTwoLevelArray();
-        $this->user_content->set('categories', $categories);
         $this->user_content->set('cities', ORM::factory('BoardCity')->getTwoLevelArray());
-        $this->user_content->set('price_value', $this->board_cfg['price_value']);
 
         /* Если была выбрана категория - загружаем дерево категорий и фильтры */
         $subcategories = '';
@@ -95,12 +93,53 @@ class Controller_UserBoard extends Controller_User
             $filters = $this->_render_filters_list($ad->category, $ad->id);
         }
 
+
+
+        /* Категории и фильтры */
+        $categories_main = array(''=>"Выберите категорию");
+        $categories_main += ORM::factory('BoardCategory')->where('parent_id', '=', 0)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->find_all()->as_array('id','name');
+
+        $filters = '';
+        $cat_child = '';
+        if($ad->category_id > 0){
+            $cat_child = $this->_render_subcategory_list($ad->category->parent(), $ad->category_id);
+            $filters = $this->_render_filters_list($ad->category, $ad->id);
+        }
+        else{
+            if(NULL !== $cat_main = Arr::get($_POST, 'cat_main')){
+                $category = ORM::factory('BoardCategory', $cat_main);
+                $cat_child = $this->_render_subcategory_list($category);
+                $filters = $this->_render_filters_list($category);
+            }
+        }
+
+        /* Регионы и города */
+        $regions = array(''=>"Выберите регион");
+        $regions += ORM::factory('BoardCity')->where('parent_id', '=', 0)->cached(Model_BoardCity::CITIES_CACHE_TIME)->find_all()->as_array('id','name');
+        $cities = '';
+        if($ad->city_id > 0){
+            $cities = $this->_render_city_list($ad->city->parent(), $ad->city_id);
+        }
+        else{
+            if(NULL !== $region = Arr::get($_POST, 'region')){
+                $cities = $this->_render_city_list(ORM::factory('BoardCity', $region));
+            }
+        }
+
         $this->user_content->set(array(
             'user' => $this->current_user,
             'model' => $ad,
             'photos' => $photos,
             'errors' => $errors,
+            'price_value' => $this->board_cfg['price_value'],
+
+            'categories_main' => $categories_main,
+            'cat_child' => $cat_child,
             'filters' => $filters,
+
+            'regions' => $regions,
+            'cities' => $cities,
+            'job_ids' => Model_BoardCategory::getJobIds(),
         ));
     }
 
@@ -138,7 +177,34 @@ class Controller_UserBoard extends Controller_User
             $this->redirect(URL::site().Route::get('board_myads')->uri());
 
         }
+    }
 
+    /**
+     * Ad remove action
+     */
+    public function action_refresh(){
+        $id = $this->request->param('id');
+        $model = ORM::factory('BoardAd')->where('id', '=', $id)->and_where('user_id', '=', $this->current_user->id)->find();
+        if($id > 0 && !$model->loaded()){
+            $this->redirect(URL::site().Route::get('board_myads')->uri());
+            Flash::warning(__('Ad not found'));
+        }
+        elseif($model->addtime > time() - Date::DAY){
+            Flash::warning(__('You can update your ads only once a day'));
+            $this->redirect(URL::site().Route::get('board_myads')->uri());
+        }
+        else{
+            try{
+                $model->refresh();
+                Flash::success(__('Your ad has been refreshed'));
+            }
+            catch(ORM_Validation_Exception $e){
+                $errors = $e->errors('validation');
+                Flash::warning(__('An error occurred') . '('. implode(' | ', $errors) .')');
+            }
+            $this->redirect(URL::site().Route::get('board_myads')->uri());
+
+        }
     }
 
     /**
@@ -153,5 +219,65 @@ class Controller_UserBoard extends Controller_User
         Model_BoardFilter::loadFilterValues($filters, $values, $model_id);
 
         return View::factory('board/form_filters_ajax', array('filters' => $filters))->render();
+    }
+    /**
+     * Загрузить список дочерних категорий
+     * @param ORM_MPTT $category
+     * @param null $selected
+     * @return bool|string
+     */
+    protected function _render_subcategory_list($category, $selected = NULL){
+        $options = $category->children()->as_array('id', 'name');
+        if(count($options)){
+            $options = Arr::merge(array('' => __('Select category')), $options);
+            return View::factory('board/form_subcategory_ajax', array(
+                'category' => $category,
+                'options' => $options,
+                'selected' => $selected,
+            ))->render();
+        }
+        return false;
+    }
+
+    /**
+     * @param ORM_MPTT $region
+     * @param null $selected
+     * @return bool|string
+     */
+    protected function _render_city_list($region, $selected = NULL){
+        $options = $region->children()->as_array('id', 'name');
+        if(count($options)){
+            $options = Arr::merge(array('' => __('Select city')), $options);
+            return View::factory('board/form_cities_ajax', array(
+                'region' => $region,
+                'options' => $options,
+                'selected' => $selected,
+            ))->render();
+        }
+        return false;
+    }
+
+    /**
+     * Rendering sub filter options list (like Models of Mark)
+     * @param int $id - sub filter ID
+     * @param int $parent_id - Parent filter ID
+     * @param int $parent_value - value of parent filter
+     * @param int|null $selected - current filter value
+     * @return string
+     */
+    protected function _render_sub_filter($id, $parent_id, $parent_value, $selected = NULL){
+        /* Load options related to selected parent option */
+        $content = NULL;
+        $options = ORM::factory('BoardOption')->where('filter_id','=',$id)->and_where('parent_id', '=', $parent_value)->order_by('value', 'ASC')->find_all()->as_array('id', 'value');
+        if($id && $parent_id && $parent_value){
+            $parameters = array(
+                'data-id' => $id,
+                'data-parent' => $parent_id,
+            );
+            if(!count($options))
+                $parameters['disabled'] = 'disabled';
+            $content = Form::select('filters['.$id.']', $options, $selected, $parameters);
+        }
+        return $content;
     }
 }

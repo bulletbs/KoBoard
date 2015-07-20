@@ -7,17 +7,22 @@
     <a href="#" id="showBigCity" class="active">крупные города</a>
     <a href="#" id="showAllCity">все</a>
     </span>
-    <ul class="category_list" id="city_list"><?foreach($city_counter as $_cnt):?>
-            <li <?php echo $_cnt['cnt']>100 ? 'class="bigcity"' : 'class="smallcity"'?>><?php echo HTML::anchor(Model_BoardCity::generateUri( Model_BoardCity::getField('alias', $_cnt['city_id'])), Model_BoardCity::getField('name', $_cnt['city_id']) . ' <span>' .$_cnt['cnt']. '</span>') ?></li>
-        <?endforeach;?></ul>
+    <ul class="search_sub_row" id="city_list"><?$_step = ceil(count($city_counter)/5)?>
+    <?for($_i = 0; $_i < $_step; $_i++):?>
+    <?for($_j = 0; $_j < count($city_counter); $_j+=$_step):?>
+    <?if(isset($city_counter[$_i+$_j])):?><li <?php echo $city_counter[$_i+$_j]['cnt']>100 ? 'class="bigcity"' : 'class="smallcity"'?>><?php echo HTML::anchor(Model_BoardCity::generateUri( Model_BoardCity::getField('alias', $city_counter[$_i+$_j]['city_id'])), Model_BoardCity::getField('name', $city_counter[$_i+$_j]['city_id']) . ' <span>' .$city_counter[$_i+$_j]['cnt']. '</span>') ?></li><?endif;?>
+    <?endfor;?>
+    <?endfor;?></ul>
     <div class="clear"></div>
 <?endif?>
 <?if(count($childs_categories)):?>
     <div class="line"></div>
-    <ul class="category_list"><?foreach($childs_categories as $_cat):?>
-            <li><?php echo HTML::anchor(Model_BoardCategory::generateUri($_cat->alias), $_cat->name) ?></li>
-            <!--<li>--><?php //echo HTML::anchor($_cat->geturi(), $_cat->name) ?><!--</li>-->
-        <?endforeach;?></ul>
+    <ul class="search_sub_row"><?$_step = ceil(count($childs_categories)/5)?>
+    <?for($_i = 0; $_i < $_step; $_i++):?>
+    <?for($_j = 0; $_j < count($childs_categories); $_j+=$_step):?>
+    <?if(isset($childs_categories[$_i+$_j])):?><li><?php echo HTML::anchor(Model_BoardCategory::generateUri($childs_categories[$_i+$_j]->alias), $childs_categories[$_i+$_j]->name) ?></li><?endif?>
+    <?endfor;?>
+    <?endfor;?></ul>
     <div class="clear"></div>
 <?endif?>
 <?if(isset($main_filter)):?>
@@ -26,7 +31,7 @@
         var subcat_options = <?php echo json_encode(array_flip($main_filter['aliases'])) ?>;
     </script>
     <div class="line"></div>
-    <ul class="category_list"><?foreach($main_filter['options'] as $_catid=>$_cat):?>
+    <ul class="search_sub_row"><?foreach($main_filter['options'] as $_catid=>$_cat):?>
             <li><?php echo HTML::anchor(Model_BoardFilter::generateUri(array_flip($main_filter['aliases'])[$_catid]), $_cat) ?></li>
         <?endforeach;?></ul>
     <div class="clear"></div>

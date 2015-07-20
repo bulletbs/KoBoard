@@ -1,13 +1,25 @@
 $(function(){
     var base_uri = '/board/';
 
-    $('#mainCategory').change(function(){
+    /* Category handlers */
+    $('#catMain').change(function(){
         loadFilters($(this));
+        loadSubCat();
     });
-    $('#addForm').on('change', 'select[id^=subcategory]', function(){
+    $(document).on('change', '#catChild', function(){
+        $('#mainCategory').val( $(this).val() );
         loadFilters($(this));
     });
     setParentFiltersChangeHandler();
+    setLabels();
+
+    /* REegion handlers */
+    $('#region').change(function(){
+        loadRegionCities();
+    });
+    $(document).on('change', '#city', function(){
+        $('#city_id').val( $(this).val() );
+    });
 
     /**
      * Loading filters
@@ -23,15 +35,57 @@ $(function(){
                 data: {'selectedCategory':catVal}
             })
             .done(function(data) {
-//                $(data.holder).html( data.categories != '' ? data.categories : '')
                 $('#filter_holder').html(data.filters != '' ?  data.filters : '')
                 setParentFiltersChangeHandler();
+                setLabels();
             });
         }
         else{
-            selectEl.next().html('');
             $('#filter_holder').html('');
         }
+    }
+
+    function loadSubCat(){
+        var catVal = $('#catMain').val();
+        if(catVal > 0){
+            $.ajax({
+                url: base_uri + "ajax_subcats",
+                type: "POST",
+                dataType: "json",
+                data: {'selectedCategory':catVal}
+            })
+            .done(function(data) {
+                $('#subCategory').html(data.categories != '' ?  data.categories     : '')
+                setLabels();
+                $('#mainCategory').val(null);
+            });
+        }
+        else{
+            $('#subCategory').html('');
+            $('#mainCategory').val(null);
+        }
+
+    }
+
+    function loadRegionCities(){
+        var val = $('#region').val();
+        if(val  > 0){
+            $.ajax({
+                url: base_uri + "ajax_cities",
+                type: "POST",
+                dataType: "json",
+                data: {'selectedRegion':val }
+            })
+            .done(function(data) {
+                $('#subRegion').html(data.cities != '' ?  data.cities : '');
+                $('#city_id').val( null );
+            });
+        }
+        else{
+            $('#subRegion').html('');
+            $('#city_id').val( null );
+        }
+
     }
 
     /**
@@ -67,5 +121,37 @@ $(function(){
                 loadSubFilter(filter_id, parent_id, $(this).val());
             });
         });
+    }
+
+    /**
+     * Set adtype and price labels (depends to category)
+     */
+    function setLabels(){
+        catVal = $('#catChild').val();
+        if(!catVal){
+            catVal = $('#catMain').val();
+        }
+        common_labels = {
+            0: 'Частное',
+            1: 'Коммерческое'
+        };
+        job_labels = {
+            0: 'Резюме',
+            1: 'Вакансия'
+        };
+        if(typeof job_ids != 'undefined'){
+            if(catVal in job_ids){
+                $('#eventPriceLabel').text('Ставка');
+                $('#eventType option').each(function(){
+                    $(this).text( job_labels[ $(this).val() ] );
+                });
+            }
+            else{
+                $('#eventPriceLabel').text('Цена');
+                $('#eventType option').each(function(){
+                    $(this).text( common_labels[ $(this).val() ] );
+                });
+            }
+        }
     }
 });

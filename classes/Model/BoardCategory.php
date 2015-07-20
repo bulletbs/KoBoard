@@ -34,6 +34,8 @@ class Model_BoardCategory extends ORM_MPTT{
             'noprice' => 'No prices category',
             'parent_id' => 'Parent category',
             'subcats' => 'Sub Categories',
+            'title' => 'Meta Title',
+            'description' => 'Meta Description',
         );
     }
 
@@ -61,8 +63,6 @@ class Model_BoardCategory extends ORM_MPTT{
      * @return mixed
      */
     public static function getCategoriesList(){
-//        if(!is_null(self::$categories))
-//            return self::$categories;
         if(NULL === $array = Cache::instance()->get(self::BOARD_CATEGORIES_CACHE)){
             $list = ORM::factory('BoardCategory')
                 ->where('lvl','>','0')
@@ -74,7 +74,6 @@ class Model_BoardCategory extends ORM_MPTT{
                 }
             Cache::instance()->set(self::BOARD_CATEGORIES_CACHE, $array, self::CATEGORIES_CACHE_TIME);
         }
-//        self::$categories = $array;
         return $array;
     }
 
@@ -233,6 +232,11 @@ class Model_BoardCategory extends ORM_MPTT{
         return $array;
     }
 
+    /**
+     * Get category uri
+     * @return string
+     * @throws Kohana_Exception
+     */
     public function getUri(){
         if(is_null($this->_uriToMe)){
             $this->_uriToMe = Route::get('board_cat')->uri(array(
@@ -242,12 +246,27 @@ class Model_BoardCategory extends ORM_MPTT{
         return $this->_uriToMe;
     }
 
+    /**
+     * Generate runtime URI
+     * @param $alias
+     * @return string
+     * @throws Kohana_Exception
+     */
     public static function generateUri($alias){
         $uri = Route::get('board_cat')->uri(array(
             'cat_alias' => $alias,
             'city_alias' => Request::initial()->param('city_alias'),
         ));
         return $uri;
+    }
+
+    /**
+     * Get IDs of all JOB categories
+     * @return array
+     * @throws Kohana_Exception
+     */
+    public static function getJobIds(){
+        return ORM::factory('BoardCategory')->select('id')->where('job','=',1)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->find_all()->as_array('id','id');
     }
 
     /**

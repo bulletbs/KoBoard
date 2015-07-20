@@ -8,15 +8,20 @@
         <?= Form::input('title', Arr::get($_POST,'title', $model->title), array('class'=>isset($errors['title']) ? 'error-input': ''))?>
 
         <?= Form::label('category_id', 'Категория')?>
-        <?= Form::select('category_id', $categories, Arr::get($_POST,'category_id', $model->category_id) , array('class'=>isset($errors['category_id']) ? 'error-input': '', 'id'=>'mainCategory')) ?>
+        <?= Form::hidden('category_id', Arr::get($_POST,'category_id', $model->category_id), array('id'=>'mainCategory')) ?>
+        <?= Form::select('cat_main', $categories_main, Arr::get($_POST,'cat_main', $model->pcategory_id), array('class'=>isset($errors['category_id']) ? 'error-input': '', 'id'=>'catMain'))?>
+        <span id="subCategory"><?= $cat_child ?></span>
         <div id="filter_holder"><?= $filters ?></div>
 
         <?= Form::label('description', 'Описание')?>
         <?= Form::textarea('description', Arr::get($_POST,'description', $model->description), array('class'=>isset($errors['description']) ? 'error-input': ''))?>
 
-        <?= Form::label('price', 'Цена ('.$price_value.')')?>
-        <?= Form::input('price', Arr::get($_POST,'price', $model->price), array('class'=>'span1 first' . (isset($errors['price']) ? 'error-input': ''))) ?>
+        <?= Form::label('type', 'Тип объявления')?>
+        <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>
 
+
+        <?= Form::label('price', 'Цена ('.$price_value.')', array('id'=>'eventPriceLabel'))?>
+        <?= Form::input('price', Arr::get($_POST,'price', $model->price), array('class'=>'span1 first' . (isset($errors['price']) ? 'error-input': ''))) ?>
         <legend>Фотографии</legend>
         <?if(count($photos)):?>
             <?foreach($photos as $photo):?>
@@ -52,9 +57,11 @@
         <?= Form::input('phone', Arr::get($_POST,'phone', $model->phone)) ?>
 
         <?= Form::label('city_id', 'Регион')?>
-        <?= Form::select('city_id', $cities, Arr::get($_POST,'city_id', $model->city_id)) ?>
+        <?= Form::hidden('city_id', Arr::get($_POST,'city_id', $model->city_id) , array('id'=>'city_id')) ?>
+        <?= Form::select('region', $regions, Arr::get($_POST,'region', $model->pcity_id), array('class'=>isset($errors['city_id']) ? 'error-input': '', 'id'=>'region'))?>
+        <span id="subRegion"><?= $cities ?></span>
 
-        <?= Form::label('address', 'Адрес')?>
+        <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>
         <?= Form::input('address', Arr::get($_POST,'address', $model->address)) ?>
         <!--        --><?//= Form::input('address', Arr::get($_POST,'address')) ?>
         <br><br>
@@ -62,8 +69,9 @@
     </fieldset>
 <?=Form::close()?>
 
-<?if($model->loaded()):?>
 <script type="text/javascript">
+    <?if($model->loaded()):?>
+    var job_ids = <?php echo json_encode($job_ids)?>;
     var modelId = <?php echo $model->id?>;
+    <?endif?>
 </script>
-<?endif?>

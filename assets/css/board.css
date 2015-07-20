@@ -1,69 +1,3 @@
-
-/* *************** */
-/* OVERALL HEADER */
-.logo{
-    background: url("images/logo.png") no-repeat scroll 0 0 transparent;
-    display: block;
-    float: left;
-    width: 242px;
-    margin-right: 20px;
-    font-size: 13px;
-    font-family: Tahoma, Arial;
-    color: #af9294;
-    text-decoration: none;
-    font-weight: bolder;
-    padding-top: 40px;
-}
-    .add_but{
-        float: left;
-        display: block;
-        background: url("images/add_but.png") no-repeat scroll 0 0 transparent;
-        width: 197px;
-        height: 29px;
-        margin: 0 0 0 540px;
-    }
-    .auth_links{
-        float: right;
-        margin: 10px 0 0 0;
-    }
-    .auth_links, .auth_links a{
-        font-weight: bold;
-        font-size: 10px;
-        color: #353535;
-    }
-
-.main_search{
-    position: relative;
-    height: 50px;
-    float: left;
-    width: 738px;
-}
-    .main_search .query_field{
-        margin-top: 5px;
-        float: left;
-        width: 570px;
-        height: 20px;
-        font-size: 16px;
-        border: 1px solid #AEAEAE;
-        padding: 11px 55px 10px 10px;
-        border-radius: 3px 0 0 3px;
-        -webkit-border-radius: 3px 0 0 3px;
-        -moz-border-radius: 3px 0 0 3px;
-        -khtml-border-radius: 3px 0 0 3px;
-    }
-    .main_search .search_button{
-        margin-top: 5px;
-        float: left;
-        background: url("images/search_but.png");
-        width: 98px;
-        height: 41px;
-        border: 1px solid #2462a0;
-        border-radius: 0 3px 3px 0;
-        -webkit-border-radius: 0 3px 3px 0;
-        -moz-border-radius: 0 3px 3px 0;
-        -khtml-border-radius: 0 3px 3px 0;
-    }
-
 /* MAINPAGE */
 .map{
     margin: 0 auto;
@@ -155,20 +89,35 @@
 
 
 /* FORM */
-#mainCategory{
+#catMain{
     float: left;
     margin-right: 10px;
 }
-    .subcat_holder{
+    #catChild{
         float: left;
         margin-right: 10px;
     }
-    .subcat_holder select{
+    #region{
         float: left;
         margin-right: 10px;
+    }
+    #city{
+        float: left;
+        margin-right: 10px;
+    }
+    .field_arrow_div{
+        display: block;
+        float: left;
+        margin-right: 10px;
+        line-height: 40px;
+        font-weight: bold;
+        font-size: 16px;
     }
     #filter_holder{
         clear: both;
+    }
+    .error-input{
+        border: 1px solid #ff0000 !important;
     }
 
 /* GALLERY */
@@ -561,31 +510,29 @@ table.tableccat tr:nth-child(2n) td {
         background: #eaeaea;
     }
 
-/* Search page category/city list*/
-.category_list{
-    width: 730px;
+/* Search page category/city list (ROW style)*/
+.search_sub_row {
     margin-top:10px;
     margin-bottom:10px;
     padding-left: 0px;
 }
-    .category_list li {
+    .search_sub_row li {
         list-style: none;
         float: left;
-        width: 180px;
+        width: 190px;
         margin-bottom: 2px;
     }
-    .category_list li a{
-        /* font-weight: bold; */
+    .search_sub_row li a{
         font-size: 13px;
         color: #008CC3;
         text-decoration: none;
     }
-    .category_list li a:hover{
+    .search_sub_row li a:hover{
         text-decoration: none;
         color: #F06939;
     }
 
-.category_list span {
+.search_sub_col span, .search_sub_row span {
     color: #808080;
     font: 13px Arial,sans-serif;
     padding: 0;

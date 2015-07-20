@@ -64,15 +64,19 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
 
         $this->template->set(array(
             'form_action' => $form_action,
-            'city_list' => $this->_regionListRender(),
-            'category_list' => $this->_categoryListRender(),
+
             'region_name' =>  $region_name,
-            'category_name' => $category_name,
             'region_ailas' => $city_alias,
+            'city_list' => $this->_regionListRender(),
+
+            'category_name' => $category_name,
             'category_alias' => $cat_alias,
+            'category_list' => $this->_categoryListRender(),
             'filters' => isset($filters_view) ? $filters_view : '',
+
             'price_filter' => $price_filter,
             'board_cfg' => $cfg,
+            'is_job_category' => isset($category_id) && in_array($category_id, Model_BoardCategory::getJobIds()),
         ));
     }
 

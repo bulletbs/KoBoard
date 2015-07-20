@@ -4,7 +4,7 @@ return array
 (
     'board' => array(
         'total_items'       => 0,
-        'items_per_page'    => 15,
+        'items_per_page'    => 30,
         'current_page'      => array
         (
             'source'        => 'route',

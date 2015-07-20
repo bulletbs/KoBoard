@@ -18,6 +18,8 @@ class Model_BoardAdphoto extends ORM{
             'width'     => 'Ширина',
             'height'    => 'Высота',
             'ext'       => 'Расширение',
+            'name'       => 'Имя',
+            'host'       => 'Хост',
         );
     }
 
@@ -128,7 +130,7 @@ class Model_BoardAdphoto extends ORM{
 
 
     /**
-     * Find list of photos by requested ads ids
+     * Find list of photos by requested AD ids
      * @param array $ids - Ads IDs array
      * @return array|object - Photos objects array
      */

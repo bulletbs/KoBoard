@@ -20,20 +20,21 @@
     <div id="filtersList" style="display: none;">
         <?php echo $filters?>
         <div class="filter">
-<!--            <label>--><?php //echo __('Price')?><!--</label>-->
-            <?= Form::input('price[from]', isset($price_filter['from']) ? $price_filter['from'] : NULL, array('id'=>'fromPriceFilter', 'placeholder'=>__('Price').' '.__('From'), 'autocomplete'=>'off')) ?>
-            <?= Form::input('price[to]', isset($price_filter['to']) ? $price_filter['to'] : NULL, array('id'=>'toPriceFilter', 'placeholder'=>__('Price').' '.__('To'), 'autocomplete'=>'off')) ?>
+            <?= Form::input('price[from]', isset($price_filter['from']) ? $price_filter['from'] : NULL, array('id'=>'fromPriceFilter', 'placeholder'=>__( $is_job_category ? 'Salary' : 'Price').' '.__('From'), 'autocomplete'=>'off')) ?>
+            <?= Form::input('price[to]', isset($price_filter['to']) ? $price_filter['to'] : NULL, array('id'=>'toPriceFilter', 'placeholder'=>__($is_job_category ? 'Salary' : 'Price').' '.__('To'), 'autocomplete'=>'off')) ?>
         </div>
         <script type="text/javascript">
-            $('#fromPriceFilter').TipComplete({
-                values : [<?php echo $board_cfg['price_hints']?>],
-                prefix: '<?php echo __('From')?>',
-                suffix: '<?php echo $board_cfg['price_value']?>',
-            });
-            $('#toPriceFilter').TipComplete({
-                values : [<?php echo $board_cfg['price_hints']?>],
-                prefix: '<?php echo __('To')?>',
-                suffix: '<?php echo $board_cfg['price_value']?>',
+            $(function(){
+                $('#fromPriceFilter').TipComplete({
+                    values : [<?php echo $board_cfg['price_hints']?>],
+                    prefix: '<?php echo __('From')?>',
+                    suffix: '<?php echo $board_cfg['price_value']?>',
+                });
+                $('#toPriceFilter').TipComplete({
+                    values : [<?php echo $board_cfg['price_hints']?>],
+                    prefix: '<?php echo __('To')?>',
+                    suffix: '<?php echo $board_cfg['price_value']?>',
+                });
             });
         </script>
         <div class="clear"></div>

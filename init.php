@@ -53,7 +53,7 @@ if(!Route::cache()){
             'city_alias' => 'all',
         ));
 
-    Route::set('board_myads', 'profile/board(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
+    Route::set('board_myads', 'my-ads(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove|refresh)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'userBoard',
             'action' => 'list',
@@ -65,5 +65,4 @@ if(!Route::cache()){
             'controller' => 'BoardSearch',
             'action' => 'cities',
         ));
-
 }

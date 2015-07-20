@@ -11,7 +11,7 @@
         suffix : '',
         prefix: '',
         no_digits: false,
-        clean_mask: /[^\d]/
+        clean_mask: /[^\d]/g
     };
 
     var methods = {
@@ -41,7 +41,7 @@
                 $(this).replaceWith(tipBody);
 
                 /* Event handlers */
-                if(options.mask)
+                if(options.clean_mask)
                     $("input", tipBody).on('keyup', function(){
                         var value = $(this).val().toString().replace(options.clean_mask, '');
                         $(this).val( value );
@@ -56,7 +56,7 @@
             if($(e.target).is("span")){
                 $('span', base).hide();
                 $('input', base).show().focus();
-                $('ul', base).show().focus();
+                $('ul', base).show();
             }
         },
         'close' : function(e){

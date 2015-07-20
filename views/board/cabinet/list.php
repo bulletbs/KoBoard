@@ -11,7 +11,7 @@
     <tr>
         <th width="3%">№</th>
         <th>Заголовок</th>
-        <th width="20%">Действия</th>
+        <th width="150">Действия</th>
     </tr>
 </thead>
 <tbody>
@@ -23,6 +23,7 @@
         <td>
             <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i></a>
             <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'enable', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Status')?>"><i class="fa fa-eye<?php echo !$ad->publish ? '-slash' : ''?>"></i></a>
+            <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'refresh', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Refresh')?>"><i class="fa fa-refresh"></i></a>
             <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'remove', 'id'=>$ad->id))?>" class='pure-button pure-button-error' title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i></a>
         </td>
     </tr>

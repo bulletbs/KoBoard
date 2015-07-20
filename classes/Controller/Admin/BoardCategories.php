@@ -34,6 +34,8 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
             'selected'=>0,
         )),
         'subcats' => array('type'=>'call_view', 'data'=>'admin/categories/boardCategoryOptions'),
+        'title' => array('type'=>'text'),
+        'description' => array('type'=>'text'),
     );
 
     public $_sort_fields = array(

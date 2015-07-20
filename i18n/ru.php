@@ -5,6 +5,7 @@ return array(
     'Classified ads' => 'Доска объявлений',
     'Add ad' => 'Добавить объявление',
     'Select category' => 'Выберите категорию',
+    'Select city' => 'Выберите город',
 
     'New classified ad confirmation' => 'Подтвреждение публикации объявления',
     'Your ad successfully added' => 'Ваше объявление добавлено',
@@ -13,6 +14,8 @@ return array(
     'Your ad successfully turned off' => 'Ваше объявление снято с публикации',
     'Your ad successfully turned on' => 'Ваше объявление опубликовано',
     'Your ad has been removed' => 'Ваше объявление было удалено',
+    'Your ad has been refreshed' => 'Ваше объявление было обновлено',
+    'You can update your ads only once a day' => 'Объявления можно освежить только раз в сутки',
     'Ad publication' => 'Подтверждение публикации',
 
     'Added' => 'Добавлено',
@@ -27,6 +30,7 @@ return array(
     'search in title and description' => 'искать в заголовке и описании',
 
     'Price' => 'Цена',
+    'Salary' => 'Ставка',
     'negotiable' => 'договорная',
     '' => '',
     'Send message to user' => 'Отправка сообщения пользователю',

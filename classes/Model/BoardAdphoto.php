@@ -49,7 +49,8 @@ class Model_BoardAdphoto extends ORM{
         $image = Image::factory($file);
         if(!$this->ext)
             $this->ext = $image->findExtension();
-        $image->resize(100);
+//        $image->resize(NULL, 75);
+        $image->image_fixed_resize(100, 75);
         $image->save($this->getThumb(true));
     }
 

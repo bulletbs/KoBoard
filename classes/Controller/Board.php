@@ -20,6 +20,7 @@ class Controller_Board extends Controller_System_Page
 
     public $skip_auto_content_apply = array(
         'main',
+        'tree',
     );
 
     public function before(){
@@ -54,13 +55,16 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_main(){
         $this->breadcrumbs = Breadcrumbs::factory();
-//        if(!$content = Cache::instance()->get("BoardMainPage")){
-            $this->scripts[] = "assets/board/js/jquery.highlight.js";
-            $this->scripts[] = "assets/board/js/jquery.tooltip.js";
+        $this->scripts[] = "assets/board/js/jquery.highlight.js";
+        $this->scripts[] = "assets/board/js/jquery.tooltip.js";
+        if(!$content = Cache::instance()->get("BoardMainPage")){
             $content = View::factory('board/map');
             $content->set('site_name', $this->config['project']['name']);
-            Cache::instance()->set("BoardMainPage", $content->render(), 600);
-//        }
+            $content->set('ads_count', Model_BoardAd::countActiveAds());
+
+            $content = $content->render();
+            Cache::instance()->set("BoardMainPage", $content, Date::DAY);
+        }
         $this->template->content = $content;
     }
 
@@ -77,6 +81,8 @@ class Controller_Board extends Controller_System_Page
         if($city_alias && $city = Model_BoardCity::getAliases($city_alias)){
             $city = ORM::factory('BoardCity', $city);
             $title .= $city->name_in;
+            $this->title = $city->name_in;
+            $this->description = $city->name_in;
             $parents = $city->parents()->as_array('id');
             foreach($parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri());
@@ -124,6 +130,8 @@ class Controller_Board extends Controller_System_Page
                 $ads->and_where('category_id','=',$category->id);
             }
             $title = $category->name . (!empty($title) ? ' '.$title : '' );
+            $this->title = $category->getTitle() . (!empty($this->title) ? ' '.$this->title : '' );
+            $this->description = $category->getDescription() . (!empty($this->description) ? ' '.$this->description : '' );
         }
         else{
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array();
@@ -258,6 +266,8 @@ class Controller_Board extends Controller_System_Page
         $ad = $ad[0];
         if($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) == $alias){
             $ad->increaseViews();
+            $this->title = $ad->getTitle();
+            $this->description = $ad->getDescription();
 
             /* Breadcrumbs & part parents */
             $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
@@ -506,6 +516,50 @@ class Controller_Board extends Controller_System_Page
     }
 
     /**
+     * Вывод дерева регионов и городов
+     */
+    public function action_tree(){
+        $this->breadcrumbs = Breadcrumbs::factory();
+        if(!$content = Cache::instance()->get("BoardCityTreePage")){
+            $content = View::factory('board/tree');
+            $regions = ORM::factory('BoardCity')->where('lvl', '=', 1)->order_by('name', 'ASC')->find_all();
+            $cities = array();
+            foreach(ORM::factory('BoardCity')->where('lvl', '=', 2)->order_by('name', 'ASC')->find_all() as $city){
+                $cities[$city->parent_id][$city->id] = $city;
+            }
+            $content->set(array(
+                'regions' => $regions,
+                'cities' => $cities,
+            ));
+            $content = $content->render();
+            Cache::instance()->set("BoardCityTreePage", $content, Date::MONTH);
+        }
+        $this->template->content = $content;
+    }
+
+    /**
+     * Вывод дерева разделов и категорий
+     */
+    public function action_categories(){
+        $this->breadcrumbs = Breadcrumbs::factory();
+        if(!$content = Cache::instance()->get("BoardCategoryTreePage")){
+            $content = View::factory('board/categories');
+            $parts = ORM::factory('BoardCategory')->where('lvl', '=', 1)->order_by('name', 'ASC')->find_all();
+            $categories = array();
+            foreach(ORM::factory('BoardCategory')->where('lvl', '=', 2)->order_by('name', 'ASC')->find_all() as $category){
+                $categories [$category->parent_id][$category->id] = $category;
+            }
+            $content->set(array(
+                'parts' => $parts,
+                'categories' => $categories,
+            ));
+            $content = $content->render();
+            Cache::instance()->set("BoardCategoryTreePage", $content, Date::MONTH);
+        }
+        $this->template->content = $content;
+    }
+
+    /**
      * Подтверждение объявления
      */
     public function action_confirm(){
@@ -606,82 +660,6 @@ class Controller_Board extends Controller_System_Page
         }
         if(!empty($this->json['content']))
             $this->json['status'] = TRUE;
-    }
-
-    /**
-     * Загрузить список выпадающих фильтров
-     * @param ORM_MPTT $category
-     * @param integer $model_id
-     * @return bool|string
-     */
-    protected function _render_filters_list($category, $model_id = NULL){
-        $filters = Model_BoardFilter::loadFiltersByCategory($category);
-        $values = Arr::get($_POST, 'filters', array());
-        Model_BoardFilter::loadFilterValues($filters, $values, $model_id);
-
-        return View::factory('board/form_filters_ajax', array('filters' => $filters))->render();
-    }
-
-    /**
-     * Загрузить список дочерних категорий
-     * @param ORM_MPTT $category
-     * @param null $selected
-     * @return bool|string
-     */
-    protected function _render_subcategory_list($category, $selected = NULL){
-        $options = $category->children()->as_array('id', 'name');
-
-        if(count($options)){
-            $options = Arr::merge(array('' => __('Select category')), $options);
-            return View::factory('board/form_subcategory_ajax', array(
-                'category' => $category,
-                'options' => $options,
-                'selected' => $selected,
-            ))->render();
-        }
-        return false;
-    }
-
-    /**
-     * @param ORM_MPTT $region
-     * @param null $selected
-     * @return bool|string
-     */
-    protected function _render_city_list($region, $selected = NULL){
-        $options = $region->children()->as_array('id', 'name');
-        if(count($options)){
-            $options = Arr::merge(array('' => __('Select city')), $options);
-            return View::factory('board/form_cities_ajax', array(
-                'region' => $region,
-                'options' => $options,
-                'selected' => $selected,
-            ))->render();
-        }
-        return false;
-    }
-
-    /**
-     * Rendering sub filter options list (like Models of Mark)
-     * @param int $id - sub filter ID
-     * @param int $parent_id - Parent filter ID
-     * @param int $parent_value - value of parent filter
-     * @param int|null $selected - current filter value
-     * @return string
-     */
-    protected function _render_sub_filter($id, $parent_id, $parent_value, $selected = NULL){
-        /* Load options related to selected parent option */
-        $content = NULL;
-        $options = ORM::factory('BoardOption')->where('filter_id','=',$id)->and_where('parent_id', '=', $parent_value)->order_by('value', 'ASC')->find_all()->as_array('id', 'value');
-        if($id && $parent_id && $parent_value){
-            $parameters = array(
-                'data-id' => $id,
-                'data-parent' => $parent_id,
-            );
-            if(!count($options))
-                $parameters['disabled'] = 'disabled';
-            $content = Form::select('filters['.$id.']', $options, $selected, $parameters);
-        }
-        return $content;
     }
 
     /**
@@ -796,8 +774,8 @@ class Controller_Board extends Controller_System_Page
      * Отображение формы отправки сообщения (AJAX)
      */
     public function action_show_mailto(){
-//        if(!$this->request->is_ajax())
-//            $this->go(Route::get('board')->uri());
+        if(!$this->request->is_ajax())
+            $this->go(Route::get('board')->uri());
         $id = $this->request->param('id');
         $ad = ORM::factory('BoardAd', $id);
         if($ad->loaded()){
@@ -826,7 +804,7 @@ class Controller_Board extends Controller_System_Page
                         ->to($ad->email)
                         ->from($this->config->robot_email)
                         ->subject($this->config['project']['name'] .': '. __('Message from bulletin board'))
-                        ->message(View::factory('board/user_mailto_letter', array(
+                        ->message(View::factory('board/mail/user_mailto_letter', array(
                                 'name' => $ad->name,
                                 'email'=> Arr::get($_POST, 'email'),
                                 'text'=> strip_tags(Arr::get($_POST, 'text')),
@@ -850,6 +828,82 @@ class Controller_Board extends Controller_System_Page
 
 
     /**
+     * Загрузить список выпадающих фильтров
+     * @param ORM_MPTT $category
+     * @param integer $model_id
+     * @return bool|string
+     */
+    protected function _render_filters_list($category, $model_id = NULL){
+        $filters = Model_BoardFilter::loadFiltersByCategory($category);
+        $values = Arr::get($_POST, 'filters', array());
+        Model_BoardFilter::loadFilterValues($filters, $values, $model_id);
+
+        return View::factory('board/form_filters_ajax', array('filters' => $filters))->render();
+    }
+
+    /**
+     * Загрузить список дочерних категорий
+     * @param ORM_MPTT $category
+     * @param null $selected
+     * @return bool|string
+     */
+    protected function _render_subcategory_list($category, $selected = NULL){
+        $options = $category->children()->as_array('id', 'name');
+
+        if(count($options)){
+            $options = Arr::merge(array('' => __('Select category')), $options);
+            return View::factory('board/form_subcategory_ajax', array(
+                'category' => $category,
+                'options' => $options,
+                'selected' => $selected,
+            ))->render();
+        }
+        return false;
+    }
+
+    /**
+     * @param ORM_MPTT $region
+     * @param null $selected
+     * @return bool|string
+     */
+    protected function _render_city_list($region, $selected = NULL){
+        $options = $region->children()->as_array('id', 'name');
+        if(count($options)){
+            $options = Arr::merge(array('' => __('Select city')), $options);
+            return View::factory('board/form_cities_ajax', array(
+                'region' => $region,
+                'options' => $options,
+                'selected' => $selected,
+            ))->render();
+        }
+        return false;
+    }
+
+    /**
+     * Rendering sub filter options list (like Models of Mark)
+     * @param int $id - sub filter ID
+     * @param int $parent_id - Parent filter ID
+     * @param int $parent_value - value of parent filter
+     * @param int|null $selected - current filter value
+     * @return string
+     */
+    protected function _render_sub_filter($id, $parent_id, $parent_value, $selected = NULL){
+        /* Load options related to selected parent option */
+        $content = NULL;
+        $options = ORM::factory('BoardOption')->where('filter_id','=',$id)->and_where('parent_id', '=', $parent_value)->order_by('value', 'ASC')->find_all()->as_array('id', 'value');
+        if($id && $parent_id && $parent_value){
+            $parameters = array(
+                'data-id' => $id,
+                'data-parent' => $parent_id,
+            );
+            if(!count($options))
+                $parameters['disabled'] = 'disabled';
+            $content = Form::select('filters['.$id.']', $options, $selected, $parameters);
+        }
+        return $content;
+    }
+
+    /**
      * Отправляет письмо со ссылкой для активации объявления (+пользователя)
      * (отправляется только, если пользователь не авторизрован или регистрация произошла после добавления объявления)
      * @param $ad
@@ -860,7 +914,7 @@ class Controller_Board extends Controller_System_Page
             ->to($user->email)
             ->from($this->config->robot_email)
             ->subject($this->config['project']['name'] .': '. __('New classified ad confirmation'))
-            ->message(View::factory('board/ad_confirm_letter', array(
+            ->message(View::factory('board/mail/ad_confirm_letter', array(
                     'user'=>$user,
                     'site_name'=> $this->config['project']['name'],
                     'server_name'=> $_SERVER['HTTP_HOST'],

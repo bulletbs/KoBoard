@@ -247,6 +247,30 @@ class Model_BoardCategory extends ORM_MPTT{
     }
 
     /**
+     * Generate content for META Title tag
+     * @return string
+     */
+    public function getTitle(){
+        if(!empty($this->title))
+            $title = $this->title;
+        else
+            $title = $this->name;
+        return htmlspecialchars($title);
+    }
+
+    /**
+     * Generate content for META Description tag
+     * @return string
+     */
+    public function getDescription(){
+        if(!empty($this->description))
+            $description = $this->description;
+        else
+            $description = $this->name;
+        return htmlspecialchars($description);
+    }
+
+    /**
      * Generate runtime URI
      * @param $alias
      * @return string

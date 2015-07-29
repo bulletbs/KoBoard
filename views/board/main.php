@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 
 
+
 <div class="pure-g categoryList">
     <div class="pure-u-1-3">
         <?$_i = 0;?>

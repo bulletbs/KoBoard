@@ -11,6 +11,7 @@
     <tr>
         <th width="3%">№</th>
         <th>Заголовок</th>
+        <th>Просмотров</th>
         <th width="150">Действия</th>
     </tr>
 </thead>
@@ -20,6 +21,7 @@
     <tr>
         <td><?php echo $ad->id?></td>
         <td><?php echo HTML::anchor($ad->getUri(), $ad->title, array('target'=>'_blank'))?></td>
+        <td class="center"><?php echo $ad->views ?></td>
         <td>
             <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i></a>
             <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'enable', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Status')?>"><i class="fa fa-eye<?php echo !$ad->publish ? '-slash' : ''?>"></i></a>

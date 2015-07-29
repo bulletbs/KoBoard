@@ -109,6 +109,8 @@ class Model_BoardFilter extends ORM{
                     }
                 }
                 $filters[$filter->id]['parent'] = $filter->parent_id;
+                if(isset($filters[ $filter->parent_id ]))
+                    $filters[ $filter->parent_id ]['is_parent'] = TRUE;
                 if($filter->type == self::NUMERIC_TYPE || $filter->type == self::CHILDNUM_TYPE){
                     $filters[$filter->id]['hints'] = $filter->hints;
                     $filters[$filter->id]['no_digits'] = $filter->no_digits;

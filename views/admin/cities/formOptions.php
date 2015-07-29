@@ -16,3 +16,8 @@
 optionHtml = '<div><?= Form::input('newOptions[]', '', array('class'=>'span4'))?>&nbsp;<?= Form::input('del','X',array('class'=>'btn', 'type'=>'button'))?><br></div>';
 deletedOptionHtml = '<?= Form::hidden('deleted[]', 'optionKey') ?>';
 </script>
+<br>
+<div class="form-group" id="control_group_alias">
+    <?php echo Form::label('multiadd', 'Добавить несколько городов (каждый город с новой строки)', array('class'=>'control-label'))?>
+    <?php echo Form::textarea('multiadd', NULL, array('class'=>'form-control'))?>
+</div>

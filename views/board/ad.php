@@ -1,24 +1,24 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 
-<h1><? echo $ad->title ?></h1>
-<small><?php echo __('Added')?> <? echo Date::smart_date($ad->addtime) ?></small>
+<h1><?php echo $ad->title ?></h1>
 <div class="clear"></div>
 
 <div class="col_main">
     <div class="first message">
-
-        <? if (count($photos) == 1): ?>
-            <div class="showroom"><? echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center')) ?></div>
-        <? elseif (count($photos) > 1): ?>
+        <div class="quiet right"><?php echo __('Views')?>: <?php echo $ad->views ?></div>
+        <div class="quiet"><?php echo __('Added')?> <?php echo Date::smart_date($ad->addtime) ?></div>
+        <?php if (count($photos) == 1): ?>
+            <div class="showroom"><?php echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center')) ?></div>
+        <?php elseif (count($photos) > 1): ?>
             <div id="showroom" class="showroom">
                 <div class="clear"></div>
             </div>
-            <div id="showstack" class="showstack"><? foreach ($photos as $photo): ?> <? echo $photo->getPhotoTag() ?> <? endforeach ?></div>
+            <div id="showstack" class="showstack"><?php foreach ($photos as $photo): ?> <?php echo $photo->getPhotoTag() ?> <?php endforeach ?></div>
             <div class="board_gallery">
                 <ul id="thumbs" class="thumbs">
-                    <? foreach ($photos as $photo): ?>
-                        <li><? echo HTML::anchor($photo->getPhotoUri(), $photo->getThumbTag()) ?></li>
-                    <? endforeach ?>
+                    <?php foreach ($photos as $photo): ?>
+                        <li><?php echo HTML::anchor($photo->getPhotoUri(), $photo->getThumbTag()) ?></li>
+                    <?php endforeach ?>
                 </ul>
                 <div class="clear"></div>
 
@@ -49,7 +49,7 @@
             <dd><?php echo __( $is_job_category ? Model_BoardAd::$jobType[$ad->type] : Model_BoardAd::$adType[$ad->type]) ?></dd>
 
             <dt>Автор</dt>
-            <dd><strong><?php echo  $ad->name?></strong> <?if($ad->user_id>0):?><small class="quiet"><a href="#">(<?php echo __('Search for more user ads') ?>)</a></small><?endif?></dd>
+            <dd><strong><?php echo  $ad->name?></strong> <?/*if($ad->user_id>0):?><small class="quiet"><a href="#">(<?php echo __('Search for more user ads') ?>)</a></small><?endif*/?></dd>
 
             <?if(!empty($ad->address)):?>
             <dt>Адрес</dt>

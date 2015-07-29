@@ -112,7 +112,7 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
         }
 
         /* Save Present Options */
-        echo Debug::vars($_POST);
+//        echo Debug::vars($_POST);
         foreach(Arr::get($_POST,'options', array()) as $k=>$option){
             $option = ORM::factory('BoardCity', $k)->values(array('name'=>$option));
             if(empty($option->alias))
@@ -123,6 +123,19 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
         /* Delete Options */
         foreach(Arr::get($_POST,'deleted', array()) as $option)
             ORM::factory('BoardCity', $option)->delete();
+
+        /* Save multi input */
+        $multiadd = Arr::get($_POST, 'multiadd');
+        $multiadd =  preg_split('~\r\n?|\n~', $multiadd);
+        foreach($multiadd as $k=>$option){
+            $option = trim($option);
+            if(!empty($option)){
+                $newOption = ORM::factory('BoardCity')->values(array('name'=>$option));
+                $newOption->alias = Text::transliterate($newOption->name, true);
+                $newOption->insert_as_last_child($model);
+            }
+        }
+
 
         Cache::instance()->delete('fullDepthCities');
         Cache::instance()->delete('firstLevelCities');

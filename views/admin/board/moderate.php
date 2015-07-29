@@ -49,7 +49,7 @@
                 <td>
                     <?php echo $item->name?>
                     <?if($item->user_id > 0):?>&nbsp;<?php echo HTML::anchor($user_uri.'/edit/'.$item->user_id, '<i class="glyphicon glyphicon-user"></i>', array('target'=>'_blank', 'title'=>__('Edit user')))?><?endif?>
-                    <?if($item->user_id > 0):?><?php echo HTML::anchor($crud_uri.'?user_id=1', '<i class="glyphicon glyphicon-list"></i>', array('target'=>'_blank', 'class'=>'btn btn-inverse ', 'title'=>__('All user ads')))?><?endif?>
+                    <?if($item->user_id > 0):?><?php echo HTML::anchor($crud_uri.'?user_id='.$item->user_id, '<i class="glyphicon glyphicon-list"></i>', array('target'=>'_blank', 'class'=>'btn btn-inverse ', 'title'=>__('All user ads')))?><?endif?>
                 </td>
                 <td style="width: 150px;">
                     <div class="btn-group">

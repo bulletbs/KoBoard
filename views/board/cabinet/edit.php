@@ -26,7 +26,7 @@
         <?if(count($photos)):?>
             <?foreach($photos as $photo):?>
                 <div class="pure-u-4-24">
-                    <?= HTML::anchor($photo->getPhotoUri(), $photo->getThumbTag('',array('class'=>'thumbnail')), array('target'=>'_blank')) ?>
+                    <?= HTML::anchor($photo->getPhotoUri(), $photo->getThumbTag('',array('class'=>'thumbnail')), array('target'=>'_blank')) ?><br>
                     <?= FORM::checkbox('delphotos[]', $photo->id, FALSE)?> удалить<br>
                     <?= FORM::radio('setmain', $photo->id, $photo->main == 1)?> основная
                 </div>
@@ -63,7 +63,6 @@
 
         <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>
         <?= Form::input('address', Arr::get($_POST,'address', $model->address)) ?>
-        <!--        --><?//= Form::input('address', Arr::get($_POST,'address')) ?>
         <br><br>
         <?=Form::submit('update', __('Save ad'), array('class' => 'pure-button pure-button-primary'));  ?>
     </fieldset>

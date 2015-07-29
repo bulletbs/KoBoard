@@ -206,6 +206,8 @@ class Model_BoardAd extends ORM{
      */
     public function refresh(){
         $this->addtime = time();
+        if($this->publish == 0)
+            $this->publish = 1;
         $this->update();
     }
 
@@ -341,6 +343,24 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Generate content for META Title tag
+     * @return string
+     */
+    public function getTitle(){
+        $title = $this->title;
+        return htmlspecialchars($title);
+    }
+
+    /**
+     * Generate content for META Description tag
+     * @return string
+     */
+    public function getDescription(){
+        $description = mb_substr(strip_tags($this->description), 0, 255);
+        return htmlspecialchars($description);
+    }
+
+    /**
      * Добавить объявление из импорта
      * @param Array $row
      */
@@ -417,9 +437,21 @@ class Model_BoardAd extends ORM{
         }
     }
 
-
+    /**
+     * Count ads that need to be moderated
+     * @return int
+     */
     public static function countNotModerated(){
         $count = ORM::factory('BoardAd')->where('moderated', '=', 0)->count_all();
+        return $count;
+    }
+
+    /**
+     * Count ads that can be viewed
+     * @return int
+     */
+    public static function countActiveAds(){
+        $count = ORM::factory('BoardAd')->where('publish', '=', 1)->cached(Date::DAY)->count_all();
         return $count;
     }
 

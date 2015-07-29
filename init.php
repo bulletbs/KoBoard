@@ -53,6 +53,18 @@ if(!Route::cache()){
             'city_alias' => 'all',
         ));
 
+    Route::set('board_regions', 'regions')
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'tree',
+        ));
+
+    Route::set('board_categories', 'categories')
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'categories',
+        ));
+
     Route::set('board_myads', 'my-ads(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove|refresh)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'userBoard',

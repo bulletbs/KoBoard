@@ -8,6 +8,7 @@ return array(
     'Select city' => 'Выберите город',
 
     'New classified ad confirmation' => 'Подтвреждение публикации объявления',
+    'Old classified out of date' => 'Ваше объявление устарело',
     'Your ad successfully added' => 'Ваше объявление добавлено',
     'Your ad successfully saved' => 'Ваше объявление сохранено',
     'Your ad successfully published' => 'Ваше объявление опубликовано',
@@ -15,10 +16,11 @@ return array(
     'Your ad successfully turned on' => 'Ваше объявление опубликовано',
     'Your ad has been removed' => 'Ваше объявление было удалено',
     'Your ad has been refreshed' => 'Ваше объявление было обновлено',
-    'You can update your ads only once a day' => 'Объявления можно освежить только раз в сутки',
+    'You can update your ads only once a day' => 'Объявления можно обновлять только раз в сутки',
     'Ad publication' => 'Подтверждение публикации',
 
     'Added' => 'Добавлено',
+    'Views' => 'Просмотров',
     'Search for more user ads' => 'Найти другие объявления пользователя',
     'Send message to user' => 'Отправить пользователю сообщение',
     'Ad type' => 'Тип объявления',
@@ -49,8 +51,8 @@ return array(
     'Ad edit' => 'Редактирование объявления',
     'Add ad' => 'Добавить объявление',
     'Save ad' => 'Сохранить объявление',
-
-
+    'Classifieds by region' => 'Объявления в регионах',
+    'Classifieds by category' => 'Объявления в категориях',
 /* BOARD ADMIN */
     'ad' => 'объявление',
     'Site Ads' => 'Объявления',

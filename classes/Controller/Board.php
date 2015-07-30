@@ -31,11 +31,6 @@ class Controller_Board extends Controller_System_Page
         $this->styles[] = "media/libs/pure-release-0.5.0/tables-min.css";
         $this->styles[] = "media/libs/pure-release-0.5.0/menus-min.css";
         $this->styles[] = "assets/board/css/board.css";
-        $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
-
-        $this->scripts[] = "assets/board/js/favorite.js";
-        $this->scripts[] = "assets/board/js/search.js";
-        $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
 
         /* Config */
         $this->board_cfg = Kohana::$config->load('board')->as_array();
@@ -231,9 +226,14 @@ class Controller_Board extends Controller_System_Page
             $ads_ids[] = $_ad->id;
         $photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
 
-        $this->template->search_form = Widget::factory('BoardSearch')->render();
+        $this->scripts[] = "assets/board/js/search.js";
+        $this->scripts[] = "assets/board/js/favorite.js";
         $this->scripts[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.js";
         $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
+        $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
+        $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+
+        $this->template->search_form = Widget::factory('BoardSearch')->render();
         $this->template->content->set(array(
             'title' => $title,
             'city' => $city,
@@ -336,8 +336,8 @@ class Controller_Board extends Controller_System_Page
             Model_BoardFilter::loadFilterValues($filters, NULL, $ad->id);
 
             $this->scripts[] = 'assets/board/js/message.js';
+            $this->scripts[] = "assets/board/js/favorite.js";
 
-//            $this->template->search_form = Widget::factory('BoardSearch')->render();
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,
@@ -349,6 +349,7 @@ class Controller_Board extends Controller_System_Page
                 'config' => $this->config,
                 'board_config' => $this->board_cfg,
                 'is_job_category' => in_array($ad->category_id, Model_BoardCategory::getJobIds()),
+                'is_noprice_category' => in_array($ad->category_id, Model_BoardCategory::getNopriceIds()),
             ));
         }
         else
@@ -465,6 +466,9 @@ class Controller_Board extends Controller_System_Page
         $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
         $this->scripts[] = "assets/board/js/form.js";
 
+        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
+        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
+
         /* Категории и фильтры */
         $categories_main = array(''=>"Выберите категорию");
         $categories_main += ORM::factory('BoardCategory')->where('parent_id', '=', 0)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->find_all()->as_array('id','name');
@@ -502,6 +506,7 @@ class Controller_Board extends Controller_System_Page
             'user' => $user,
             'price_value' => $this->board_cfg['price_value'],
             'job_ids' => Model_BoardCategory::getJobIds(),
+            'noprice_ids' => Model_BoardCategory::getNopriceIds(),
             'logged' => $this->logged_in,
         ));
         $this->template->content->set(array(
@@ -618,6 +623,7 @@ class Controller_Board extends Controller_System_Page
         if($category->loaded()){
             /* Rendering subcategories list */
             $this->json['categories'] = $this->_render_subcategory_list($category);
+            $this->json['filters'] = $this->_render_filters_list($category);
             $this->json['id'] = $id;
         }
     }

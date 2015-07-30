@@ -98,13 +98,14 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
                 $model->delete();
             $parent = ORM::factory('BoardCategory', Arr::get($_POST, 'parent_id'));
             $model = ORM::factory('BoardCategory');
-            $model->values(Arr::extract($_POST, array('name', 'alias')));
+//            $model->values(Arr::extract($_POST, array('name', 'alias')));
+            $model->values($_POST);
             if(empty($model->alias))
                 $model->alias = Text::transliterate($model->name, true);
             $model->insert_as_last_child($parent);
         }
         else{
-            $model->values(Arr::extract($_POST, array('name', 'alias')))->save();
+            $model->values($_POST)->save();
         }
 
         /* Save New Options */

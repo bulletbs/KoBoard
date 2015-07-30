@@ -294,6 +294,15 @@ class Model_BoardCategory extends ORM_MPTT{
     }
 
     /**
+     * Get IDs of all NOPRICE categories
+     * @return array
+     * @throws Kohana_Exception
+     */
+    public static function getNopriceIds(){
+        return ORM::factory('BoardCategory')->select('id')->where('noprice','=',1)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->find_all()->as_array('id','id');
+    }
+
+    /**
      * Добавить категорию
      * @param $categories
      * @param $row
@@ -336,11 +345,11 @@ class Model_BoardCategory extends ORM_MPTT{
      * @return mixed|string
      */
     public function __get($name){
-        if($name == 'categories_list'){
-            if(is_null(self::$categories))
-                return self::getCategoriesList();
-            return self::$categories;
-        }
+//        if($name == 'categories_list'){
+//            if(is_null(self::$categories))
+//                return self::getCategoriesList();
+//            return self::$categories;
+//        }
         if($name == 'aliases_list'){
             if(is_null(self::$aliases))
                 return self::getAliases();

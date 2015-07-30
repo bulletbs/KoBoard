@@ -5,7 +5,7 @@
 <?=Form::open('', array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'addForm'))?>
     <?if(isset($errors)) echo View::factory('error/validation', array('errors'=>$errors))->render() ?>
     <fieldset>
-        <legend>Подать бесплатное объявление</legend>
+        <legend>Заголовок и описание</legend>
         <?= Form::label('title', 'Заголовок')?>
         <?= Form::input('title', $model->title, array('class'=>isset($errors['title']) ? 'error-input': ''))?>
 
@@ -18,12 +18,26 @@
         <?= Form::label('description', 'Описание')?>
         <?= Form::textarea('description', $model->description , array('class'=>isset($errors['description']) ? 'error-input': ''))?>
 
-        <?= Form::label('price', 'Цена ('.$price_value.')', array('id'=>'eventPriceLabel'))?>
-        <?= Form::input('price', $model->price, array('class'=>(isset($errors['price']) ? 'error-input': ''), 'id'=>'eventPrice')) ?>
+        <div id="price_holder">
+            <div class="hspacer_10"></div>
+            <label for="option-one" class="pure-radio">
+                <?= Form::radio('price_type', 0, $model->price_type==0, array('id'=>'option-one', 'class'=>'left')) ?>
+                <?= Form::input('price', $model->price, array('placeholder'=>'Цена ('.$price_value.')', 'class'=>(isset($errors['price']) ? 'error-input ': '').' left', 'id'=>'eventPrice')) ?>
+            </label>
+            <label id="trade_styler"><?= Form::hidden('trade', 0) ?><?= Form::checkbox('trade', 1, $model->trade==1) ?> <?php echo __('Trade')?></label>
+            <label for="option-two" class="pure-radio clear">
+                <?= Form::radio('price_type', 1, $model->price_type == 1, array('id'=>'option-two')) ?> <?php echo __('Change')?>
+            </label>
+            <label for="option-three" class="pure-radio">
+                <?= Form::radio('price_type', 2, $model->price_type == 2, array('id'=>'option-three')) ?> <?php echo __('For free')?>
+            </label>
+            <div class="hspacer_10"></div>
+        </div>
 
         <?= Form::label('type', 'Тип объявления')?>
         <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>
-
+    </fieldset>
+    <fieldset>
         <legend>Фотографии</legend>
         <div class="pure-g">
             <div class="pure-u-1-2">
@@ -37,7 +51,8 @@
                 <?= Form::file('photos[]') ?>
             </div>
         </div>
-
+    </fieldset>
+    <fieldset>
         <legend>Контактная информация</legend>
         <?= Form::label('name', 'Имя')?>
         <?= Form::input('name', Arr::get($_POST,'name', $logged ? $user->profile->name : NULL) , array('class'=>isset($errors['name']) ? 'error-input': '')) ?>
@@ -61,4 +76,7 @@
     </fieldset>
 <?=Form::close()?>
 
-<script type="text/javascript">var job_ids = <?php echo json_encode($job_ids)?>;</script>
+<script type="text/javascript">
+var job_ids = <?php echo json_encode($job_ids)?>;
+var noprice_ids = <?php echo json_encode($noprice_ids)?>;
+</script>

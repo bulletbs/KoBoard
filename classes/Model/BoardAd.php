@@ -17,8 +17,8 @@ class Model_BoardAd extends ORM{
         'Vacancy',
     );
 
-    public $image;
-    public $thumb;
+//    public $image;
+//    public $thumb;
 
     protected $_uriToMe;
 
@@ -62,7 +62,7 @@ class Model_BoardAd extends ORM{
                 array('max_length', array('value:',1024)),
             ),
             'price' => array(
-                array('not_empty'),
+                array(array($this, 'checkPrice'), array(':validation', ':field')),
             ),
             'category_id' => array(
                 array('not_empty'),
@@ -343,6 +343,28 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Format price by price_type
+     * @return mixed|string
+     */
+    public function getPrice (){
+        if($this->price_type == 1)
+            return __('Change');
+        elseif($this->price_type == 2)
+            return __('For free');
+        return $this->price>0 ? $this->price : __('negotiable');
+    }
+
+    /**
+     * Format trade string
+     * @return null|string
+     */
+    public function getTrade(){
+        if(!$this->price_type)
+            return ' ('.__('Trade').')';
+        return NULL;
+    }
+
+    /**
      * Generate content for META Title tag
      * @return string
      */
@@ -455,12 +477,27 @@ class Model_BoardAd extends ORM{
         return $count;
     }
 
-
+    /**
+     * Validation stop words in ad contents
+     * @param Validation $validation
+     * @param $field
+     * @throws Kohana_Exception
+     */
     public function checkStopWords(Validation $validation, $field){
         $cfg = Kohana::$config->load('stopwords')->as_array();
         $value = mb_strtolower($this->{$field});
         foreach($cfg['stopwords'] as $word)
             if(strpos($value, $word) !== FALSE)
                 $validation->error($field, 'stopwords');
+    }
+
+    /**
+     * Validation price field
+     * @param Validation $validation
+     * @param $field
+     */
+    public function checkPrice(Validation $validation, $field){
+        if($this->price_type == 1 && empty($this->{$field}))
+            $validation->error($field, 'not_empty');
     }
 }

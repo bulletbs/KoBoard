@@ -37,6 +37,8 @@ class Controller_UserBoard extends Controller_User
     public function action_edit(){
         $this->styles[] = "assets/board/css/board.css";
         $this->scripts[] = "assets/board/js/form.js";
+        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
+        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
 
         $errors = array();
         $id = $this->request->param('id');
@@ -93,8 +95,6 @@ class Controller_UserBoard extends Controller_User
             $filters = $this->_render_filters_list($ad->category, $ad->id);
         }
 
-
-
         /* Категории и фильтры */
         $categories_main = array(''=>"Выберите категорию");
         $categories_main += ORM::factory('BoardCategory')->where('parent_id', '=', 0)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->find_all()->as_array('id','name');
@@ -140,6 +140,7 @@ class Controller_UserBoard extends Controller_User
             'regions' => $regions,
             'cities' => $cities,
             'job_ids' => Model_BoardCategory::getJobIds(),
+            'noprice_ids' => Model_BoardCategory::getNopriceIds(),
         ));
     }
 

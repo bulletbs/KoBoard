@@ -192,7 +192,6 @@ class Controller_Admin_Board extends Controller_Admin_Crud
     public function action_import(){
         set_time_limit(300);
         $result = DB::select(DB::expr('max(id) max'))->from('ads')->execute();
-//        echo Debug::vars($result[0]['max']);
         $result = DB::select()->from('jb_board')->where('id','>',$result[0]['max'])->limit(50000)->as_assoc()->execute();
         foreach($result as $row){
             Model_BoardAd::import_ad($row);

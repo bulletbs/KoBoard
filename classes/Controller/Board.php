@@ -149,7 +149,7 @@ class Controller_Board extends Controller_System_Page
         }
 
         /* Фильтр по цене */
-        if(is_array($price = Arr::get($_GET, 'price')) && ($price['from'] > 0 || $price['to'] > 0)){
+        if(is_array($price = Arr::get($_GET, 'price')) && ((int) Arr::get($price, 'from')>0 || (int) Arr::get($price, 'to')>0) ){
             if((int) Arr::get($price, 'from'))
                 $ads->and_where('price', '>=', $price['from']);
             if((int) Arr::get($price, 'to'))
@@ -264,6 +264,7 @@ class Controller_Board extends Controller_System_Page
         /** @var Model_BoardAd $ad */
         $ad = Model_BoardAd::boardOrmFinder()->and_where('id','=',$id)->limit(1)->execute();
         $ad = $ad[0];
+
         if($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) == $alias){
             $ad->increaseViews();
             $this->title = $ad->getTitle();
@@ -335,6 +336,7 @@ class Controller_Board extends Controller_System_Page
             $filters = Model_BoardFilter::loadFiltersByCategory($ad->category_id);
             Model_BoardFilter::loadFilterValues($filters, NULL, $ad->id);
 
+            $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
             $this->scripts[] = 'assets/board/js/message.js';
             $this->scripts[] = "assets/board/js/favorite.js";
 
@@ -374,8 +376,17 @@ class Controller_Board extends Controller_System_Page
             if($this->logged_in)
                 $ad->publish = 1;
             try{
-
-                $ad->check();
+                $validation = Validation::factory($_POST);
+                if(!$this->logged_in)
+                    $validation->rules('captcha', array(
+                        array('not_empty'),
+                        array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
+                    ))->labels(array(
+                        'email' => __('Your e-mail'),
+                        'text' => __('Message text'),
+                        'captcha' => __('Enter captcha code'),
+                    ));
+                $ad->check($validation);
 
                 /**
                  * Try to find existing user OR Create New User
@@ -393,13 +404,14 @@ class Controller_Board extends Controller_System_Page
                     }
                     $ad->publish = 0;
                     $ad->key = md5($ad->title . time());
+                    $password = null;
                 }
                 if(is_null($user)){
                     /* Creating new user */
                     $user = ORM::factory('User');
                     $userdata = array();
                     $userdata['email'] = Arr::get($_POST,'email');
-                    $userdata['password'] = substr(md5($userdata['email'] . time()), 0,7);
+                    $userdata['password'] = $password = substr(md5($userdata['email'] . time()), 0,7);
                     $user->create_user($userdata, array('email', 'username', 'password'));
 
                     /* Creating profile */
@@ -421,7 +433,7 @@ class Controller_Board extends Controller_System_Page
 
                 /* Sending activation email */
                 if(!empty($ad->key))
-                    $this->_sendActivationLetter($ad, $user);
+                    $this->_sendActivationLetter($ad, $user, $password);
 
                 /* Save filters */
                 if(NULL !== $values = Arr::get($_POST, 'filters'))
@@ -581,14 +593,20 @@ class Controller_Board extends Controller_System_Page
                 if(!$user->has_role('login')){
                     $role = ORM::factory('Role')->where('name', '=', 'login')->find();
                     $user->add('roles', $role);
+                    Flash::success(__('Your registration successfully finished').'!');
                 }
                 Auth::instance()->force_login($user);
                 $ad->key = '';
                 $ad->publish = 1;
-                $ad->save();
+                try{
+                    $ad->save();
+                    Flash::success(__('Your ad successfully published').'!');
+                }
+                catch(ORM_Validation_Exception $e){
+                    $errors = $e->errors('validation', TRUE);
+                    Flash::error('- ' . implode("<br>- ", $errors));
+                }
 
-                Flash::success(__('Your registration successfully finished').'!');
-                Flash::success(__('Your ad successfully published').'!');
                 $this->go(URL::site().Route::get('board_myads')->uri());
             }
         }
@@ -691,6 +709,7 @@ class Controller_Board extends Controller_System_Page
             $photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
         }
 
+        $this->scripts[] = "assets/board/js/favorite.js";
         $this->template->content->set(array(
             'ads' => $ads,
             'photos' => $photos,
@@ -912,16 +931,20 @@ class Controller_Board extends Controller_System_Page
     /**
      * Отправляет письмо со ссылкой для активации объявления (+пользователя)
      * (отправляется только, если пользователь не авторизрован или регистрация произошла после добавления объявления)
-     * @param $ad
-     * @param $user
+     * @param Model_BoardAd $ad
+     * @param Model_User $user
+     * @param null|string $password
+     * @throws Kohana_Exception
+     * @throws View_Exception
      */
-    protected function _sendActivationLetter(Model_BoardAd $ad, Model_User $user){
+    protected function _sendActivationLetter(Model_BoardAd $ad, Model_User $user, $password = NULL){
         Email::instance()
             ->to($user->email)
             ->from($this->config->robot_email)
             ->subject($this->config['project']['name'] .': '. __('New classified ad confirmation'))
             ->message(View::factory('board/mail/ad_confirm_letter', array(
                     'user'=>$user,
+                    'password'=>$password,
                     'site_name'=> $this->config['project']['name'],
                     'server_name'=> $_SERVER['HTTP_HOST'],
                     'activation_link'=> Route::get('board_ad_confirm')->uri(array('id'=>$ad->id, 'key'=>$ad->key)),

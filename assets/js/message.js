@@ -4,6 +4,9 @@ $(function(){
     var myMap = null;
     var initMap = false;
 
+    $(document).ajaxStart(function() { $('#loading_layer').show(); });
+    $(document).ajaxStop(function() { $('#loading_layer').hide(); });
+
     /* Отправить сообщение пользователю */
     $('#sendMessage').click(function(e){
         $('body').off('click', '#cancel_mailto');

@@ -21,17 +21,18 @@
 
         <div id="price_holder">
             <div class="hspacer_10"></div>
-            <label for="option-one" class="pure-radio">
-                <?= Form::radio('price_type', 0, $model->price_type==0, array('id'=>'option-one', 'class'=>'left')) ?>
-                <?= Form::input('price', $model->price, array('placeholder'=>'Цена ('.$price_value.')', 'class'=>(isset($errors['price']) ? 'error-input ': '').' left', 'id'=>'eventPrice')) ?>
-            </label>
-            <label id="trade_styler"><?= Form::hidden('trade', 0) ?><?= Form::checkbox('trade', 1, $model->trade==1) ?> <?php echo __('Trade')?></label>
             <label for="option-two" class="pure-radio clear">
                 <?= Form::radio('price_type', 1, $model->price_type == 1, array('id'=>'option-two')) ?> <?php echo __('Change')?>
             </label>
             <label for="option-three" class="pure-radio">
                 <?= Form::radio('price_type', 2, $model->price_type == 2, array('id'=>'option-three')) ?> <?php echo __('For free')?>
             </label>
+            <label for="option-one" class="pure-radio">
+                <?= Form::radio('price_type', 0, $model->price_type==0, array('id'=>'option-one', 'class'=>'left')) ?>
+                <span class="price_label"><?php echo __('Price')?></span>
+                <?= Form::input('price', $model->price, array('placeholder'=>'Цена ('.$price_value.')', 'class'=>(isset($errors['price']) ? 'error-input ': '').' left', 'id'=>'eventPrice')) ?>
+            </label>
+            <label id="trade_styler"><?= Form::hidden('trade', 0) ?><?= Form::checkbox('trade', 1, $model->trade==1) ?> <?php echo __('Trade')?></label>
             <div class="hspacer_10"></div>
         </div>
 

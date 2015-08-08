@@ -58,7 +58,6 @@ class Controller_UserBoard extends Controller_User
             $ad->values($_POST);
             $ad->user_id = $this->current_user->id;
             try{
-                $ad->moderated = 0;
                 $ad->save();
 
                 /* Save photos */
@@ -155,8 +154,14 @@ class Controller_UserBoard extends Controller_User
             Flash::warning(__('Ad not found'));
         }
         else{
-            Flash::success(__('Your ad successfully turned '. ($model->publish ? 'off' : 'on')));
-            $model->flipStatus();
+            try{
+                $model->flipStatus();
+                Flash::success(__('Your ad successfully turned '. (!$model->publish ? 'off' : 'on')));
+            }
+            catch(ORM_Validation_Exception $e){
+                $errors = $e->errors('validation', TRUE);
+                Flash::error('- ' . implode("<br>- ", $errors));
+            }
             $this->redirect(URL::site().Route::get('board_myads')->uri());
 
         }
@@ -200,8 +205,8 @@ class Controller_UserBoard extends Controller_User
                 Flash::success(__('Your ad has been refreshed'));
             }
             catch(ORM_Validation_Exception $e){
-                $errors = $e->errors('validation');
-                Flash::warning(__('An error occurred') . '('. implode(' | ', $errors) .')');
+                $errors = $e->errors('validation', TRUE);
+                Flash::error('- ' . implode("<br>- ", $errors));
             }
             $this->redirect(URL::site().Route::get('board_myads')->uri());
 

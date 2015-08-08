@@ -19,6 +19,7 @@ class Controller_Widgets_AdminBoardMenu extends Controller_System_Widgets {
             'Перенос' => array('boardCategoryMove'),
             'Жалобы' => array('boardAbuses'),
             'Модерация' => array('boardModerate'),
+            'Стопслова' => array('boardModerateSw'),
         );
 
         // Вывод в шаблон

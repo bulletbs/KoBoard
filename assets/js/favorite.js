@@ -1,4 +1,7 @@
 $(function(){
+    $(document).ajaxStart(function() { $('#loading_layer').show(); });
+    $(document).ajaxStop(function() { $('#loading_layer').hide(); });
+
     var base_uri = '/board/';
     $('#message_icons').on('click', '#ico_out_favorite, #ico_favorite', function(e){
         var oper = $(this).attr('id') == 'ico_favorite' ? 'add' : 'del';

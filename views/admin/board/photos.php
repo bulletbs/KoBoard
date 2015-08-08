@@ -11,7 +11,7 @@
         <div class="clearfix"></div>
     <?endif?>
     <br><br>
-    <div class="span-5">
+    <div class="col-lg-12">
         <?for($i=1; $i < 9; $i++):?>
         <div class="col-lg-5">
             <div class="input-group">
@@ -24,7 +24,7 @@
         <div class="clear"></div>
         <?if($i%4 == 0 && $i>0):?>
     </div>
-    <div class="span-5">
+    <div class="col-lg-12">
         <?endif?>
         <?endfor?>
     </div>

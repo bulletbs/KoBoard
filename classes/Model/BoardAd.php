@@ -17,9 +17,6 @@ class Model_BoardAd extends ORM{
         'Vacancy',
     );
 
-//    public $image;
-//    public $thumb;
-
     protected $_uriToMe;
 
     protected $_belongs_to = array(
@@ -36,6 +33,7 @@ class Model_BoardAd extends ORM{
             'foreign_key' => 'city_id',
         ),
     );
+    public $stopwords = 0;
 
     protected $_has_many = array(
         'filtervalues' => array(
@@ -53,13 +51,16 @@ class Model_BoardAd extends ORM{
             'title' => array(
                 array('not_empty'),
                 array(array($this, 'checkStopWords'), array(':validation', ':field')),
+                array(array($this, 'checkDuplicates'), array(':validation', ':field')),
                 array('min_length', array(':value',3)),
                 array('max_length', array(':value',255)),
+                array(array($this, 'setModerate'), array(':field')),
             ),
             'description' => array(
                 array('not_empty'),
                 array(array($this, 'checkStopWords'), array(':validation', ':field')),
                 array('max_length', array('value:',1024)),
+                array(array($this, 'setModerate'), array(':field')),
             ),
             'price' => array(
                 array(array($this, 'checkPrice'), array(':validation', ':field')),
@@ -68,6 +69,16 @@ class Model_BoardAd extends ORM{
                 array('not_empty'),
             ),
             'city_id' => array(
+                array('not_empty'),
+            ),
+            'name' => array(
+                array('not_empty'),
+            ),
+            'email' => array(
+                array('not_empty'),
+                array('email'),
+            ),
+            'address' => array(
                 array('not_empty'),
             ),
 //            'user_id' => array(
@@ -102,7 +113,6 @@ class Model_BoardAd extends ORM{
             'moderated' => 'Проверено',
         );
     }
-
     /**
      * Ручная проверка данных из POST
      * для внешней валидации данных при добавлении объявлений с созданием пользователей
@@ -359,7 +369,7 @@ class Model_BoardAd extends ORM{
      * @return null|string
      */
     public function getTrade(){
-        if(!$this->price_type)
+        if($this->price_type==0 && $this->trade>0)
             return ' ('.__('Trade').')';
         return NULL;
     }
@@ -443,19 +453,27 @@ class Model_BoardAd extends ORM{
      * Increase AD view counter
      */
     public function increaseViews(){
-        $this->views += 1;
-        $this->update();
+        DB::update($this->table_name())
+            ->set(array( 'views' => DB::expr('views + 1') ))
+            ->where('id', '=', $this->id)
+            ->execute()
+        ;
     }
 
     public function increasePhotos(){
-        $this->photo_count += 1;
-        $this->update();
+        DB::update($this->table_name())
+            ->set(array( 'photo_count' => DB::expr('photo_count + 1') ))
+            ->where('id', '=', $this->id)
+            ->execute()
+        ;
     }
 
     public function decreasePhotos(){
         if($this->photo_count > 0){
-            $this->photo_count -= 1;
-            $this->update();
+            DB::update($this->table_name())
+                ->set(array( 'photo_count' => DB::expr('photo_count - 1') ))
+                ->where('id', '=', $this->id)
+                ->execute();
         }
     }
 
@@ -485,10 +503,25 @@ class Model_BoardAd extends ORM{
      */
     public function checkStopWords(Validation $validation, $field){
         $cfg = Kohana::$config->load('stopwords')->as_array();
-        $value = mb_strtolower($this->{$field});
+
+        $this->stopword = 0;
+        $value = preg_replace('~[^a-zа-я0-9]+~ui', '', $this->{$field});
+        $value = mb_strtolower($value);
         foreach($cfg['stopwords'] as $word)
-            if(strpos($value, $word) !== FALSE)
-                $validation->error($field, 'stopwords');
+            if(strpos($value, $word) !== FALSE){
+                $this->stopwords++;
+            }
+        if($this->stopwords > 0)
+            $this->stopword = 1;
+    }
+
+    /**
+     * Sets AD to moderating if field has been changed
+     * @param $field
+     */
+    public function setModerate($field){
+        if($this->_original_values[$field] != $this->$field)
+            $this->moderated = 0;
     }
 
     /**
@@ -497,7 +530,25 @@ class Model_BoardAd extends ORM{
      * @param $field
      */
     public function checkPrice(Validation $validation, $field){
-        if($this->price_type == 1 && empty($this->{$field}))
+        if($this->price_type == 0 && empty($this->{$field}))
             $validation->error($field, 'not_empty');
+    }
+
+    /**
+     * Validate ad TITLE for duplicates (only if USER_ID defined)
+     * @param Validation $validation
+     * @param $field
+     */
+    public function checkDuplicates(Validation $validation, $field){
+        if($this->user_id){
+            $counter = ORM::factory('BoardAd')
+                ->where('title','=',$this->title)
+                ->and_where('user_id','=',$this->user_id);
+            if($this->loaded())
+                $counter->and_where('id','<>',$this->id);
+            $count = $counter->count_all();
+            if($count > 0)
+                $validation->error($field, 'duplicates');
+        }
     }
 }

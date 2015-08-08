@@ -129,6 +129,11 @@
         margin: 10px 0 0 10px;
         float: left;
     }
+    .price_label{
+        display: block;
+        float: left;
+        margin: 0 15px 0 5px;
+    }
 
 /* GALLERY */
 .board_gallery{

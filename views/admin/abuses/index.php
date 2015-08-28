@@ -33,7 +33,8 @@
     <tr>
         <td><?=$abuse->id?></td>
         <td><?= Model_BoardAbuse::$types[ $abuse->type ]?></td>
-        <td><?= $abuse->ad->getUri() ? HTML::anchor($abuse->ad->getUri(), $abuse->ad->title, array('target'=>'_blank')) : $abuse->ad->title ?></td>
+        <td><?= $abuse->ad ? HTML::anchor($abuse->ad->getUri(), $abuse->ad->title, array('target'=>'_blank')) : $abuse->ad->title ?></td>
+<!--        <td>--><?//= $abuse->ad->title ?><!--</td>-->
         <td style="width: 150px;">
             <div class="btn-group">
                 <a data-bb="confirm" href="<?=URL::site( 'admin/boardAbuses/delete/'.$abuse->id . URL::query())?>" class='btn btn-inverse' title='<?=__('Delete')?>'><i class="glyphicon glyphicon-trash"></i></a>

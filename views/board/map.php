@@ -1,18 +1,16 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 <div class="line"></div>
 <ul class="city_list">
-    <li><a href="/moskva.html" tooltip="Объявления в Москве">Москва</a></li>
-    <li><a href="/volgograd.html" tooltip="Объявления в Волгограде">Волгоград</a></li>
-    <li><a href="/kazan.html" tooltip="Объявления в Казани">Казань</a></li>
-    <li><a href="/nizhniy_novgorod.html" tooltip="Объявления в Нижнем Новгороде">Нижний Новгород</a></li>
-    <li><a href="/rostov-na-donu.html" tooltip="Объявления в Ростове-на-Дону">Ростов-на-Дону</a></li>
-    <li><a href="/ufa.html" tooltip="Объявления в Уфе">Уфа</a></li>
-    <li><a href="/sankt-peterburg.html" tooltip="Объявления в Санкт-Петербурге">Санкт-Петербург</a></li>
-    <li><a href="/ekaterinburg.html" tooltip="Объявления в Екатеринбурге">Екатеринбург</a></li>
-    <li><a href="/krasnodar.html" tooltip="Объявления в Краснодаре">Краснодар</a></li>
-    <li><a href="/perm.html" tooltip="Объявления в Перми">Пермь</a></li>
-    <li><a href="/samara.html" tooltip="Объявления в Самаре">Самара</a></li>
-    <li><a href="/chelyabinsk.html" tooltip="Объявления в Челябинске">Челябинск</a></li>
+    <li><a href="/all/biznes-i-uslugi.html" tooltip="Бизнес и услуги">Бизнес и услуги</a></li>
+    <li><a href="/all/dom-i-sad.html" tooltip="Дом и сад">Дом и сад</a></li>
+    <li><a href="/all/moda-i-stil.html" tooltip="Мода и стиль">Мода и стиль</a></li>
+    <li><a href="/all/rabota.html" tooltip="Работа">Работа</a></li>
+    <li><a href="/all/khobbi-otdykh-i-sport.html" tooltip="Хобби, отдых и спорт">Хобби, отдых и спорт</a></li>
+    <li><a href="/all/detskij-mir.html" tooltip="Детский мир">Детский мир</a></li>
+    <li><a href="/all/zhivotnye.html" tooltip="Животные">Животные</a></li>
+    <li><a href="/all/nedvizhimost.html" tooltip="Недвижимость">Недвижимость</a></li>
+    <li><a href="/all/transport.html" tooltip="Транспорт">Транспорт</a></li>
+    <li><a href="/all/ehlektronika.html" tooltip="Электроника">Электроника</a></li>
 </ul>
 <div class="line"></div>
 <img src="/assets/board/css/images/map2.png" alt="" class="map" usemap="#rf" id="map">

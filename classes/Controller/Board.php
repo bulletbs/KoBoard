@@ -172,10 +172,6 @@ class Controller_Board extends Controller_System_Page
         if($category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
             $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
             if(count($filters)){
-                if(isset($main_filter))
-                    $filters[$main_filter['id']] = $main_filter;
-//                echo Debug::vars($filters);
-//                echo Debug::vars($filters_values);
                 foreach($filters_values as $_id=>$_val){
                     if(Model_BoardFiltervalue::haveValue($_val) && isset($filters[$_id])){
                         $ads->join(array('ad_filter_values','afv'.$_id), 'INNER');
@@ -232,6 +228,7 @@ class Controller_Board extends Controller_System_Page
         $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
         $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
         $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+        $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
         $this->template->search_form = Widget::factory('BoardSearch')->render();
         $this->template->content->set(array(
@@ -293,7 +290,7 @@ class Controller_Board extends Controller_System_Page
             if($ad->user_id>0 || !empty($ad->email)){
                 $user_ads = Model_BoardAd::boardOrmFinder()
                     ->and_where('id', '<>', $ad->id)
-                    ->limit(10);
+                    ->limit(4);
                 if($ad->user_id > 0)
                     $user_ads->and_where('user_id', '=', $ad->user_id);
                 elseif(!empty($ad->email))
@@ -314,7 +311,7 @@ class Controller_Board extends Controller_System_Page
             /* Similar ads */
             $table = ORM::factory('BoardAd')->table_name();
             $sim_ads = DB::select($table.'.*')->from($table)
-                ->select(array(DB::expr('round(MATCH (title) AGAINST ("'.$ad->title.'"))'), 'rel'))
+                ->select(array(DB::expr('round(MATCH (title) AGAINST ("'.mysql_real_escape_string($ad->title).'"))'), 'rel'))
                 ->and_where('publish', '=', 1)
                 ->and_where('category_id', '=', $ad->category_id)
                 ->and_where('id', '<>', $ad->id)

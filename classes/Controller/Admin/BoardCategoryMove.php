@@ -32,13 +32,13 @@ class Controller_Admin_BoardCategoryMove extends Controller_System_Admin
         if(isset($_POST['save'])){
             if(count($moveto = Arr::get($_POST, 'move_to')))
                 foreach($moveto as $_category_id=>$_new_id)
-                    DB::update(ORM::factory('BoardCategoryNew')->table_name())->value('new_id', $_new_id)->where('id','=',$_category_id)->execute();
+                    DB::update(ORM::factory('BoardCategoryJB')->table_name())->value('new_id', $_new_id)->value('moved', 0)->where('id','=',$_category_id)->execute();
         }
 
         /* Move ads to new categories */
         if(isset($_POST['move'])){
             $new_parents = ORM::factory('BoardCategory')->where('parent_id', '>', 0)->find_all()->as_array('id', 'parent_id');
-            $old_categories = ORM::factory('BoardCategoryNew')->where('new_id', '>', 0)->find_all()->as_array('id', 'new_id');
+            $old_categories = ORM::factory('BoardCategoryJB')->where('new_id', '>', 0)->and_where('moved','=', 0)->order_by('new_id', 'ASC')->find_all()->as_array('id', 'new_id');
             foreach($old_categories as $_id=>$_new_id){
                 DB::update(ORM::factory('BoardAd')->table_name())
                     ->where('category_id', '=', $_id)
@@ -48,7 +48,7 @@ class Controller_Admin_BoardCategoryMove extends Controller_System_Admin
                     ))
                 ->execute();
 
-                DB::update(ORM::factory('BoardCategoryNew')->table_name())->value('new_id', 0)->where('id','=',$_id)
+                DB::update(ORM::factory('BoardCategoryJB')->table_name())->value('moved', 1)->where('id','=',$_id)
                 ->execute();
             }
         }
@@ -60,7 +60,7 @@ class Controller_Admin_BoardCategoryMove extends Controller_System_Admin
         $categories = ORM::factory('BoardCategory')->getFullDepthArray();
         $categories_options = Arr::merge(array('0' => '..'), ORM::factory('BoardCategory')->getFullDepthArray());
 
-        $old_categories = ORM::factory('BoardCategoryNew')->fulltree();
+        $old_categories = ORM::factory('BoardCategoryJB')->fulltree();
 
         $this->template->content = View::factory('admin/categories/board_category_compare')
             ->set('categories', $categories)

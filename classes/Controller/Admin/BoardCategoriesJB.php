@@ -7,7 +7,7 @@ class Controller_Admin_BoardCategoriesJB extends Controller_Admin_Crud{
     protected $_item_name = 'category';
     protected $_crud_name = 'Board categories';
 
-    protected $_model_name = 'BoardCategoryNew';
+    protected $_model_name = 'BoardCategoryJB';
 
     /**
      * Actions with manual rendering

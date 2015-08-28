@@ -24,7 +24,7 @@ return array(
     'Search for more user ads' => 'Найти другие объявления пользователя',
     'Send message to user' => 'Отправить пользователю сообщение',
     'Ad type' => 'Тип объявления',
-    'Business' => 'Комерческое',
+    'Business' => 'Бизнес',
     'Private' => 'Частное',
     'Resume' => 'Резюме',
     'Vacancy' => 'Вакансии',
@@ -105,5 +105,5 @@ return array(
 //    'Buy' => 'Куплю',
     'Change' => 'Обменяю',
     'For free' => 'Бесплатно',
-    'Trade' => 'Торг',
+    'Trade' => 'Договорная',
 );

@@ -1,12 +1,23 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 
+<div class="col_main">
 <h1><?php echo $ad->title ?></h1>
 <div class="clear"></div>
 
-<div class="col_main">
     <div class="first message">
         <div class="quiet right"><?php echo __('Views')?>: <?php echo $ad->views ?></div>
         <div class="quiet"><?php echo __('Added')?> <?php echo Date::smart_date($ad->addtime) ?></div>
+        <div class="line"></div>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Selibo 728 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:728px;height:90px"
+     data-ad-client="ca-pub-2043472058318458"
+     data-ad-slot="5901547627"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
         <?php if (count($photos) == 1): ?>
             <div class="showroom"><?php echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center')) ?></div>
         <?php elseif (count($photos) > 1): ?>
@@ -24,8 +35,8 @@
 
             </div>
         <?endif ?>
-
         <div class="line"></div>
+      <h2>Текст Объявления</h2>
         <?php if(!empty($ad->description)):?>
             <div class="detail-desc"><?php echo  nl2br($ad->description)?></div>
             <div class="line"></div>
@@ -84,9 +95,18 @@
         </dl>
         <div class="quiet"><br>Номер объявления: <?php echo $ad->id ?></div>
         <script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
-        <br>
-        <div class="note-block">Чтобы откликнуться на <b><?php echo $ad->title?></b>, Вы можете отправить сообщение поставщику <b><?php echo $ad->name?>, город <?php echo $city->name?></b>, либо связаться с ним одним из указанных выше способов.<br>Пожалуйста упомяните при разговоре что Вы нашли это объявление на сайте объявлений <?php echo $config['project']['name']?></div>
     </div>
+    <div class="line"></div>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Selibo 728 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:728px;height:90px"
+     data-ad-client="ca-pub-2043472058318458"
+     data-ad-slot="5901547627"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
 <?if(isset($user_ads)):?>
     <div class="line"></div>
     <h2>Другие объявления пользователя <?php echo $ad->name ?></h2>
@@ -131,22 +151,32 @@
 
 </div>
 <div class="col_tools">
-    <div class="last">
-        <ul class="message_icons" id="message_icons">
-            <li> <?if(isset($_COOKIE['board_favorites']) && isset($_COOKIE['board_favorites'][$ad->id])):?> <a rel="nofollow" data-item="<?= $ad->id?>" href="#" id="ico_out_favorite">Удалить из избранного</a>
-            <?else:?> <a rel="nofollow" href="#" data-item="<?= $ad->id ?>" id="ico_favorite">В избранное</a>
-            <?endif?></li>
-            <li><a rel="nofollow" href="#" data-link="<?php echo $ad->getPrintLink()?>" id="ico_print">Печать</a></li>
-            <li><a rel="nofollow" href="/profile/board" id="ico_edit">Изменить</a></li>
-            <li><a rel="nofollow" href="#" id="ico_note">Жалоба</a></li>
-        </ul>
-        <div class="clear"></div>
-        <div id="addabuse" class="hide"><br>
-            <form method="post" enctype="multipart/form-data" class="pure-form" id="abuseform" data-id="<?php echo $ad->id?>">
-                <div class="line"></div>
-                <?php echo Form::select('type', Model_BoardAbuse::$types, NULL, array('id'=>'abuseType'))?>
-                <input type="submit" value="Отправить" class="pure-button">
-            </form>
-        </div>
+    <ul class="message_icons" id="message_icons">
+        <li> <?if(isset($_COOKIE['board_favorites']) && isset($_COOKIE['board_favorites'][$ad->id])):?> <a rel="nofollow" data-item="<?= $ad->id?>" href="#" id="ico_out_favorite">Удалить из избранного</a>
+        <?else:?> <a rel="nofollow" href="#" data-item="<?= $ad->id ?>" id="ico_favorite">В избранное</a>
+        <?endif?></li>
+        <li><a rel="nofollow" href="#" data-link="<?php echo $ad->getPrintLink()?>" id="ico_print">Печать</a></li>
+        <li><a rel="nofollow" href="/my-ads/edit/<?php echo $ad->id?>" id="ico_edit">Изменить</a></li>
+        <li><a rel="nofollow" href="#" id="ico_note">Жалоба</a></li>
+    </ul>
+    <div class="clear"></div>
+    <div id="addabuse" class="hide">
+        <form method="post" enctype="multipart/form-data" class="pure-form" id="abuseform" data-id="<?php echo $ad->id?>">
+            <div class="line"></div>
+            <?php echo Form::select('type', Model_BoardAbuse::$types, NULL, array('id'=>'abuseType'))?>
+            <input type="submit" value="Отправить" class="pure-button">
+            <div class="line"></div>
+        </form>
+    </div>
+    <div class="alcenter">
+        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <!-- Selibo 240x400 -->
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:240px;height:400px"
+             data-ad-client="ca-pub-2043472058318458"
+             data-ad-slot="4088567228"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
     </div>
 </div>

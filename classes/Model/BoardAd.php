@@ -74,13 +74,13 @@ class Model_BoardAd extends ORM{
             'name' => array(
                 array('not_empty'),
             ),
-            'email' => array(
-                array('not_empty'),
-                array('email'),
-            ),
-            'address' => array(
-                array('not_empty'),
-            ),
+//            'email' => array(
+//                array('not_empty'),
+//                array('email'),
+//            ),
+//            'address' => array(
+//                array('not_empty'),
+//            ),
 //            'user_id' => array(
 //                array('not_empty'),
 //            ),
@@ -139,6 +139,7 @@ class Model_BoardAd extends ORM{
             return false;
         $photo = ORM::factory('BoardAdphoto')->values(array(
             'ad_id'=>$this->pk(),
+            'name'=>Text::transliterate($this->title, true),
         ))->save();
         $photo->savePhoto($file);
         $photo->saveThumb($file);
@@ -403,6 +404,7 @@ class Model_BoardAd extends ORM{
 //        try{
             $new = ORM::factory('BoardAd')->values(array(
                 'id' => $row['id'],
+                'user_id' => $row['user_id'],
                 'category_id' => $row['id_category'],
                 'pcategory_id' => $row['pcategory_id'] ? $row['pcategory_id'] : 0,
                 'city_id' => $row['city_id'] ? $row['city_id'] : 83,
@@ -417,10 +419,10 @@ class Model_BoardAd extends ORM{
                 'email' => $row['email'],
                 'site' => $row['url'],
                 'video' => $row['video'],
-                'price' => $row['price'],
-//            'photos' => $row['photos'],
+                'price' => (string) $row['price'],
                 'views' => $row['hits'],
                 'publish' => 1,
+                'photos' => 0,
 //            '' => $row[''],
             ))->save();
             if($new->id != $row['id']){
@@ -520,7 +522,7 @@ class Model_BoardAd extends ORM{
      * @param $field
      */
     public function setModerate($field){
-        if($this->_original_values[$field] != $this->$field)
+        if($this->loaded() && $this->_original_values[$field] != $this->$field)
             $this->moderated = 0;
     }
 
@@ -530,8 +532,8 @@ class Model_BoardAd extends ORM{
      * @param $field
      */
     public function checkPrice(Validation $validation, $field){
-        if($this->price_type == 0 && empty($this->{$field}))
-            $validation->error($field, 'not_empty');
+//        if($this->price_type == 0 && empty($this->{$field}))
+//            $validation->error($field, 'not_empty');
     }
 
     /**
@@ -540,15 +542,16 @@ class Model_BoardAd extends ORM{
      * @param $field
      */
     public function checkDuplicates(Validation $validation, $field){
-        if($this->user_id){
+        if($this->user_id && !empty($this->title)){
             $counter = ORM::factory('BoardAd')
                 ->where('title','=',$this->title)
                 ->and_where('user_id','=',$this->user_id);
             if($this->loaded())
-                $counter->and_where('id','<>',$this->id);
+                $counter->and_where('id','<>',$this->_original_values['id']);
             $count = $counter->count_all();
-            if($count > 0)
+            if($count > 0){
                 $validation->error($field, 'duplicates');
+            }
         }
     }
 }

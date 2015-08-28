@@ -106,6 +106,8 @@ class Model_BoardFilter extends ORM{
                     /* Load options related to selected parent option */
                     if(!$filter->parent_id){
                         $filters[$filter->id]['options'] = ORM::factory('BoardOption')->where('filter_id','=',$filter->id)->find_all()->as_array('id', 'value');
+                        if($filter->main)
+                            $filters[ $filter->id ]['options'] = Arr::merge(array(null=>$filter->name), $filters[$filter->id]['options']);
                     }
                 }
                 $filters[$filter->id]['parent'] = $filter->parent_id;
@@ -133,8 +135,14 @@ class Model_BoardFilter extends ORM{
             $filter = ORM::factory('BoardFilter')->where('category_id', '=', $category_id)->and_where('main', '=', 1)->find();
             if ($filter->loaded()) {
                 $filter = $filter->as_array();
-                $options = ORM::factory('BoardOption')->where('filter_id', '=', $filter['id'])->find_all();
-                $filter['options'] = $options->as_array('id', 'value');
+                $options = ORM::factory('BoardOption')->where('filter_id', '=', $filter['id'])->order_by('value')->find_all();
+                foreach($options->as_array() as $_filter){
+                    $filter['options'][] = array(
+                        'id' => $_filter->id,
+                        'value' => $_filter->value,
+                        'alias' => $_filter->alias,
+                    );
+                }
                 $filter['aliases'] = $options->as_array('alias', 'id');
             }
             else
@@ -203,7 +211,6 @@ class Model_BoardFilter extends ORM{
                 }
                 /* Setting options if child num filter */
                 if(isset($filter['parent']) && $filter['type']=='childlist' && isset($filters[$filter['parent']]) ){
-                    $filters[ $filter['parent'] ]['options'] = Arr::merge(array(null=>$filters[ $filter['parent'] ]['name']), $filters[ $filter['parent'] ]['options']);
                     $filters[$id]['options'] = Arr::merge(array(null=>$filter['name']), self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE));
                 }
             }

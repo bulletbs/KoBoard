@@ -8,9 +8,9 @@
     <a href="#" id="showAllCity">все</a>
     </span>
     <ul class="search_sub_row" id="city_list"><?$_step = ceil(count($city_counter)/5)?>
-    <?for($_i = 0; $_i < $_step; $_i++):?>
-    <?for($_j = 0; $_j < count($city_counter); $_j+=$_step):?>
-    <?if(isset($city_counter[$_i+$_j])):?><li <?php echo $city_counter[$_i+$_j]['cnt']>100 ? 'class="bigcity"' : 'class="smallcity"'?>><?php echo HTML::anchor(Model_BoardCity::generateUri( Model_BoardCity::getField('alias', $city_counter[$_i+$_j]['city_id'])), Model_BoardCity::getField('name', $city_counter[$_i+$_j]['city_id']) . ' <span>' .$city_counter[$_i+$_j]['cnt']. '</span>') ?></li><?endif;?>
+    <?for($_r = 0; $_r < $_step; $_r++):?>
+    <?for($_c = 0; $_c < $_step*5; $_c+=$_step):?>
+    <?if(isset($city_counter[$_r+$_c])):?><li <?php echo $city_counter[$_r+$_c]['cnt']>100 ? 'class="bigcity"' : 'class="smallcity"'?>><?php echo HTML::anchor(Model_BoardCity::generateUri( Model_BoardCity::getField('alias', $city_counter[$_r+$_c]['city_id'])), Model_BoardCity::getField('name', $city_counter[$_r+$_c]['city_id']) . ' <span>' .$city_counter[$_r+$_c]['cnt']. '</span>') ?></li><?else:?><li class="smallcity"></li><?endif;?>
     <?endfor;?>
     <?endfor;?></ul>
     <div class="clear"></div>
@@ -18,9 +18,9 @@
 <?if(count($childs_categories)):?>
     <div class="line"></div>
     <ul class="search_sub_row"><?$_step = ceil(count($childs_categories)/5)?>
-    <?for($_i = 0; $_i < $_step; $_i++):?>
-    <?for($_j = 0; $_j < count($childs_categories); $_j+=$_step):?>
-    <?if(isset($childs_categories[$_i+$_j])):?><li><?php echo HTML::anchor(Model_BoardCategory::generateUri($childs_categories[$_i+$_j]->alias), $childs_categories[$_i+$_j]->name) ?></li><?endif?>
+    <?for($_r = 0; $_r < $_step; $_r++):?>
+    <?for($_c = 0; $_c < $_step*5; $_c+=$_step):?>
+    <?if(isset($childs_categories[$_r+$_c])):?><li><?php echo HTML::anchor(Model_BoardCategory::generateUri($childs_categories[$_r+$_c]->alias), $childs_categories[$_r+$_c]->name) ?></li><?else:?><li></li><?endif?>
     <?endfor;?>
     <?endfor;?></ul>
     <div class="clear"></div>
@@ -31,9 +31,12 @@
         var subcat_options = <?php echo json_encode(array_flip($main_filter['aliases'])) ?>;
     </script>
     <div class="line"></div>
-    <ul class="search_sub_row"><?foreach($main_filter['options'] as $_catid=>$_cat):?>
-            <li><?php echo HTML::anchor(Model_BoardFilter::generateUri(array_flip($main_filter['aliases'])[$_catid]), $_cat) ?></li>
-        <?endforeach;?></ul>
+    <ul class="search_sub_row"><?$_step = ceil(count($main_filter['options'])/5)?>
+        <?for($_r = 0; $_r < $_step; $_r++):?>
+            <?for($_c = 0; $_c < $_step*5; $_c+=$_step):?>
+                <?if(isset($main_filter['options'][$_r+$_c])):?><li><?php echo HTML::anchor(Model_BoardFilter::generateUri($main_filter['options'][$_r+$_c]['alias']), $main_filter['options'][$_r+$_c]['value']) ?></li><?else:?><li></li><?endif?>
+            <?endfor;?>
+        <?endfor;?></ul>
     <div class="clear"></div>
 <?endif?>
 <div class="line"></div>
@@ -66,14 +69,19 @@
     <?endif?>
 </div>
 <div class="col_tools">
+<div class="alcenter">
     <!-- GOOGLE -->
-    <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <!-- Rokvel 240x400 -->
-    <ins class="adsbygoogle" style="display:inline-block;width:240px;height:400px" data-ad-client="ca-pub-3458343082323839" data-ad-slot="7809786857"></ins>
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Selibo 240x400 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:240px;height:400px"
+     data-ad-client="ca-pub-2043472058318458"
+     data-ad-slot="4088567228"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
     <!-- END GOOGLE  -->
+</div>
     <br>
     <div class="alcenter">
         <div class="proreklamu">

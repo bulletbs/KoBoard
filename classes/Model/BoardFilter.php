@@ -182,8 +182,11 @@ class Model_BoardFilter extends ORM{
             if(isset($filter['parent']) && $filter['type']=='childlist' && isset($filters[$filter['parent']]) ){
                 if(!isset($filters[ $filter['parent'] ]['value']) && count($filters[ $filter['parent'] ]['options']))
                     $filters[ $filter['parent'] ]['value'] = key($filters[ $filter['parent'] ]['options']);
-                if(isset($filters[ $filter['parent'] ]['value']))
-                    $filters[$id]['options'] = self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value']);
+                if(isset($filters[ $filter['parent'] ]['value'])){
+                    $suboptions = self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value']);
+                    if(count($suboptions))
+                        $filters[$id]['options'] = $suboptions;
+                }
             }
         }
         return;
@@ -211,7 +214,11 @@ class Model_BoardFilter extends ORM{
                 }
                 /* Setting options if child num filter */
                 if(isset($filter['parent']) && $filter['type']=='childlist' && isset($filters[$filter['parent']]) ){
-                    $filters[$id]['options'] = Arr::merge(array(null=>$filter['name']), self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE));
+                    $suboptions = self::loadSubfilterOptions($id, $filters[ $filter['parent'] ]['value'], TRUE);
+                    if(count($suboptions))
+                        $filters[$id]['options'] = Arr::merge(array(null=>$filter['name']), $suboptions);
+                    else
+                        unset($filters[$id]);
                 }
             }
         }

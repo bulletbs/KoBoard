@@ -215,7 +215,7 @@
 
 }
 .col_type_selection{
-    margin-top: 38px;
+    margin-top: 25px;
     position: relative;
     width: 710px;
     margin-right: 12px;
@@ -232,14 +232,18 @@
 }
 .type_selector{
     position: absolute;
-    top: -31px;
+    top: -27px;
     left: -1px;
 }
     .type_selector a{
         font-size: 13px;
         display: block;
         float: left;
-        padding: 7px 15px;
+        padding: 5px 15px;
+        text-decoration: none;
+    }
+    .type_selector a:hover{
+        text-decoration: underline;
     }
     .type_selector a.active{
         z-index: 1000;
@@ -529,12 +533,14 @@ table.tableccat tr:nth-child(2n) td {
     margin-bottom:10px;
     padding-left: 0px;
 }
-    .search_sub_row li {
-        list-style: none;
-        float: left;
-        width: 190px;
-        height: 19px;
-        overflow: hidden;
+
+.search_sub_row li {
+    float: left;
+    height: 19px;
+    list-style: outside none none;
+    margin-right: 10px;
+    overflow: hidden;
+    width: 190px;
     }
     .search_sub_row li a{
         font-size: 13px;

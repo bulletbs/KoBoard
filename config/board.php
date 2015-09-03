@@ -12,7 +12,8 @@ return array(
     'price_hints'       => '100,1000,5000,10000,20000,100000,1000000',
 
     /* TITLE settings */
-    'refion_title'       => 'Бесплатные объявления <in_region>',
-    'category_title'       => '<category> <in_region>',
-    'ad_title'       => '<ad_title> <category> <in_region>',
+    'region_title'       => '<region> - Бесплатные объявления на <project>',
+    'category_title'       => '<category> на доске объявлений <project>',
+    'region_category_title'       => '<category>, <region> на доске объявлений <project>',
+    'ad_title'       => '<ad_title> - <category>',
 );

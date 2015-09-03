@@ -28,7 +28,7 @@
                     data : options
                 });
                 $(tipBody).append( $("<span/>", {
-                    text : $(this).val() != '' ? methods.spanValue(tipBody, $(this).val()) : $(this).attr('placeholder')
+                    html : $(this).val() != '' ? methods.spanValue(tipBody, $(this).val()) : $(this).attr('placeholder')
                 }) );
                 $(tipBody).append( $(this).clone() );
                 var tipList = $("<ul/>");

@@ -3,11 +3,9 @@
 <?if(count($filters)):?>
     <?foreach($filters as $filter_id=>$data):?>
     <div class="filter">
-        <? if($data['type'] == 'select' && isset($data['is_parent'])): ?>
-            <?
-            $params = array('data-id'=>$filter_id);
-            if(isset($data['main']) && $data['main'] > 0) $params['data-main'] = 1;
-            ?>
+        <? if($data['type'] == 'select' && isset($data['main'])): ?>
+            <?$params = array('data-id'=>$filter_id);?>
+            <?if(isset($data['main']) && $data['main'] > 0) $params['data-main'] = 1;?>
             <?= Form::select('filters['.$filter_id.']', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, $params) ?>
         <? elseif($data['type'] == 'childlist'): ?>
             <?= Form::select('filters['.$filter_id.']', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, Arr::merge(array('data-id'=>$filter_id, 'data-parent'=>$data['parent']), !isset($data['options']) || !count($data['options']) ? array('disabled'=>'disabled') : array()) ) ?>

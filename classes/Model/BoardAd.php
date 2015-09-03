@@ -381,7 +381,7 @@ class Model_BoardAd extends ORM{
      */
     public function getTitle(){
         $title = $this->title;
-        return htmlspecialchars($title);
+        return $title;
     }
 
     /**
@@ -390,7 +390,8 @@ class Model_BoardAd extends ORM{
      */
     public function getDescription(){
         $description = mb_substr(strip_tags($this->description), 0, 255);
-        return htmlspecialchars($description);
+        return $description;
+//        return htmlspecialchars($description);
     }
 
     /**

@@ -120,6 +120,10 @@ $(function(){
                 }
             })
             .done(function(data){
+                if(data.content)
+                    $('#filter_'+ id +':hidden').show();
+                else
+                    $('#filter_'+ id +':visible').hide();
                 $('#subfilter_'+ id +'').html(data.content);
                 setStyle();
             });

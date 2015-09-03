@@ -62,7 +62,7 @@
             <dd><?php echo __( $is_job_category ? Model_BoardAd::$jobType[$ad->type] : Model_BoardAd::$adType[$ad->type]) ?></dd>
 
             <dt>Автор</dt>
-            <dd><strong><?php echo  $ad->name?></strong> <?/*if($ad->user_id>0):?><small class="quiet"><a href="#">(<?php echo __('Search for more user ads') ?>)</a></small><?endif*/?></dd>
+            <dd><strong><?php echo  $ad->name?></strong> <?if($ad->user_id>0):?><small class="quiet"><a href="/all.html?userfrom=<?php echo $ad->id?>">(<?php echo __('Search for more user ads') ?>)</a></small><?endif?></dd>
 
             <?if(!empty($ad->address)):?>
             <dt>Адрес</dt>

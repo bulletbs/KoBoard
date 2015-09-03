@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 <?if(count($filters)):?>
     <?foreach($filters as $filter_id=>$data):?>
+        <div id="filter_<?php echo $filter_id?>">
         <label><?= $data['name'] ?></label>
         <? if($data['type'] == 'select'): ?>
             <?= Form::select('filters['.$filter_id.']', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, array('data-id'=>$filter_id)) ?>
@@ -20,6 +21,6 @@
                 <?= Form::checkbox('filters['.$filter_id.']['.$i.']', 1, isset($data['value'][$i]) && $data['value'][$i] ? TRUE : FALSE) ?> <?php echo $_option?><br>
                 <?$i++?>
             <?endforeach?>
-        <?endif;?>
+        <?endif;?></div>
         <?endforeach;?>
 <?endif;?>

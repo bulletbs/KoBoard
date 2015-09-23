@@ -67,7 +67,8 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
         $this->template->scripts[] = "media/js/admin/check_all.js";
 
         $orm = ORM::factory($this->model_name);
-        $orm->where($this->moderate_field,'=',self::NOT_MODERATED);
+        $orm->where($this->moderate_field,'=',self::NOT_MODERATED)
+            ->and_where('key','=','');
         $count = $orm->count_all();
         $pagination = Pagination::factory(
             array(
@@ -84,8 +85,10 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
          */
         $orm = ORM::factory($this->model_name)
             ->where($this->moderate_field,'=',self::NOT_MODERATED)
+            ->and_where('key','=','')
             ->limit($pagination->items_per_page)
-            ->offset($pagination->offset);
+            ->offset($pagination->offset)
+            ->order_by('addtime', 'DESC');
         $items = $orm->find_all();
         $photos = Model_BoardAdphoto::adsFullPhotoList($items->as_array('id','id'));
         $this->template->content = View::factory('admin/board/moderate')
@@ -108,9 +111,9 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
      * Delete item
      */
     public function action_delete(){
-        $comment = ORM::factory($this->model_name, $this->request->param('id'));
-        if($comment->loaded())
-            $comment->delete();
+        $model = ORM::factory($this->model_name, $this->request->param('id'));
+        if($model->loaded())
+            $model->delete();
         $this->redirect($this->_moderate_uri . URL::query());
     }
 

@@ -104,20 +104,24 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
             $model->values(Arr::extract($_POST, array('name', 'alias')))->save();
         }
 
-        /* Save New Options */
-        foreach(Arr::get($_POST,'newOptions', array()) as $option){
-            $newOption = ORM::factory('BoardCity')->values(array('name'=>$option));
-            $newOption->alias = Text::transliterate($newOption->name, true);
-            $newOption->insert_as_last_child($model);
-        }
-
         /* Save Present Options */
 //        echo Debug::vars($_POST);
-        foreach(Arr::get($_POST,'options', array()) as $k=>$option){
+        $present_options = Arr::get($_POST,'options', array());
+        foreach($present_options as $k=>$option){
             $option = ORM::factory('BoardCity', $k)->values(array('name'=>$option));
             if(empty($option->alias))
                 $option->alias = Text::transliterate($option->name, true);
             $option->update();
+        }
+
+        /* Save New Options */
+        foreach(Arr::get($_POST,'newOptions', array()) as $option){
+            $option = trim($option);
+            if(!empty($option) && !in_array($option, $present_options)){
+                $newOption = ORM::factory('BoardCity')->values(array('name'=>$option));
+                $newOption->alias = Text::transliterate($newOption->name, true);
+                $newOption->insert_as_last_child($model);
+            }
         }
 
         /* Delete Options */
@@ -129,13 +133,12 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
         $multiadd =  preg_split('~\r\n?|\n~', $multiadd);
         foreach($multiadd as $k=>$option){
             $option = trim($option);
-            if(!empty($option)){
+            if(!empty($option) && !in_array($option, $present_options)){
                 $newOption = ORM::factory('BoardCity')->values(array('name'=>$option));
                 $newOption->alias = Text::transliterate($newOption->name, true);
                 $newOption->insert_as_last_child($model);
             }
         }
-
 
         Cache::instance()->delete('fullDepthCities');
         Cache::instance()->delete('firstLevelCities');

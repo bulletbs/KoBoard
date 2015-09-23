@@ -16,7 +16,8 @@ class Controller_Admin_BoardModerateSw extends Controller_Admin_BoardModerate{
 
         $orm = ORM::factory($this->model_name);
         $orm->where($this->moderate_field,'=',self::NOT_MODERATED);
-        $orm->and_where('stopword', '=', 1);
+        $orm->and_where('stopword', '=', 1)
+            ->and_where('key','=','');
         $count = $orm->count_all();
         $pagination = Pagination::factory(
             array(
@@ -34,11 +35,13 @@ class Controller_Admin_BoardModerateSw extends Controller_Admin_BoardModerate{
         $orm = ORM::factory($this->model_name)
             ->where($this->moderate_field,'=',self::NOT_MODERATED)
             ->and_where('stopword', '=', 1)
+            ->and_where('key','=','')
             ->limit($pagination->items_per_page)
-            ->offset($pagination->offset);
+            ->offset($pagination->offset)
+            ->order_by('addtime', 'DESC');
         $items = $orm->find_all();
         $photos = Model_BoardAdphoto::adsFullPhotoList($items->as_array('id','id'));
-        $this->template->content = View::factory('admin/board/moderate')
+        $this->template->content = View::factory('admin/board/moderatesw')
             ->set('pagination', $pagination)
             ->set('items', $items)
             ->set('photos', $photos)

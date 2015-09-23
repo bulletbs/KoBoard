@@ -23,7 +23,7 @@ class Task_BoardAdsCleaner extends Minion_Task
             Email::instance()
                 ->to($ad->email)
                 ->from($cfg->robot_email)
-                ->subject(html_entity_decode($cfg['project']['name']) .': '. __('Old classified out of date'))
+                ->subject($cfg['project']['name'] .': '. __('Old classified out of date'))
                 ->message(View::factory('board/mail/ad_outofdate', array(
                     'user'=>$ad->name,
                     'title'=>$ad->title,

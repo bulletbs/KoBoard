@@ -11,7 +11,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
 
     public $list_fields = array(
         'id',
-        'title',
+        'titleHref',
         'addTime',
         'price',
     );
@@ -25,7 +25,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         'edit',
         'import',
         'test',
-        'partitions',
+        'multi',
     );
 
 
@@ -55,6 +55,9 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         ),
     );
 
+    protected $_multi_operations = array(
+        'del_selected' => 'Удалить выбраные',
+    );
 
     public function action_index(){
         /* Filter Parent_id initialize  */
@@ -75,6 +78,18 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         parent::action_index();
     }
 
+    /**
+     * Delete all selected comment
+     * @param array $ids
+     * @throws Kohana_Exception
+     */
+    protected function _multi_del_selected(Array $ids){
+        $items = ORM::factory($this->_model_name)->where('id','IN',$ids)->find_all();
+        foreach($items as $item)
+            $item->delete();
+        Flash::success(__('All items (:count) was successfully deleted', array(':count'=>count($items))));
+    }
+
     public $_form_fields = array(
         'title' => array('type'=>'text'),
         'category_id' => array('type'=>'select','data'=>array('options'=>array())),
@@ -84,7 +99,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         ),
         'type' => array('type'=>'select'),
         'business' => array('type'=>'checkbox'),
-        'user_id' => array('type'=>'select'),
+        'user_id' => array('type'=>'text'),
         'city_id' => array('type'=>'select'),
         'price' => array('type'=>'text'),
 //        'description' => array('type'=>'editor'),
@@ -131,7 +146,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         $this->_form_fields['city_id']['data']['options'] = ORM::factory('BoardCity')->getTwoLevelArray();
 
         /* Users list */
-        $this->_form_fields['user_id']['data']['options'] = ORM::factory('Profile')->find_all()->as_array('user_id', 'name');
+//        $this->_form_fields['user_id']['data']['options'] = ORM::factory('Profile')->find_all()->as_array('user_id', 'name');
 
         /* Setting photos field */
         $this->_form_fields['photo']['advanced_data']['photos'] = $model->photos->find_all()->as_array('id');

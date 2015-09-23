@@ -20,6 +20,31 @@ if(!Route::cache()){
             'controller' => 'board',
             'action' => 'confirm',
         ));
+
+    /* OLD PAGES */
+    Route::set('board_old_city', $board_base_url . '<city_alias>/<type>(-p<page>).html', array( 'city_alias' => '([\w\-_]+)', 'type' => '[psuo]', 'id' => '[0-9]+', 'page' => '[\d]+'))
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'pagemoved',
+        ));
+    Route::set('board_old_citycat', $board_base_url . '<city_alias>/c<id>(-<type>)(-p<page>).html', array( 'city_alias' => '([\w\-_]+)', 'type' => '[psuo]', 'id' => '[0-9]+', 'page' => '[\d]+'))
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'pagemoved',
+        ));
+    Route::set('board_old_cat', $board_base_url . 'c<id>(-<type>)(-p<page>).html', array( 'id' => '[0-9]+', 'page' => '[\d]+', 'type' => '[psuo]'))
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'pagemoved',
+        ));
+    Route::set('board_old_ad', $board_base_url . '<city_alias>/c<id>-<id_mess>.html', array( 'id' => '[0-9]+', 'id_mess' => '[\d]+'))
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'pagemoved',
+        ));
+    /* END: OLD PAGES */
+
+
     Route::set('board_ad', $board_base_url . '<city_alias>/<cat_alias>/<id>-<alias>.html', array( 'city_alias' => '([\w\-_]+)', 'cat_alias' => '[\d\w\-_]+', 'id' => '[0-9]+', 'alias' => '[\d\w\-_]+'))
         ->defaults(array(
             'controller' => 'board',
@@ -31,7 +56,6 @@ if(!Route::cache()){
             'action' => 'ad',
             'print' => true,
         ));
-
     Route::set('board_city', $board_base_url . '<city_alias>(/p<page>).html', array('city_alias' => '[\w\-_]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',

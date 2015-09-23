@@ -47,7 +47,7 @@ $(document).ready(function(){
      * Parent options selector
      * @type {*|jQuery|HTMLElement}
      */
-    $('#filterOptions').on('change', '#parentFilter', function(){
+    $(optionsWrapper).on('change', '#parentFilter', function(){
         $.ajax({
             url: '/admin/boardFilters/parentoptions',
             method: 'post',
@@ -68,13 +68,13 @@ $(document).ready(function(){
      * Options List events
      * @type {*|jQuery|HTMLElement}
      */
-    $('#filterOptions').on('click', '.addButton',function(){
+    $(optionsWrapper).on('click', '.addButton',function(){
         var content = optionHtml;
         if($(this).data('id') > 0)
             content = content.replace('PARENT_ID', $(this).data('id'));
         $(this).before(content);
     });
-    $('#filterOptions').on('click', '.del', function(){
+    $(optionsWrapper).on('click', '.del', function(){
         var id = $(this).data('id');
         if(id)
             deletedList.append(deletedOptionHtml.replace('optionKey', id));

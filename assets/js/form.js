@@ -162,15 +162,21 @@ $(function(){
         if(typeof job_ids != 'undefined'){
             if(catVal in job_ids){
                 $('#eventPriceLabel').text('Ставка');
+                $('#eventChangeLabel').hide();
+                $('#eventFreeLabel').hide();
                 $('#eventType option').each(function(){
                     $(this).text( job_labels[ $(this).val() ] );
                 });
+                $('#eventType').trigger('refresh');
             }
             else{
                 $('#eventPriceLabel').text('Цена');
+                $('#eventChangeLabel').show();
+                $('#eventFreeLabel').show();
                 $('#eventType option').each(function(){
                     $(this).text( common_labels[ $(this).val() ] );
                 });
+                $('#eventType').trigger('refresh');
             }
         }
     }

@@ -19,6 +19,7 @@
     <div class="clear"></div>
     <div id="filtersList" style="display: none;">
         <?php echo $filters?>
+        <?if($priced_category):?>
         <div class="filter">
             <?= Form::input('price[from]', isset($price_filter['from']) ? $price_filter['from'] : NULL, array('id'=>'fromPriceFilter', 'placeholder'=>__( $is_job_category ? 'Salary' : 'Price').' '.__('From'), 'autocomplete'=>'off')) ?>
             <?= Form::input('price[to]', isset($price_filter['to']) ? $price_filter['to'] : NULL, array('id'=>'toPriceFilter', 'placeholder'=>__($is_job_category ? 'Salary' : 'Price').' '.__('To'), 'autocomplete'=>'off')) ?>
@@ -37,6 +38,7 @@
                 });
             });
         </script>
+        <?endif?>
         <div class="clear"></div>
     </div>
     <?php echo Form::hidden(NULL, $category_alias, array('id'=>'categoryAlias'))?>

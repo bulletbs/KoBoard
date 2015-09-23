@@ -17,6 +17,8 @@ class Model_BoardAd extends ORM{
         'Vacancy',
     );
 
+    public $stopwords = 0;
+
     protected $_uriToMe;
 
     protected $_belongs_to = array(
@@ -33,7 +35,6 @@ class Model_BoardAd extends ORM{
             'foreign_key' => 'city_id',
         ),
     );
-    public $stopwords = 0;
 
     protected $_has_many = array(
         'filtervalues' => array(
@@ -42,6 +43,10 @@ class Model_BoardAd extends ORM{
         ),
         'photos' => array(
             'model' => 'BoardAdphoto',
+            'foreign_key' => 'ad_id',
+        ),
+        'abuses' => array(
+            'model' => 'BoardAbuse',
             'foreign_key' => 'ad_id',
         ),
     );
@@ -91,6 +96,7 @@ class Model_BoardAd extends ORM{
         return array(
             'id' => '№',
             'title' => 'Заголовок',
+            'titleHref' => 'Заголовок',
             'addtime' => 'Дата добавления',
             'addTime' => 'Добавлено',
             'type' => 'Куплю / Продам',
@@ -208,6 +214,8 @@ class Model_BoardAd extends ORM{
             $photo->delete();
         foreach( ORM::factory('BoardFiltervalue')->where('ad_id','=',$this->pk())->find_all()  as $item)
             $item->delete();
+        foreach( ORM::factory('BoardAbuse')->where('ad_id','=',$this->pk())->find_all()  as $item)
+            $item->delete();
         parent::delete();
     }
 
@@ -226,6 +234,8 @@ class Model_BoardAd extends ORM{
      * Flip company status
      */
     public function flipStatus(){
+        if($this->publish == 0 && !empty($this->key))
+            $this->key = '';
         $this->publish = $this->publish == 0 ? 1 : 0;
         $this->update();
     }
@@ -354,6 +364,14 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Generate short description for AD brief
+     * @return mixed|string
+     */
+    public function getShortDescr(){
+       return  mb_strlen($this->description)>150 ? mb_substr($this->description, 0, 150, 'UTF-8').'...' : $this->description;
+    }
+
+    /**
      * Format price by price_type
      * @return mixed|string
      */
@@ -446,8 +464,12 @@ class Model_BoardAd extends ORM{
         if($name == 'addTime'){
             return (date('d.m.Y', $this->addtime). ' <small class="quiet">' .date('H:i', $this->addtime) .'</small>');
         }
-        elseif($name == 'descriptionHide'){
-            return HTML::anchor('#', 'Hidden text', array('title' => $this->description));
+        elseif($name == 'titleHref'){
+            return HTML::anchor($this->getUri(), $this->title, array('target'=>'blank', 'title' => $this->description));
+        }
+        elseif($name == 'stopWordsHint'){
+            $stopwords = Arr::merge($this->_findStopWords('title'), $this->_findStopWords('description'));
+            return implode(',', array_keys($stopwords));
         }
         return parent::__get($name);
     }
@@ -456,11 +478,18 @@ class Model_BoardAd extends ORM{
      * Increase AD view counter
      */
     public function increaseViews(){
-        DB::update($this->table_name())
-            ->set(array( 'views' => DB::expr('views + 1') ))
-            ->where('id', '=', $this->id)
-            ->execute()
-        ;
+        $counter_file = Kohana::$cache_dir . DIRECTORY_SEPARATOR . 'BoardViewsPreCount.log';
+        if(!file_exists($counter_file)){
+            file_put_contents($counter_file, $this->id . PHP_EOL);
+            chmod($counter_file, 0666);
+        }
+        else
+            file_put_contents($counter_file, $this->id . PHP_EOL, FILE_APPEND);
+//        DB::update($this->table_name())
+//            ->set(array( 'views' => DB::expr('views + 1') ))
+//            ->where('id', '=', $this->id)
+//            ->execute()
+//        ;
     }
 
     public function increasePhotos(){
@@ -505,17 +534,27 @@ class Model_BoardAd extends ORM{
      * @throws Kohana_Exception
      */
     public function checkStopWords(Validation $validation, $field){
-        $cfg = Kohana::$config->load('stopwords')->as_array();
+        $this->stopwords = count($this->_findStopWords($field));
+        if($this->stopwords > 0)
+            $this->stopword = 1;
+    }
 
-        $this->stopword = 0;
+    /**
+     * @param $field
+     * @return array
+     * @throws Kohana_Exception
+     */
+    protected function _findStopWords($field){
+        $cfg = Kohana::$config->load('stopwords')->as_array();
+        $words = array();
+
         $value = preg_replace('~[^a-zа-я0-9]+~ui', '', $this->{$field});
         $value = mb_strtolower($value);
         foreach($cfg['stopwords'] as $word)
             if(strpos($value, $word) !== FALSE){
-                $this->stopwords++;
+                $words[$word] = 1;
             }
-        if($this->stopwords > 0)
-            $this->stopword = 1;
+        return $words;
     }
 
     /**

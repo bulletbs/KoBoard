@@ -536,7 +536,6 @@ table.tableccat tr:nth-child(2n) td {
 
 .search_sub_row li {
     float: left;
-    height: 19px;
     list-style: outside none none;
     margin-right: 10px;
     overflow: hidden;
@@ -556,6 +555,9 @@ table.tableccat tr:nth-child(2n) td {
     color: #808080;
     font: 13px Arial,sans-serif;
     padding: 0;
+}
+.search_sub_row_4 li {
+    width: 240px;
 }
 
 /****************

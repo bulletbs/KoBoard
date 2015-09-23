@@ -47,6 +47,7 @@ class Model_BoardAdphoto extends ORM{
         $mark = Image::factory(MODPATH.'board/data/watermark.png');
         $image->smart_watermark($mark, Image::WATERMARK_BOTTOM_LEFT, 50);
         $image->save($this->getPhoto(true), self::IMAGES_QUALITY);
+        chmod($this->getPhoto(true), 0666);
     }
 
     public function saveThumb($file){
@@ -58,6 +59,7 @@ class Model_BoardAdphoto extends ORM{
 //        $image->resize(NULL, 75);
         $image->image_fixed_resize(100, 75);
         $image->save($this->getThumb(true), self::IMAGES_QUALITY);
+        chmod($this->getThumb(true), 0666);
     }
 
     public function getPhoto($getName = false){

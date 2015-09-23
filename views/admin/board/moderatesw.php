@@ -43,7 +43,10 @@
                     <?endforeach?>
                 <?endif?>
                 </td>
-                <td class="small"><?php echo Model_BoardCategory::getField('name', $item->pcategory_id) ?> &raquo; <?php echo Model_BoardCategory::getField('name', $item->category_id) ?></td>
+                <td class="small">
+                    <?php echo Model_BoardCategory::getField('name', $item->pcategory_id) ?> &raquo; <?php echo Model_BoardCategory::getField('name', $item->category_id) ?>
+                    <br><span class="label label-danger">Стопслова: <?php echo $item->stopWordsHint?></span>
+                </td>
                 <td><?php echo $item->addTime ?></td>
                 <td><?php echo HTML::anchor('#', '<i class="glyphicon glyphicon-list-alt"></i>', array('class'=>'btn btn-inverse ', 'title'=>$item->description))?></td>
                 <td>

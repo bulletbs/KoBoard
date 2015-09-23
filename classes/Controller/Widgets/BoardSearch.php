@@ -77,6 +77,7 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             'price_filter' => $price_filter,
             'board_cfg' => $cfg,
             'is_job_category' => isset($category_id) && in_array($category_id, Model_BoardCategory::getJobIds()),
+            'priced_category' => !(isset($category_id) && in_array($category_id, Model_BoardCategory::getNopriceIds())),
         ));
     }
 

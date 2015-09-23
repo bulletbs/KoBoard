@@ -234,13 +234,15 @@ class Model_BoardCategory extends ORM_MPTT{
 
     /**
      * Get category uri
+     * @param null $city_alias
      * @return string
      * @throws Kohana_Exception
      */
-    public function getUri(){
+    public function getUri($city_alias = NULL){
         if(is_null($this->_uriToMe)){
             $this->_uriToMe = Route::get('board_cat')->uri(array(
                 'cat_alias' => $this->alias,
+                'city_alias' => $city_alias,
             ));
         }
         return $this->_uriToMe;

@@ -1,23 +1,25 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 
 <div class="col_main">
+    <?php if(Auth::instance()->logged_in('admin')):?>
+        <div class="right">
+            <a href="<?php echo URL::site().Route::get('admin')->uri(array('controller'=>'board', 'action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' target="_blank" title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i> <?php echo __('Edit')?></a>
+            <a href="<?php echo URL::site().Route::get('admin')->uri(array('controller'=>'board', 'action'=>'delete', 'id'=>$ad->id))?>" class='pure-button pure-button-error' target="_blank" title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i> <?php echo __('Delete')?></a>
+        </div>
+        <script type="text/javascript">
+            $('.pure-button-error').on('click', function(e){
+                if(!confirm('Вы уверены?'))
+                    e.preventDefault();
+            });
+        </script>
+    <?php endif?>
 <h1><?php echo $ad->title ?></h1>
 <div class="clear"></div>
 
     <div class="first message">
-        <div class="quiet right"><?php echo __('Views')?>: <?php echo $ad->views ?></div>
-        <div class="quiet"><?php echo __('Added')?> <?php echo Date::smart_date($ad->addtime) ?></div>
+        <div class="quiet"><?php echo __('Added')?> <?php echo Date::smart_date($ad->addtime) ?>&nbsp; | &nbsp;<?php echo __('Views')?>: <?php echo $ad->views ?></div>
         <div class="line"></div>
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- Selibo 728 -->
-<ins class="adsbygoogle"
-     style="display:inline-block;width:728px;height:90px"
-     data-ad-client="ca-pub-2043472058318458"
-     data-ad-slot="5901547627"></ins>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-
+        <?php echo Widget::factory('Banner728x90')?>
         <?php if (count($photos) == 1): ?>
             <div class="showroom"><?php echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center')) ?></div>
         <?php elseif (count($photos) > 1): ?>
@@ -36,7 +38,7 @@
             </div>
         <?endif ?>
         <div class="line"></div>
-      <h2>Текст Объявления</h2>
+      <h2>Текст объявления:</h2>
         <?php if(!empty($ad->description)):?>
             <div class="detail-desc"><?php echo  nl2br($ad->description)?></div>
             <div class="line"></div>
@@ -94,19 +96,12 @@
             <?endif?>
         </dl>
         <div class="quiet"><br>Номер объявления: <?php echo $ad->id ?></div>
-        <script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
+
+<br>
+<script type="text/javascript" src="//yastatic.net/share/share.js" charset="utf-8"></script><div class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="small" data-yashareQuickServices="vkontakte,facebook,twitter,odnoklassniki,moimir" data-yashareTheme="counter"></div>
     </div>
     <div class="line"></div>
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- Selibo 728 -->
-<ins class="adsbygoogle"
-     style="display:inline-block;width:728px;height:90px"
-     data-ad-client="ca-pub-2043472058318458"
-     data-ad-slot="5901547627"></ins>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-
+    <?php echo Widget::factory('Banner728x90')?>
 <?if(isset($user_ads)):?>
     <div class="line"></div>
     <h2>Другие объявления пользователя <?php echo $ad->name ?></h2>
@@ -128,7 +123,7 @@
             <tr>
                 <td class="list_date"><?= date("d.m.Y", $ad->addtime)?><br><b><?= date('G:i', $ad->addtime) ?></b><a href="#" class="ico_favorite" data-item="<?=$ad->id?>" title="Добавить в избранное"></a></td>
                 <td class="list_img"><?if(isset($sim_ads_photos[$ad->id])):?><img src="<?php echo $sim_ads_photos[$ad->id]->getThumbUri()?>"><?else:?><img alt=<?php echo $ad->title?>" src="/assets/board/css/images/noimage.png"/><?endif?></td>
-                <td class="list_title"><h3><?php echo HTML::anchor($ad->getUri(), $ad->title, array('title'=> $ad->title))?></h3> <?php echo mb_substr($ad->description, 0, 150, 'UTF-8')?><br> <span class="quiet"><?php echo Model_BoardCity::getField('name', $ad->city_id)?><br><?php echo Model_BoardCategory::getField('name', $ad->category_id)?></span> </td>
+                <td class="list_title"><h3><?php echo HTML::anchor($ad->getUri(), $ad->title, array('title'=> $ad->title))?></h3> <?php echo $ad->getShortDescr() ?><br> <span class="quiet"><?php echo Model_BoardCity::getField('name', $ad->city_id)?><br><?php echo Model_BoardCategory::getField('name', $ad->category_id)?></span> </td>
             </tr>
         </table>
     </td></tr>
@@ -169,14 +164,6 @@
         </form>
     </div>
     <div class="alcenter">
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- Selibo 240x400 -->
-        <ins class="adsbygoogle"
-             style="display:inline-block;width:240px;height:400px"
-             data-ad-client="ca-pub-2043472058318458"
-             data-ad-slot="4088567228"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+    <?php echo Widget::factory('Banner240x400')?>
     </div>
 </div>

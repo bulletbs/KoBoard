@@ -16,6 +16,7 @@ class Controller_Board extends Controller_System_Page
         'render_subcategories',
         'show_phone',
         'goto',
+        'pagemoved',
     );
 
     public $skip_auto_content_apply = array(
@@ -75,7 +76,9 @@ class Controller_Board extends Controller_System_Page
          */
         $city = NULL;
         $city_alias = $this->request->param('city_alias');
-        if($city_alias && $city = Model_BoardCity::getAliases($city_alias)){
+        if($city_alias && $city_alias!= 'all'){
+            if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
+                throw HTTP_Exception::factory('404', __('Page not found'));
             $city = ORM::factory('BoardCity', $city);
             $title .= $city->name_in;
             $this->description = $city->name_in;
@@ -112,13 +115,16 @@ class Controller_Board extends Controller_System_Page
          */
         $category_alias = $this->request->param('cat_alias');
         $category = NULL;
-        if($category_alias && $category = Model_BoardCategory::getAliases($category_alias)){
+        if($category_alias){
+            if(FALSE === ($category = Model_BoardCategory::getAliases($category_alias)))
+                throw HTTP_Exception::factory('404', __('Page not found'));
             $category = ORM::factory('BoardCategory', $category);
             $parents = $category->parents()->as_array('id');
             foreach($parents as $_parent)
-                $this->breadcrumbs->add($_parent->name, $_parent->getUri());
-            $this->breadcrumbs->add($category->name, $category->getUri());
+                $this->breadcrumbs->add($_parent->name, $_parent->getUri($city_alias));
+            $this->breadcrumbs->add($category->name, $category->getUri($city_alias));
             $childs_categories = ORM::factory('BoardCategory')->where('parent_id','=',$category->id)->order_by('name', 'ASC')->find_all()->as_array();
+            $childs_categories_col = 4;
             if(!$category->parent_id){
                 $ads->and_where('pcategory_id','=',$category->id);
             }
@@ -130,6 +136,7 @@ class Controller_Board extends Controller_System_Page
         }
         else{
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array();
+            $childs_categories_col = 5;
         }
 
         /*****************
@@ -188,7 +195,9 @@ class Controller_Board extends Controller_System_Page
                 'filter_alias' => '{{ALIAS}}',
             )));
             $this->template->content->set('main_filter', $main_filter);
-            if(NULL !== ($filter_alias = Request::$current->param('filter_alias')) && isset($main_filter['aliases'][$filter_alias])){
+            if(NULL !== ($filter_alias = Request::$current->param('filter_alias'))){
+                if(!isset($main_filter['aliases'][$filter_alias]))
+                    throw HTTP_Exception::factory('404', __('Page not found'));
                 $_GET['filters'][$main_filter['id']] = $main_filter['aliases'][$filter_alias];
             }
         }
@@ -199,7 +208,7 @@ class Controller_Board extends Controller_System_Page
         if($category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
             $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
             /* При выбраном главном фильтре устанавливаем title, h1 и добавляем в хлебные крошки */
-            if(isset($main_filter) && isset($filters_values[$main_filter['id']]) && is_int($filters_values[$main_filter['id']])){
+            if(isset($main_filter) && isset($filters_values[$main_filter['id']]) && !is_array($filters_values[$main_filter['id']])){
                 $main_filter['selected_name'] = $filters[$main_filter['id']]['options'][ $filters_values[$main_filter['id']] ];
                 $this->title = $main_filter['selected_name'] . (!empty($this->title) ? ' '.$this->title : '' );
                 $title = $main_filter['selected_name'] .' '. (isset($city) && $city ? $city->name : $this->board_cfg['in_country']);
@@ -289,6 +298,7 @@ class Controller_Board extends Controller_System_Page
             'city' => $city,
             'category' => $category,
             'childs_categories' => $childs_categories,
+            'childs_categories_col' => $childs_categories_col,
             'ads' => $ads,
             'photos' => $photos,
             'cfg' => $this->board_cfg,
@@ -326,7 +336,7 @@ class Controller_Board extends Controller_System_Page
 
             $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
             foreach($category_parents as $_parent)
-                $this->breadcrumbs->add($_parent->name, $_parent->getUri());
+                $this->breadcrumbs->add($_parent->name, $_parent->getUri($city->alias));
 
             /* Photos */
             $photos = $ad->photos->find_all();
@@ -337,14 +347,12 @@ class Controller_Board extends Controller_System_Page
             }
 
             /* Other user ads */
-            if($ad->user_id>0 || !empty($ad->email)){
+            if($ad->user_id>0){
                 $user_ads = Model_BoardAd::boardOrmFinder()
                     ->and_where('id', '<>', $ad->id)
                     ->limit(4);
                 if($ad->user_id > 0)
                     $user_ads->and_where('user_id', '=', $ad->user_id);
-                elseif(!empty($ad->email))
-                    $user_ads->and_where('email', '=', $ad->email);
                 $user_ads = $user_ads->execute();
                 if(count($user_ads)){
                     $user_ads_ids = array();
@@ -365,6 +373,7 @@ class Controller_Board extends Controller_System_Page
                 ->and_where('publish', '=', 1)
                 ->and_where('category_id', '=', $ad->category_id)
                 ->and_where('id', '<>', $ad->id)
+                ->and_where('user_id', '<>', $ad->user_id)
                 ->order_by('rel', 'DESC')
                 ->limit(10)
                 ->as_object(get_class(ORM::factory('BoardAd')))
@@ -410,7 +419,7 @@ class Controller_Board extends Controller_System_Page
             ));
         }
         else
-            $this->go(Route::get('board')->uri());
+            throw HTTP_Exception::factory('404', __('Page not found'));
     }
 
     /**
@@ -907,6 +916,9 @@ class Controller_Board extends Controller_System_Page
         }
     }
 
+    public function action_pagemoved(){
+        throw new HTTP_Exception_404('Эта страница устарела и перенесена');
+    }
 
     /**
      * Загрузить список выпадающих фильтров

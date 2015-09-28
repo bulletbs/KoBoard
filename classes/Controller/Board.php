@@ -567,13 +567,22 @@ class Controller_Board extends Controller_System_Page
         $regions = array(''=>"Выберите регион");
         $regions += ORM::factory('BoardCity')->where('parent_id', '=', 0)->cached(Model_BoardCity::CITIES_CACHE_TIME)->find_all()->as_array('id','name');
         $cities = '';
+        $city_id = Arr::get($_POST, 'city_id');
         if($ad->city_id > 0){
-            $cities = $this->_render_city_list($ad->city->parent(), $ad->city_id);
+            $city_id = Arr::get($_POST, 'city_id', $ad->city->id);
+            $region = Arr::get($_POST, 'region', $ad->city->parent_id);;
+            $cities = $this->_render_city_list($ad->city->parent(), $city_id);
+        }
+        elseif($this->logged_in){
+            $city = ORM::factory('BoardCity', $user->profile->city_id);
+            $city_id = Arr::get($_POST, 'city_id', $user->profile->city_id);
+            $region = $city->parent_id;
+            $cities = $this->_render_city_list($city->parent(), $this->current_user->profile->city_id);
         }
         else{
-            if(NULL !== $region = Arr::get($_POST, 'region')){
-                $cities = $this->_render_city_list(ORM::factory('BoardCity', $region));
-            }
+            $region = Arr::get($_POST, 'region');
+            if(!is_null($region))
+                $cities = $this->_render_city_list(ORM::factory('BoardCity', $region), Arr::get($_POST, 'city_id'));
         }
 
         $this->template->content->bind('errors', $errors);
@@ -592,7 +601,9 @@ class Controller_Board extends Controller_System_Page
         ));
         $this->template->content->set(array(
             'regions' => $regions,
+            'region' => $region,
             'cities' => $cities,
+            'city_id' => $city_id,
         ));
     }
 

@@ -23,7 +23,7 @@ class Model_BoardAd extends ORM{
 
     protected $_belongs_to = array(
         'user' => array(
-            'model' => 'user',
+            'model' => 'User',
             'foreign_key' => 'user_id',
         ),
         'category' => array(
@@ -74,7 +74,8 @@ class Model_BoardAd extends ORM{
                 array('not_empty'),
             ),
             'city_id' => array(
-                array('not_empty'),
+//                array('not_empty'),
+                array(array($this, 'checkCity'), array(':validation', ':field')),
             ),
             'name' => array(
                 array('not_empty'),
@@ -574,6 +575,16 @@ class Model_BoardAd extends ORM{
     public function checkPrice(Validation $validation, $field){
 //        if($this->price_type == 0 && empty($this->{$field}))
 //            $validation->error($field, 'not_empty');
+    }
+
+    /**
+     * Validation price field
+     * @param Validation $validation
+     * @param $field
+     */
+    public function checkCity(Validation $validation, $field){
+        if(!Valid::not_empty($this->city_id) || $this->city_id == 0)
+            $validation->error($field, 'not_empty');
     }
 
     /**

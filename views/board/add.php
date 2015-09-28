@@ -65,9 +65,9 @@
         <?= Form::input('phone', Arr::get($_POST,'phone', $logged ? $user->profile->phone : NULL) , array('class'=>isset($errors['phone']) ? 'error-input': '')) ?>
 <!--        --><?//= Form::input('phone', Arr::get($_POST,'phone')) ?>
 
-        <?= Form::label('city_id', 'Регион')?>
-        <?= Form::hidden('city_id', Arr::get($_POST,'city_id') , array('id'=>'city_id')) ?>
-        <?= Form::select('region', $regions, Arr::get($_POST,'region'), array('class'=>isset($errors['city_id']) ? 'error-input': '', 'id'=>'region'))?>
+        <?= Form::label('city_id', 'Регион ')?>
+        <?= Form::hidden('city_id', Arr::get($_POST, 'city_id', $city_id) , array('id'=>'city_id')) ?>
+        <?= Form::select('region', $regions, $region, array('class'=>isset($errors['city_id']) ? 'error-input': '', 'id'=>'region'))?>
         <span id="subRegion"><?= $cities ?></span>
 
         <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>

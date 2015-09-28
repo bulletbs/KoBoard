@@ -48,15 +48,26 @@ class Controller_UserBoard extends Controller_User
         $photos = $ad->photos->find_all();
         if($id > 0 && !$ad->loaded())
             $this->redirect(URL::site().Route::get('board_myads')->uri());
+        elseif(is_null($id)){
+            $ad->values( $this->current_user->as_array() );
+            $ad->values( $this->current_user->profile->as_array() );
+            if($this->current_user->profile->city_id > 0 ){
+                $ad->values(array(
+                    'pcity_id' => ORM::factory('BoardCity', $this->current_user->profile->city_id)->parent_id,
+                ));
+            }
+        }
 
         if(HTTP_Request::POST == $this->request->method()){
             if(Arr::get($_POST, 'cancel'))
                 $this->redirect(URL::site().Route::get('board_myads')->uri());
 
             $ad->category_id =  Arr::get($_POST, 'category_id');
-
             $ad->values($_POST);
             $ad->user_id = $this->current_user->id;
+            if(!$ad->loaded())
+                $ad->publish = 1;
+
             try{
                 $ad->save();
 

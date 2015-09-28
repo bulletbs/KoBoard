@@ -13,18 +13,20 @@ class Task_BoardAdsCleaner extends Minion_Task
         $cfg = Kohana::$config->load('global');
 
         $ads = ORM::factory('BoardAd')
-            ->where(DB::expr('addtime' + Date::DAY*30),'>',time())
             ->where('publish','=', 1)
             ->and_where('user_id','=', 1)
-            ->find_all()->as_array('id');
+            ->and_where('addtime','>',DB::expr('UNIX_TIMESTAMP() - '. Date::DAY*31))
+            ->and_where('addtime','<',DB::expr('UNIX_TIMESTAMP() - '. Date::DAY*30))
+            ->find_all()
+            ->as_array('id');
         foreach($ads as $ad){
-            $ad->publish = 0;
-            $ad->update();
+//            $ad->publish = 0;
+//            $ad->update();
             Email::instance()
                 ->to($ad->email)
                 ->from($cfg->robot_email)
                 ->subject($cfg['project']['name'] .': '. __('Old classified out of date'))
-                ->message(View::factory('board/mail/ad_outofdate', array(
+                ->message(View::factory('board/mail/ad_refresh_reminder', array(
                     'user'=>$ad->name,
                     'title'=>$ad->title,
                     'site_name'=> $cfg['project']['name'],

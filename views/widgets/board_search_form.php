@@ -27,14 +27,14 @@
         <script type="text/javascript">
             $(function(){
                 $('#fromPriceFilter').TipComplete({
-                    values : [<?php echo $board_cfg['price_hints']?>],
+                    values : [<?php echo BoardConfig::instance()->priceHints() ?>],
                     prefix: '<?php echo __('From')?>',
-                    suffix: '<?php echo $board_cfg['price_value']?>',
+                    suffix: '<?php echo BoardConfig::instance()->priceUnitName()?>',
                 });
                 $('#toPriceFilter').TipComplete({
-                    values : [<?php echo $board_cfg['price_hints']?>],
+                    values : [<?php echo BoardConfig::instance()->priceHints() ?>],
                     prefix: '<?php echo __('To')?>',
-                    suffix: '<?php echo $board_cfg['price_value']?>',
+                    suffix: '<?php echo BoardConfig::instance()->priceUnitName()?>',
                 });
             });
         </script>

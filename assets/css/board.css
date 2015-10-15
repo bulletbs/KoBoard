@@ -335,7 +335,13 @@ table.tableccat tr:nth-child(2n) td {
     padding: 5px 0;
 }
     .tableccat table td{
-        /* vertical-align: top; */
+         vertical-align: top;
+    }
+    .list_fav{
+        vertical-align: top;
+        padding: 5px 0 0 10px;
+        width: 20px;
+        text-align: center;
     }
     .list_date{
         padding-top: 15px;
@@ -348,19 +354,24 @@ table.tableccat tr:nth-child(2n) td {
         color: #7a7a7a;
     }
     .list_img{
-        width: 100px;
+        width: 142px;
         text-align: center;
     }
     .list_img a{
         display: block;
-        float: left;
-        height: 103px;
+        position: relative;
         border: 1px solid #dadada;
-        padding: 1px 1px 0 1px;
+        background: #eaeaea;
+        width: 140px;
+        height: 105px;
     }
     .list_img img{
-        border: 1px solid #eaeaea;
-        width: 90px;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
     }
     .list_title{
         padding-left: 10px;
@@ -370,13 +381,13 @@ table.tableccat tr:nth-child(2n) td {
         margin-bottom: 3px;
     }
     .list_price{
-        color: #FF6600;
+      /*   color: #FF6600; */
         font-family: "Verdana",Arial,Helvetica,sans-serif;
-        padding-top: 10px;
-        width: 100px;
-        font-size: 14px;
-        font-weight: bold;
-        text-align: right;
+      /*   padding-top: 40px; */
+      /*   width: 100px; */
+      /*   font-size: 14px; */
+      /*   font-weight: bold; */
+      /*   text-align: right; */
     }
     .list_box{
         width: 100px;
@@ -389,15 +400,13 @@ table.tableccat tr:nth-child(2n) td {
 #adList a.ico_favorite, #adList a.ico_out_favorite{
     display: block;
     font-size: 11px;
-    height: 11px;
-    padding-top: 36px;
+    height: 20px;
     color: #5a5a5a;
-    width: 60px;
-    margin: 5px 0 0 10px;
+    width: 20px;
     text-align: center;
 }
-    #adList a.ico_favorite{background: url("images/ico_favorite_list.png") top center no-repeat;}
-    #adList a.ico_out_favorite{background: url("images/ico_out_favorite_list.png") top center no-repeat;}
+    #adList a.ico_favorite{background: url("images/zvezda.png") top center no-repeat;}
+    #adList a.ico_out_favorite{background: url("images/zvezda_act.png") top center no-repeat;}
 
 /* ******************** */
 /*     ADS STYLE   */
@@ -565,7 +574,7 @@ table.tableccat tr:nth-child(2n) td {
 *****************/
 .board_search_form{
     padding: 15px;
-    background: #ffd447;
+    background: #5aabe1;
     position: relative;
     border-radius: 3px;
     margin-top: 10px;

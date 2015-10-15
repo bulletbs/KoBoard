@@ -2,13 +2,21 @@
 
 /**
  * MInion task for board ads importation
+ *
+ * MySQL updates (data fix)
+    update jb_board set date_add = date_add + interval (2014 - date_format(date_add, '%Y')) year WHERE date_format(date_add, '%Y')<2014
+    update jb_board set id = id + (select max(id) from ads)
  */
 class Task_BoardImport extends Minion_Task
 {
+//    CONST ALL_AMOUNT = 100000;
+//    CONST ONE_STEP_AMOUNT = 2000;
     CONST ALL_AMOUNT = 50000;
     CONST ONE_STEP_AMOUNT = 2000;
 //    CONST ALL_AMOUNT = 50;
 //    CONST ONE_STEP_AMOUNT = 10;
+//    CONST ALL_AMOUNT = 5;
+//    CONST ONE_STEP_AMOUNT = 1;
 
     public $old2new = array();
     public $email2id = array();

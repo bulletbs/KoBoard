@@ -37,7 +37,7 @@ if(!Route::cache()){
             'controller' => 'board',
             'action' => 'pagemoved',
         ));
-    Route::set('board_old_ad', $board_base_url . '<city_alias>/c<id>-<id_mess>.html', array( 'id' => '[0-9]+', 'id_mess' => '[\d]+'))
+    Route::set('board_old_ad', $board_base_url . 'c<id>-<id_mess>.html', array( 'id' => '[0-9]+', 'id_mess' => '[\d]+'))
         ->defaults(array(
             'controller' => 'board',
             'action' => 'pagemoved',

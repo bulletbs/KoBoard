@@ -314,7 +314,7 @@ class Model_BoardCategory extends ORM_MPTT{
         /**
          * @var ORM_MPTT $new
          */
-        $new = ORM::factory('BoardCategory')->values(array(
+        $new = ORM::factory('BoardCategoryJB')->values(array(
             'id' => $row['id'],
             'name' => $row['name_cat'],
             'alias' => $row['en_name_cat'],
@@ -323,7 +323,7 @@ class Model_BoardCategory extends ORM_MPTT{
             /**
              * @var ORM_MPTT $parent
              */
-            $parent = ORM::factory('BoardCategory', $parent_id);
+            $parent = ORM::factory('BoardCategoryJB', $parent_id);
             $new->insert_as_last_child($parent);
         }
         else{

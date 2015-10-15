@@ -5,6 +5,7 @@
 
 class Controller_UserBoard extends Controller_User
 {
+    public $board_cfg = array();
     public $auth_required = 'login';
 
     public $skip_auto_content_apply = array(
@@ -43,6 +44,11 @@ class Controller_UserBoard extends Controller_User
         $errors = array();
         $id = $this->request->param('id');
         $this->breadcrumbs->add(__('My ads'), URL::site().Route::get('board_myads')->uri());
+
+        if(is_null($id) && $this->board_cfg['addnew_suspend'] === TRUE){
+            $this->user_content = View::factory('board/add_suspended');
+            return;
+        }
 
         $ad = ORM::factory('BoardAd')->where('id', '=', $id)->and_where('user_id', '=', $this->current_user->id)->find();
         $photos = $ad->photos->find_all();
@@ -141,7 +147,7 @@ class Controller_UserBoard extends Controller_User
             'model' => $ad,
             'photos' => $photos,
             'errors' => $errors,
-            'price_value' => $this->board_cfg['price_value'],
+            'units_options' => BoardConfig::instance()->unitsOptions(),
 
             'categories_main' => $categories_main,
             'cat_child' => $cat_child,

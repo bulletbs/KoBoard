@@ -30,6 +30,7 @@
                 <?= Form::radio('price_type', 0, $model->price_type==0, array('id'=>'option-one', 'class'=>'left')) ?>
                 <span class="price_label" id="eventPriceLabel"><?php echo __('Price')?></span>
                 <?= Form::input('price', $model->price, array('class'=>(isset($errors['price']) ? 'error-input ': '').' left', 'id'=>'eventPrice')) ?>
+                <?= Form::select('price_unit', $units_options, $model->price_unit, array('class'=>'left')) ?>
             </label>
             <label id="trade_styler"><?= Form::hidden('trade', 0) ?><?= Form::checkbox('trade', 1, $model->trade==1) ?> <?php echo __('Trade')?></label>
             <div class="hspacer_10"></div>

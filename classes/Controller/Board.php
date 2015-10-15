@@ -268,7 +268,9 @@ class Controller_Board extends Controller_System_Page
          * Meta tags
          */
         $title_type = 'region_title';
-        $title_params = array();
+        $title_params = array(
+            'page' => $pagination->current_page,
+        );
         if($city instanceof ORM)
             $title_params['region'] = $city->name;
         else
@@ -280,6 +282,7 @@ class Controller_Board extends Controller_System_Page
         if(!is_null($city) && !is_null($category))
             $title_type = 'region_category_title';
         $this->title = $this->_generateMetaTitle($title_type, $title_params);
+        $this->description = $this->_generateMetaDescription(str_replace('title', 'description', $title_type), $title_params);
 
         /*****************
          * scripts / styles / widgets
@@ -292,6 +295,16 @@ class Controller_Board extends Controller_System_Page
         $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
         $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
+        $this->add_meta_content(array(
+            'name'=>'revisit-after',
+            'content'=>'1 days',
+        ));
+//        $this->add_meta_content(array(
+//            'tag' => 'link',
+//            'rel' => 'canonical',
+//            'href' => $pagination->url($pagination->current_page),
+//        ));
+
         $this->template->search_form = Widget::factory('BoardSearch')->render();
         $this->template->content->set(array(
             'title' => $title,
@@ -301,7 +314,7 @@ class Controller_Board extends Controller_System_Page
             'childs_categories_col' => $childs_categories_col,
             'ads' => $ads,
             'photos' => $photos,
-            'cfg' => $this->board_cfg,
+            'board_config' => $this->board_cfg,
             'pagination' => $pagination,
         ));
     }
@@ -326,6 +339,11 @@ class Controller_Board extends Controller_System_Page
         $ad = $ad[0];
 
         if($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) == $alias){
+            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $ad->addtime){
+                header('HTTP/1.1 304 Not Modified');
+                die;
+            }
+            $this->add_page_header('Last-Modified: '.gmdate('D, d M Y H:i:s', $ad->addtime).' GMT');
 
             /* Breadcrumbs & part parents */
             $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
@@ -350,7 +368,7 @@ class Controller_Board extends Controller_System_Page
             if($ad->user_id>0){
                 $user_ads = Model_BoardAd::boardOrmFinder()
                     ->and_where('id', '<>', $ad->id)
-                    ->limit(4);
+                    ->limit($this->board_cfg['user_ads_limit']);
                 if($ad->user_id > 0)
                     $user_ads->and_where('user_id', '=', $ad->user_id);
                 $user_ads = $user_ads->execute();
@@ -367,17 +385,18 @@ class Controller_Board extends Controller_System_Page
             }
 
             /* Similar ads */
+            $sim_ads = array();
             $table = ORM::factory('BoardAd')->table_name();
-            $sim_ads = DB::select($table.'.*')->from($table)
-                ->select(array(DB::expr('round(MATCH (title) AGAINST ("'.mysql_real_escape_string($ad->title).'"))'), 'rel'))
-                ->and_where('publish', '=', 1)
-                ->and_where('category_id', '=', $ad->category_id)
-                ->and_where('id', '<>', $ad->id)
-                ->and_where('user_id', '<>', $ad->user_id)
-                ->order_by('rel', 'DESC')
-                ->limit(10)
-                ->as_object(get_class(ORM::factory('BoardAd')))
-                ->execute();
+//            $sim_ads = DB::select($table.'.*')->from($table)
+//                ->select(array(DB::expr('round(MATCH (title) AGAINST ("'.mysql_real_escape_string($ad->title).'"))'), 'rel'))
+//                ->and_where('publish', '=', 1)
+//                ->and_where('category_id', '=', $ad->category_id)
+//                ->and_where('id', '<>', $ad->id)
+//                ->and_where('user_id', '<>', $ad->user_id)
+//                ->order_by('rel', 'DESC')
+//                ->limit($this->board_cfg['similars_ads_limit'])
+//                ->as_object(get_class(ORM::factory('BoardAd')))
+//                ->execute();
             if(count($sim_ads)){
                 $sim_ads_ids = array();
                 foreach($sim_ads as $_ad)
@@ -408,12 +427,11 @@ class Controller_Board extends Controller_System_Page
                 'ad' => $ad,
                 'photos' => $photos,
                 'filters' => $filters,
+                'price_template' => BoardConfig::instance()->priceTemplate($ad->price_unit),
                 'region_cities_ids' => $region->getChildrenId(),
                 'city' => $city,
                 'city_parents' => $city_parents,
                 'category_parents' => $category_parents,
-                'config' => $this->config,
-                'board_config' => $this->board_cfg,
                 'is_job_category' => in_array($ad->category_id, Model_BoardCategory::getJobIds()),
                 'is_noprice_category' => in_array($ad->category_id, Model_BoardCategory::getNopriceIds()),
             ));
@@ -427,6 +445,10 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_add()
     {
+        if($this->board_cfg['addnew_suspend']){
+            $this->template->content = View::factory('board/add_suspended');
+            return;
+        }
         $user = $this->current_user;
         if(isset($_POST['cancel']))
             $this->go('/');
@@ -589,7 +611,7 @@ class Controller_Board extends Controller_System_Page
         $this->template->content->set(array(
             'model' => $ad,
             'user' => $user,
-            'price_value' => $this->board_cfg['price_value'],
+            'units_options' => BoardConfig::instance()->unitsOptions(),
             'job_ids' => Model_BoardCategory::getJobIds(),
             'noprice_ids' => Model_BoardCategory::getNopriceIds(),
             'logged' => $this->logged_in,
@@ -790,7 +812,7 @@ class Controller_Board extends Controller_System_Page
             'ads' => $ads,
             'photos' => $photos,
             'pagination' => $pagination,
-            'cfg' => $this->board_cfg,
+            'board_config' => $this->board_cfg,
         ));
     }
 
@@ -928,6 +950,15 @@ class Controller_Board extends Controller_System_Page
     }
 
     public function action_pagemoved(){
+        $mess_id = Request::$current->param('id_mess');
+        if(!is_null($mess_id)){
+            $ad = ORM::factory('BoardAd', $mess_id);
+            if($ad->loaded()){
+                header("HTTP/1.1 301 Moved Permanently");
+                header("Location: ". $ad->getUri());
+                exit();
+            }
+        }
         throw new HTTP_Exception_404('Эта страница устарела и перенесена');
     }
 
@@ -1042,9 +1073,33 @@ class Controller_Board extends Controller_System_Page
      *   category - category name
      *   region   - region name
      *   project  - name of site
+     *   page  - current page
      * @return null
      */
     protected function _generateMetaTitle($config_index, Array $parameters= array()){
+        $parameters['project'] = $this->config['project']['name'];
+        $parameters['page'] = isset($parameters['page']) && $parameters['page']>1 ? ' - страница '.$parameters['page'] : NULL;
+        $template = NULL;
+        if(isset($this->board_cfg[$config_index]))
+            $template = $this->board_cfg[$config_index];
+        foreach($parameters as $_param=>$_val){
+            $template = str_replace('<'.$_param.'>', $_val, $template);
+        }
+        return $template;
+    }
+
+    /**
+     * Generates title string from config templates
+     * @param $config_index - name of template
+     * @param $parameters - replaces <param> labels in config templates
+     *  Known labels:
+     *   ad_title - title of AD
+     *   category - category name
+     *   region   - region name
+     *   project  - name of site
+     * @return null
+     */
+    protected function _generateMetaDescription($config_index, Array $parameters= array()){
         $parameters['project'] = $this->config['project']['name'];
         $template = NULL;
         if(isset($this->board_cfg[$config_index]))

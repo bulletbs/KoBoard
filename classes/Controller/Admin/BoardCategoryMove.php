@@ -41,7 +41,8 @@ class Controller_Admin_BoardCategoryMove extends Controller_System_Admin
             $old_categories = ORM::factory('BoardCategoryJB')->where('new_id', '>', 0)->and_where('moved','=', 0)->order_by('new_id', 'ASC')->find_all()->as_array('id', 'new_id');
             foreach($old_categories as $_id=>$_new_id){
                 DB::update(ORM::factory('BoardAd')->table_name())
-                    ->where('category_id', '=', $_id)
+                    ->where('category_id', '>', 400)
+                    ->and_where('category_id', '=', $_id)
                     ->set(array(
                         'category_id' => $_new_id,
                         'pcategory_id' => $new_parents[$_new_id],

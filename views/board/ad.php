@@ -54,7 +54,7 @@
         <?php if(!$is_noprice_category):?>
         <dl>
             <dt><?php echo __( $is_job_category ? 'Salary' : 'Price' )?></dt>
-            <dd><span class="price"><?php echo  $ad->getPrice() . $ad->getTrade()?></span></dd>
+            <dd><span class="price"><?php echo $ad->getPrice($price_template)?><small><?php echo $ad->getTrade()?></small></span></dd>
         </dl>
         <?php endif?>
         <div class="line"></div>

@@ -157,7 +157,7 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
             $categories[$row['root_category']][$row['id']] = $row;
         }
         foreach($categories[0] as $cat){
-            Model_BoardCategory::import_category($categories, $cat);
+            Model_BoardCategoryJB::import_category($categories, $cat);
         }
     }
 }

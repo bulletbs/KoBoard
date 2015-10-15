@@ -41,7 +41,7 @@ class Model_BoardAdphoto extends ORM{
         $image = Image::factory($file);
         if(!$this->ext)
             $this->ext = $image->findExtension();
-        $image->image_set_max_edges(800);
+        $image->image_set_max_edges( BoardConfig::instance()->image_max_width );
         $this->width = $image->width;
         $this->height = $image->height;
         $mark = Image::factory(MODPATH.'board/data/watermark.png');
@@ -56,8 +56,7 @@ class Model_BoardAdphoto extends ORM{
         $image = Image::factory($file);
         if(!$this->ext)
             $this->ext = $image->findExtension();
-//        $image->resize(NULL, 75);
-        $image->image_fixed_resize(100, 75);
+        $image->image_fixed_resize(BoardConfig::instance()->thumb_width, BoardConfig::instance()->thumb_height);
         $image->save($this->getThumb(true), self::IMAGES_QUALITY);
         chmod($this->getThumb(true), 0666);
     }

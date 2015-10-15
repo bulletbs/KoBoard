@@ -104,6 +104,7 @@ class Model_BoardAd extends ORM{
             'business' => 'Business',
             'name' => 'Название',
             'price' => 'Цена',
+            'price_unit' => 'Валюта',
             'user_id' => 'Пользователь',
             'category_id' => 'Категория',
             'filters' => 'Параметры',
@@ -374,14 +375,24 @@ class Model_BoardAd extends ORM{
 
     /**
      * Format price by price_type
+     * @param null $unit_template
      * @return mixed|string
      */
-    public function getPrice (){
+    public function getPrice ($unit_template = NULL){
+        /* Look for price type */
         if($this->price_type == 1)
             return __('Change');
         elseif($this->price_type == 2)
             return __('For free');
-        return $this->price>0 ? $this->price : __('negotiable');
+        /* Look for price */
+        if($this->price>0){
+            $price = preg_replace('/(\d)(?=(\d\d\d)+([^\d]|$))/', '$1&thinsp;', round($this->price));
+            if($unit_template)
+                $price = str_replace('<price>', $price, $unit_template);
+            return $price;
+        }
+        else
+            return __('negotiable');
     }
 
     /**
@@ -389,7 +400,7 @@ class Model_BoardAd extends ORM{
      * @return null|string
      */
     public function getTrade(){
-        if($this->price_type==0 && $this->trade>0)
+        if($this->price>0 && $this->price_type==0 && $this->trade>0)
             return ' ('.__('Trade').')';
         return NULL;
     }

@@ -40,7 +40,7 @@
         <?php endforeach; ?>
         <dl>
             <dt><?php echo __('Price')?></dt>
-            <dd><span class="price"><?php echo  $ad->price > 0? $ad->price.' '.$board_config['price_value']: __('negotiable')?></span></dd>
+            <dd><span class="price"><?php echo  $ad->getPrice($price_template)?><small><?php echo $ad->getTrade()?></small></span></dd>
         </dl>
         <div class="line"></div>
 

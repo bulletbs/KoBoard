@@ -10,7 +10,7 @@
                     <td class="list_date"><?= date("d.m.Y", $ad->addtime)?><br><b><?= date('G:i', $ad->addtime) ?></b><a href="#" class="ico_favorite" data-item="<?=$ad->id?>" title="Добавить в избранное"></a></td>
                     <td class="list_img"><?if(isset($photos[$ad->id])):?><img src="<?php echo $photos[$ad->id]->getThumbUri()?>"><?else:?><img alt=<?php echo $ad->title?>" src="/assets/board/css/images/noimage.png"/><?endif?></td>
                     <td class="list_title"><h3><?php echo HTML::anchor($ad->getUri(), $ad->title, array('title'=> $ad->title))?></h3></td>
-                    <td class="list_price"><?= ($ad->price > 0 ? $ad->price.' '.$cfg['price_value'] : '') ?></td>
+                    <td class="list_price"><?= $ad->getPrice($board_config['price_units']['templates'][ $ad->price_unit ]) ?></td>
                     <td class="list_button"><?php echo HTML::anchor('#', '<i class=" fa fa-trash-o"></i> Удалить', array('class'=>'pure-button pure-button-error remove_favorite', 'data-id'=>$ad->id)) ?></td>
                 </tr>
             </table>

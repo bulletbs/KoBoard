@@ -7,8 +7,11 @@ return array(
     'Select category' => 'Выберите категорию',
     'Select city' => 'Выберите город',
 
+    'Ads creation temporarily suspended' => 'Создание объявлений временно отключено',
+
     'New classified ad confirmation' => 'Подтвреждение публикации объявления',
     'Old classified out of date' => 'Ваше объявление устарело',
+    'Old classifieds out of date' => 'Ваши объявления устарели',
     'Your ad successfully added' => 'Ваше объявление добавлено',
     'Your ad successfully saved' => 'Ваше объявление сохранено',
     'Your ad successfully published' => 'Ваше объявление опубликовано',

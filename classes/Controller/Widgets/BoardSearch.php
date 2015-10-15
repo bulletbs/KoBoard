@@ -59,9 +59,6 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
                 $region_name = Model_BoardCity::getField('name', $region_id);
         }
 
-        /* BOARD CONFIG */
-        $cfg = Kohana::$config->load('board')->as_array();
-
         $this->template->set(array(
             'form_action' => $form_action,
 
@@ -75,7 +72,6 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             'filters' => isset($filters_view) ? $filters_view : '',
 
             'price_filter' => $price_filter,
-            'board_cfg' => $cfg,
             'is_job_category' => isset($category_id) && in_array($category_id, Model_BoardCategory::getJobIds()),
             'priced_category' => !(isset($category_id) && in_array($category_id, Model_BoardCategory::getNopriceIds())),
         ));

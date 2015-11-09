@@ -6,6 +6,8 @@
  */
 class Controller_Admin_BoardModerateSw extends Controller_Admin_BoardModerate{
 
+    public $moderate_field = 'stopword';
+
     /**
      * List items
      */

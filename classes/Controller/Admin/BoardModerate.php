@@ -19,6 +19,9 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
     public $model_name = 'BoardAd';
     public $moderate_field = 'moderated';
 
+    public $_orderby_field = 'addtime';
+    public $_orderby_direction = 'DESC';
+
     protected $_item_name;
     protected $_moderate_name;
 
@@ -52,6 +55,10 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
         $this->_crud_uri = 'admin/board';
         $this->_moderate_uri = Route::get('admin')->uri($route_params);
         $this->_moderate_name = __('Ads moderating');
+
+        /* getting sort field and direction */
+        $this->_orderby_field = Arr::get($_GET, 'orderby', $this->_orderby_field);
+        $this->_orderby_direction= Arr::get($_GET, 'orderdir', $this->_orderby_direction);
 
         /* Rendering submenu if widget name exists */
         if($this->auto_render)
@@ -88,7 +95,7 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
             ->and_where('key','=','')
             ->limit($pagination->items_per_page)
             ->offset($pagination->offset)
-            ->order_by('addtime', 'DESC');
+            ->order_by($this->_orderby_field, $this->_orderby_direction);
         $items = $orm->find_all();
         $photos = Model_BoardAdphoto::adsFullPhotoList($items->as_array('id','id'));
         $this->template->content = View::factory('admin/board/moderate')
@@ -114,7 +121,8 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
         $model = ORM::factory($this->model_name, $this->request->param('id'));
         if($model->loaded())
             $model->delete();
-        $this->redirect($this->_moderate_uri . URL::query());
+//        $this->redirect($this->_moderate_uri . URL::query());
+        $this->redirect( Request::current()->referrer() );
     }
 
     /**
@@ -127,7 +135,8 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
             $model->update();
             Flash::success(__('Item #:id was successfully moderated', array(':id' => $model->id)));
         }
-        $this->redirect($this->_moderate_uri . URL::query());
+//        $this->redirect($this->_moderate_uri . URL::query());
+        $this->redirect( Request::current()->referrer() );
     }
 
     /**
@@ -152,7 +161,8 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
             $this->_delSelected($ids);
             Flash::success(__('All items (:count) was successfully deleted', array(':count'=>count($ids))));
         }
-        $this->redirect($this->_moderate_uri . URL::query());
+//        $this->redirect($this->_moderate_uri . URL::query());
+        $this->redirect( Request::current()->referrer() );
 
     }
 

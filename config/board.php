@@ -20,6 +20,11 @@ return array(
             'unit_1' => '$&thinsp;<price>',
             'unit_2' => '&euro;&thinsp;<price>',
         ),
+        'iso' => array(
+            'unit_0' => 'RUR',
+            'unit_1' => 'USD',
+            'unit_2' => 'EUR',
+        ),
     ),
     'price_hints'       => '100,1000,5000,10000,20000,100000,1000000,10000000',
 
@@ -29,11 +34,18 @@ return array(
     'region_category_title'  => '<category>, <region> на доске объявлений <project><page>',
     'ad_title'               => '<ad_title> - <category>',
 
+    'add_title'              =>  'Подать бесплатное объявление <project>',
+    'region_map_title'       =>  'Карта реигонов и городов <project>',
+    'category_map_title'     =>  'Карта категорий <project>',
+
     /* DESCRIPTION settings */
     'region_description'           => 'Бесплатные объявления, <region>. Подайте бесплатные объявления о покупке и продаже на сайте <project> в вашем городе.',
     'category_description'         => 'Бесплатные объявления, <category>. Подайте бесплатные объявления о покупке и продаже на сайте <project> в вашем городе.',
     'region_category_description'  => 'Бесплатные объявления, <category> <region>. Подайте бесплатные объявления о покупке и продаже на сайте <project> в вашем городе.',
     'ad_description'               => '<ad_description> - <category>',
+
+    /* KEYWORDS settings */
+    'ad_keywords'               => '<pcategory> <category>',
 
     /* Images settings */
     'image_max_width'     => 800,

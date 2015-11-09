@@ -26,69 +26,13 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         'import',
         'test',
         'multi',
+        'clearphotos',
+        'clearads',
     );
 
-
-    protected $_sort_fields = array(
-        'category_id' => array(
-            'label' => 'Показать категорию',
-            'type' => 'select',
-            'oper'=>'IN',
-        ),
-        'title' => array(
-            'label' => 'Найти',
-            'type'=>'text',
-            'oper'=>'like',
-        ),
-        'id' => array(
-            'label' => 'ID',
-            'type'=>'text',
-            'oper'=>'=',
-        ),
-        '1' => array(
-            'type'=>'nl',
-        ),
-        'user_id' => array(
-            'label' => 'User',
-            'type'=>'text',
-            'oper'=>'=',
-        ),
+    public $crud_render_actions = array(
+//        'index',
     );
-
-    protected $_multi_operations = array(
-        'del_selected' => 'Удалить выбраные',
-    );
-
-    public function action_index(){
-        /* Filter Parent_id initialize  */
-        $this->_sort_fields['category_id']['data']['options'][0] = 'Все категории';
-        foreach(ORM::factory('BoardCategory')->fulltree() as $item)
-            $this->_sort_fields['category_id']['data']['options'][$item->id] = $item->getLeveledName(0);
-        /* category */
-        if(!isset($this->_sort_values['category_id']))
-            $this->_sort_values['category_id'] = 0;
-        $this->_sort_fields['category_id']['data']['selected'] = $this->_sort_values['category_id'];
-        if(isset($this->_sort_values['category_id']))
-            $this->_sort_values['category_id'] = ORM::factory('BoardCategory', $this->_sort_values['category_id'])->descendants(TRUE)->as_array('id', 'id');
-
-        $this->_sort_fields['title']['data'] = $this->_sort_values['title'];
-        $this->_sort_fields['id']['data'] = $this->_sort_values['id'];
-        $this->_sort_fields['user_id']['data'] = $this->_sort_values['user_id'];
-
-        parent::action_index();
-    }
-
-    /**
-     * Delete all selected comment
-     * @param array $ids
-     * @throws Kohana_Exception
-     */
-    protected function _multi_del_selected(Array $ids){
-        $items = ORM::factory($this->_model_name)->where('id','IN',$ids)->find_all();
-        foreach($items as $item)
-            $item->delete();
-        Flash::success(__('All items (:count) was successfully deleted', array(':count'=>count($items))));
-    }
 
     public $_form_fields = array(
         'title' => array('type'=>'text'),
@@ -119,6 +63,85 @@ class Controller_Admin_Board extends Controller_Admin_Crud
     );
 
     public $form_fields_save_extra = array();
+
+    protected $_filter_fields = array(
+        'category_id' => array(
+            'label' => 'Категория',
+            'type' => 'select',
+            'oper'=>'IN',
+        ),
+        'id' => array(
+            'label' => 'ID',
+            'type'=>'digit',
+            'oper'=>'=',
+        ),
+        'user_id' => array(
+            'label' => 'User',
+            'type'=>'digit',
+            'oper'=>'=',
+        ),
+        'title' => array(
+            'label' => 'Заголовок',
+            'type'=>'text',
+            'oper'=>'like',
+        ),
+        '1' => array(
+            'type'=>'nl',
+        ),
+        'email' => array(
+            'label' => 'Email',
+            'type'=>'text',
+            'oper'=>'like',
+        ),
+        'phone' => array(
+            'label' => 'Тел',
+            'type'=>'text',
+            'oper'=>'like',
+        ),
+        'site' => array(
+            'label' => 'Сайт',
+            'type'=>'text',
+            'oper'=>'like',
+        ),
+    );
+
+    protected $_orderby_field = 'id';
+    protected $_orderby_direction = 'DESC';
+
+    protected $_multi_operations = array(
+        'del_selected' => 'Удалить выбраные',
+    );
+
+    public function action_index(){
+        /* Filter Parent_id initialize  */
+        $this->_filter_fields['category_id']['data']['options'][0] = 'Все категории';
+        foreach(ORM::factory('BoardCategory')->fulltree() as $item)
+            $this->_filter_fields['category_id']['data']['options'][$item->id] = $item->getLeveledName(0);
+        /* category */
+        if(!isset($this->_filter_values['category_id']))
+            $this->_filter_values['category_id'] = 0;
+        $this->_filter_fields['category_id']['data']['selected'] = $this->_filter_values['category_id'];
+        if(isset($this->_filter_values['category_id']))
+            $this->_filter_values['category_id'] = ORM::factory('BoardCategory', $this->_filter_values['category_id'])->descendants(TRUE)->as_array('id', 'id');
+
+        parent::action_index();
+        $this->template->content->set(array(
+            'user_uri' => 'admin/users',
+            'photos' => Model_BoardAdphoto::adsFullPhotoList($this->items->as_array('id','id')),
+        ));
+    }
+
+    /**
+     * Delete all selected comment
+     * @param array $ids
+     * @throws Kohana_Exception
+     */
+    protected function _multi_del_selected(Array $ids){
+        $items = ORM::factory($this->_model_name)->where('id','IN',$ids)->find_all();
+        foreach($items as $item)
+            $item->delete();
+        Flash::success(__('All items (:count) was successfully deleted', array(':count'=>count($items))));
+    }
 
     /**
      * Form preloader
@@ -313,5 +336,19 @@ class Controller_Admin_Board extends Controller_Admin_Crud
             $content = Form::select('filters['.$id.']', $options, $selected, $parameters);
         }
         return $content;
+    }
+
+    public function action_clearphotos(){
+        $photos = ORM::factory('BoardAdphoto')->where('width', '=', 1)->and_where('height', '=', 1)->find_all();
+        foreach($photos as $photo)
+            $photo->delete();
+        echo count($photos);
+    }
+
+    public function action_clearads(){
+        $ads = ORM::factory('BoardAd')->where('pcity_id', '=', 0)->find_all();
+        foreach($ads as $ad)
+            $ad->delete();
+        echo count($ads);
     }
 }

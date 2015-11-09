@@ -40,9 +40,6 @@ class Controller_Board extends Controller_System_Page
             /* Bradcrumbs */
             if($this->board_cfg['board_as_module'])
                 $this->breadcrumbs->add(__('Доска объявлений'), Route::get('board')->uri());
-
-            /* Side widgets */
-//            $this->template->right_column = View::factory('board/side_column');
         }
     }
 
@@ -143,8 +140,26 @@ class Controller_Board extends Controller_System_Page
          * Поиск по тексту
          */
         $_query = Arr::get($_GET, 'query');
-        if(!empty($_query)){
+        if(!empty($_query) && mb_strlen($_query) >= 3){
             $ads->and_where(DB::expr('MATCH(`title`'.(Arr::get($_GET, 'wdesc') > 0 ? ',description': '').')'), 'AGAINST', DB::expr("('".Arr::get($_GET, 'query')."' IN BOOLEAN MODE)"));
+            /* Save search statistics */
+            if(Request::current()->param('page') == NULL){
+                $search = ORM::factory('BoardSearch')
+                    ->where('category_id', '=', $category instanceof ORM ? $category->id : 0)
+                    ->and_where('query', '=', $_query)
+                    ->find();
+                if(!$search->loaded())
+                    ORM::factory('BoardSearch')->values(array(
+                        'query' => $_query,
+                        'category_id' => $category instanceof ORM ? $category->id : 0,
+                        'cnt' => 1,
+                    ))->save();
+
+                else{
+                    $search->cnt++;
+                    $search->update();
+                }
+            }
         }
 
         /*****************
@@ -278,6 +293,8 @@ class Controller_Board extends Controller_System_Page
         if($category instanceof ORM) {
             $title_type = 'category_title';
             $title_params['category'] = $category->name;
+            $title_params['cat_title'] = $category->title;
+            $title_params['cat_descr'] = $category->description;
         }
         if(!is_null($city) && !is_null($category))
             $title_type = 'region_category_title';
@@ -349,8 +366,8 @@ class Controller_Board extends Controller_System_Page
             $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
             foreach($city_parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri());
-            $city =& $city_parents[$ad->city_id];
-            $region =& $city_parents[$city->parent_id];
+            $city = $city_parents[$ad->city_id];
+            $region = isset($city_parents[$city->parent_id]) ? $city_parents[$city->parent_id] : $city;
 
             $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
             foreach($category_parents as $_parent)
@@ -412,12 +429,18 @@ class Controller_Board extends Controller_System_Page
             Model_BoardFilter::loadFilterValues($filters, NULL, $ad->id);
 
             $ad->increaseViews();
-            $this->title = $this->_generateMetaTitle('ad_title', array(
+            $ad_meta_params = array(
                 'ad_title' => $ad->getTitle(),
+                'ad_price' => $ad->getPrice(),
+                'ad_descr' => $ad->getMetaDescription(),
+                'pcategory' => $category_parents[ $category_parents[$ad->category_id]->parent_id ]->name,
                 'category' => $category_parents[$ad->category_id]->name,
-                'region' => $city->name,
-            ));
-            $this->description = $ad->getDescription();
+                'city' => $city->name,
+                'region' => $region->name,
+            );
+            $this->title = $this->_generateMetaTitle('ad_title', $ad_meta_params);
+            $this->description = $this->_generateMetaDescription('ad_description', $ad_meta_params);
+            $this->keywords = $this->_generateMetaKeywords('ad_keywords', $ad_meta_params);
 
             $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
             $this->scripts[] = 'assets/board/js/message.js';
@@ -430,8 +453,7 @@ class Controller_Board extends Controller_System_Page
                 'price_template' => BoardConfig::instance()->priceTemplate($ad->price_unit),
                 'region_cities_ids' => $region->getChildrenId(),
                 'city' => $city,
-                'city_parents' => $city_parents,
-                'category_parents' => $category_parents,
+                'region' => $region,
                 'is_job_category' => in_array($ad->category_id, Model_BoardCategory::getJobIds()),
                 'is_noprice_category' => in_array($ad->category_id, Model_BoardCategory::getNopriceIds()),
             ));
@@ -459,19 +481,26 @@ class Controller_Board extends Controller_System_Page
 
             $ad = ORM::factory('BoardAd')->values($_POST);
             $ad->category_id =  Arr::get($_POST, 'maincategory_id');
-            if($this->logged_in)
+            if($this->logged_in){
                 $ad->publish = 1;
+                $ad->email = $user->email;
+            }
             try{
-                $validation = Validation::factory($_POST);
-                if(!$this->logged_in)
-                    $validation->rules('captcha', array(
-                        array('not_empty'),
-                        array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
-                    ))->labels(array(
-                        'email' => __('Your e-mail'),
-                        'text' => __('Message text'),
-                        'captcha' => __('Enter captcha code'),
+                $validation = Validation::factory($_POST)->rules('termagree', array(
+                    array('Model_BoardAd::checkAgree', array(':value', ':validation', ':field'))
+                ));
+                if(!$this->logged_in){
+                    $validation
+                        ->rules('captcha', array(
+                            array('not_empty'),
+                            array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
+                        ))
+                        ->labels(array(
+                            'email' => __('Your e-mail'),
+                            'text' => __('Message text'),
+                            'captcha' => __('Enter captcha code'),
                     ));
+                }
                 $ad->check($validation);
 
                 /**
@@ -531,8 +560,15 @@ class Controller_Board extends Controller_System_Page
                         ))->save();
                     }
 
-                /* Save photos */
                 $files = Arr::get($_FILES, 'photos', array('tmp_name' => array()));
+                /* Check for big photos */
+                if(in_array(UPLOAD_ERR_INI_SIZE, $files['error'])){
+                    foreach($files['error'] as $_file_id=>$_error)
+                        if($_error == UPLOAD_ERR_INI_SIZE){
+                            Flash::warning(__('File :file too big to be uploaded (max=:max bytes)', array(':file'=>$files['name'][$_file_id], ':max'=>ini_get('upload_max_filesize'))));
+                        }
+                }
+                /* Save photos */
                 foreach($files['tmp_name'] as $file)
                     $ad->addPhoto($file);
                 $ad->setMainPhoto();
@@ -566,10 +602,11 @@ class Controller_Board extends Controller_System_Page
 
         $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
         $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
+        $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
 
         /* Категории и фильтры */
         $categories_main = array(''=>"Выберите категорию");
-        $categories_main += ORM::factory('BoardCategory')->where('parent_id', '=', 0)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->find_all()->as_array('id','name');
+        $categories_main += ORM::factory('BoardCategory')->where('parent_id', '=', 0)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name','ASC')->find_all()->as_array('id','name');
 
         $filters = '';
         $cat_child = '';
@@ -607,6 +644,10 @@ class Controller_Board extends Controller_System_Page
                 $cities = $this->_render_city_list(ORM::factory('BoardCity', $region), Arr::get($_POST, 'city_id'));
         }
 
+        /* META tags */
+        $this->title = $this->_generateMetaTitle('add_title');
+
+        /* Templates */
         $this->template->content->bind('errors', $errors);
         $this->template->content->set(array(
             'model' => $ad,
@@ -634,6 +675,7 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_tree(){
         $this->breadcrumbs = Breadcrumbs::factory();
+        $this->title = $this->_generateMetaTitle('region_map_title');
         if(!$content = Cache::instance()->get("BoardCityTreePage")){
             $content = View::factory('board/tree');
             $regions = ORM::factory('BoardCity')->where('lvl', '=', 1)->order_by('name', 'ASC')->find_all();
@@ -656,6 +698,8 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_categories(){
         $this->breadcrumbs = Breadcrumbs::factory();
+        $this->title = $this->_generateMetaTitle('category_map_title');
+
         if(!$content = Cache::instance()->get("BoardCategoryTreePage")){
             $content = View::factory('board/categories');
             $parts = ORM::factory('BoardCategory')->where('lvl', '=', 1)->order_by('name', 'ASC')->find_all();
@@ -848,11 +892,14 @@ class Controller_Board extends Controller_System_Page
     public function action_show_phone(){
         if(!$this->request->referrer())
             $this->go(Route::get('board')->uri());
+
+        header('Content-type: image/png;');
         $id = $this->request->param('id');
         $ad = ORM::factory('BoardAd', $id);
         if($ad->loaded())
             echo FlyPhone::draw_canvas($ad->phone);
-        echo FlyPhone::draw_canvas(__('Nothing found'));
+        else
+            echo FlyPhone::draw_canvas(__('Nothing found'));
     }
 
     /**
@@ -984,8 +1031,8 @@ class Controller_Board extends Controller_System_Page
      */
     protected function _render_subcategory_list($category, $selected = NULL){
         $options = $category->children()->as_array('id', 'name');
-
         if(count($options)){
+            asort($options);
             $options = Arr::merge(array('' => __('Select category')), $options);
             return View::factory('board/form_subcategory_ajax', array(
                 'category' => $category,
@@ -1004,6 +1051,7 @@ class Controller_Board extends Controller_System_Page
     protected function _render_city_list($region, $selected = NULL){
         $options = $region->children()->as_array('id', 'name');
         if(count($options)){
+            asort($options);
             $options = Arr::merge(array('' => __('Select city')), $options);
             return View::factory('board/form_cities_ajax', array(
                 'region' => $region,
@@ -1089,7 +1137,7 @@ class Controller_Board extends Controller_System_Page
     }
 
     /**
-     * Generates title string from config templates
+     * Generates description string from config templates
      * @param $config_index - name of template
      * @param $parameters - replaces <param> labels in config templates
      *  Known labels:
@@ -1101,6 +1149,27 @@ class Controller_Board extends Controller_System_Page
      */
     protected function _generateMetaDescription($config_index, Array $parameters= array()){
         $parameters['project'] = $this->config['project']['name'];
+        $template = NULL;
+        if(isset($this->board_cfg[$config_index]))
+            $template = $this->board_cfg[$config_index];
+        foreach($parameters as $_param=>$_val){
+            $template = str_replace('<'.$_param.'>', $_val, $template);
+        }
+        return $template;
+    }
+
+    /**
+     * Generates keywords string from config templates
+     * @param $config_index - name of template
+     * @param $parameters - replaces <param> labels in config templates
+     *  Known labels:
+     *   ad_title - title of AD
+     *   category - category name
+     *   region   - region name
+     *   project  - name of site
+     * @return null
+     */
+    protected function _generateMetaKeywords($config_index, Array $parameters= array()){
         $template = NULL;
         if(isset($this->board_cfg[$config_index]))
             $template = $this->board_cfg[$config_index];

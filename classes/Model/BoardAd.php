@@ -3,6 +3,7 @@
 class Model_BoardAd extends ORM{
 
     const CACHE_TIME = 3700;
+    const REFRESH_TIME = Date::WEEK;
 
     protected $_table_name = 'ads';
 
@@ -20,6 +21,7 @@ class Model_BoardAd extends ORM{
     public $stopwords = 0;
 
     protected $_uriToMe;
+    protected $_prepearedTitle;
 
     protected $_belongs_to = array(
         'user' => array(
@@ -55,10 +57,11 @@ class Model_BoardAd extends ORM{
         return array(
             'title' => array(
                 array('not_empty'),
+                array(array($this, 'checkUppercase'), array(':validation', ':field')),
                 array(array($this, 'checkStopWords'), array(':validation', ':field')),
                 array(array($this, 'checkDuplicates'), array(':validation', ':field')),
                 array('min_length', array(':value',3)),
-                array('max_length', array(':value',255)),
+                array('max_length', array(':value',80)),
                 array(array($this, 'setModerate'), array(':field')),
             ),
             'description' => array(
@@ -80,10 +83,13 @@ class Model_BoardAd extends ORM{
             'name' => array(
                 array('not_empty'),
             ),
-//            'email' => array(
-//                array('not_empty'),
-//                array('email'),
-//            ),
+            'email' => array(
+                array('not_empty'),
+                array('email'),
+            ),
+            'addtime' => array(
+                array(array($this, 'checkAddtime'), array(':validation', ':field')),
+            ),
 //            'address' => array(
 //                array('not_empty'),
 //            ),
@@ -396,6 +402,14 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Get price currency ISO formatted
+     * @return mixed
+     */
+    public function getPriceCurrencyISO(){
+         return BoardConfig::instance()->price_units['iso'][ 'unit_'.$this->price_unit ];
+    }
+
+    /**
      * Format trade string
      * @return null|string
      */
@@ -410,8 +424,10 @@ class Model_BoardAd extends ORM{
      * @return string
      */
     public function getTitle(){
-        $title = $this->title;
-        return $title;
+        if(is_null($this->_prepearedTitle)){
+            $this->_prepearedTitle = Text::mb_ucfirst($this->title);
+        }
+        return $this->_prepearedTitle;
     }
 
     /**
@@ -421,7 +437,15 @@ class Model_BoardAd extends ORM{
     public function getDescription(){
         $description = mb_substr(strip_tags($this->description), 0, 255);
         return $description;
-//        return htmlspecialchars($description);
+    }
+
+    /**
+     * Generate content for META Description tag
+     * @return string
+     */
+    public function getMetaDescription(){
+        $description = mb_substr(strip_tags($this->description), 0, 255);
+        return htmlspecialchars($description);
     }
 
     /**
@@ -539,6 +563,17 @@ class Model_BoardAd extends ORM{
         return $count;
     }
 
+
+    /**
+     * Check if this AD can be renewed
+     * @return bool
+     */
+    public function isRefreshable(){
+        if((time() - $this->addtime) > Model_BoardAd::REFRESH_TIME)
+            return true;
+        return false;
+    }
+
     /**
      * Validation stop words in ad contents
      * @param Validation $validation
@@ -589,6 +624,20 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Validation addtime field for cheating refresh
+     * @param Validation $validation
+     * @param $field
+     */
+    public function checkAddtime(Validation $validation, $field){
+        if($this->loaded() && $this->changed('addtime')){
+            $original_values = $this->original_values();
+            if($this->addtime > $original_values['addtime']
+               && time() - $original_values['addtime'] <= Model_BoardAd::REFRESH_TIME)
+                $validation->error($field, 'early');
+        }
+    }
+
+    /**
      * Validation price field
      * @param Validation $validation
      * @param $field
@@ -615,5 +664,28 @@ class Model_BoardAd extends ORM{
                 $validation->error($field, 'duplicates');
             }
         }
+    }
+
+    /**
+     * Check field to be non-uppercased
+     * @param Validation $validation
+     * @param $field
+     */
+    public function checkUppercase(Validation $validation, $field){
+        $uppercased = mb_strlen( preg_replace('~[^A-ZА-Я]+~u', '', $this->title) );
+        $total = mb_strlen($this->title);
+        if($uppercased/$total > 0.60)
+            $validation->error($field, 'uppercased');
+    }
+
+    /**
+     * Checking agreement checkbox to be checked
+     * @param $value
+     * @param Validation $validation
+     * @param $field
+     */
+    public static function checkAgree($value, Validation $validation, $field){
+        if(is_null($value))
+            $validation->error($field, 'termagree');
     }
 }

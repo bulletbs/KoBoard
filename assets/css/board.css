@@ -39,6 +39,7 @@
         line-height: 15px;
         font-size: 12px;
         font-weight: bold;
+        color: #0f579f
     }
 #tooltip {
     background: #FFFFFF;
@@ -51,15 +52,16 @@
     visibility: hidden
 }
 .city_list li{
-    width: 200px;
     float: left;
-    list-style: none;
-    margin-bottom: 5px;
     height: 20px;
+    list-style: outside none none;
+    margin-bottom: 5px;
+    width: 166px;
 }
     .city_list li a{
-        font-size: 11px;
+        font-size: 12px;
         font-weight: bold;
+        color: #0f579f
     }
 
 /* CATEGORY */
@@ -260,10 +262,13 @@
 }
 
 table.tableccat tr:nth-child(2n) td {
-    background-color: #EEEEEE;
+    background-color: #fffacc;
 }
 .tableccat table{
     width: 705px;
+}
+.tableccat_full table{
+    width: 750px;
 }
 .google_ad {
     width: 300px;
@@ -361,9 +366,21 @@ table.tableccat tr:nth-child(2n) td {
         display: block;
         position: relative;
         border: 1px solid #dadada;
-        background: #eaeaea;
         width: 140px;
         height: 105px;
+    }
+    .list_img a span{
+        display: block;
+        position: absolute;
+        width: 19px;
+        height: 17px;
+        left: 7px;
+        top:7px;
+        background: rgba(0, 0, 0, 0) url("/assets/board/css/images/foto_pic.png") no-repeat scroll 0 0;
+        color: #ffffff;
+        font-size: 11px;
+        line-height: 20px;
+        text-align: center;
     }
     .list_img img{
         position: absolute;
@@ -379,7 +396,12 @@ table.tableccat tr:nth-child(2n) td {
     }
     .list_title h3{
         margin-bottom: 3px;
+        font-size: 16px;
     }
+    .list_title h3 a{
+        text-decoration: none;
+    }
+
     .list_price{
       /*   color: #FF6600; */
         font-family: "Verdana",Arial,Helvetica,sans-serif;
@@ -427,7 +449,7 @@ table.tableccat tr:nth-child(2n) td {
     .message dt{
         display: block;
         float: left;
-        width: 130px;
+        width: 150px;
         clear: both;
         font-size: 100%;
         font-weight: bolder;
@@ -540,7 +562,7 @@ table.tableccat tr:nth-child(2n) td {
 .search_sub_row {
     margin-top:10px;
     margin-bottom:10px;
-    padding-left: 0px;
+    padding-left: 0;
 }
 
 .search_sub_row li {
@@ -550,10 +572,11 @@ table.tableccat tr:nth-child(2n) td {
     overflow: hidden;
     width: 190px;
     }
-    .search_sub_row li a{
-        font-size: 13px;
-        color: #008CC3;
-        text-decoration: none;
+.search_sub_row li a {
+    color: #008cc3;
+    font-size: 14px;
+    line-height: 22px;
+    text-decoration: none;
     }
     .search_sub_row li a:hover{
         text-decoration: none;
@@ -574,7 +597,7 @@ table.tableccat tr:nth-child(2n) td {
 *****************/
 .board_search_form{
     padding: 15px;
-    background: #5aabe1;
+    background: #fdf17f;
     position: relative;
     border-radius: 3px;
     margin-top: 10px;
@@ -649,7 +672,7 @@ table.tableccat tr:nth-child(2n) td {
     top: 51px;
     background: #fff;
     padding: 10px;
-    width: 950px;
+    width: 944px;
     border: 1px  solid #dadada;
     z-index: 99;
 }
@@ -727,4 +750,52 @@ table.tableccat tr:nth-child(2n) td {
     .region_tree li a{
         font-size: 12px;
         font-weight: normal;
+    }
+.category_bg{
+    background: #eaeaea;
+    overflow: hidden;
+    margin: 10px 0;
+}
+    .category_holder{
+        margin: 0 0 15px 0;
+    }
+    .category_menu{
+        margin-left: 48px;
+    }
+    .category_menu li{
+        list-style: none;
+        width: 230px;
+        float: left;
+        margin: 15px 8px 0 0;
+    }
+    .category_menu li ul{
+        height: 380px;
+        overflow: hidden;
+    }
+    .category_menu li a{
+        font-weight: bold;
+    }
+    .category_menu li ul li{
+        list-style: circle;
+        margin: 3px 0 0 15px;
+    }
+    .category_menu li ul li a{
+        font-weight: normal;
+    }
+
+/*
+    PROFILE
+*/
+.profile_legend{
+    clear: both;
+    margin: 20px 0 0 30px;
+}
+    .profile_legend h3{
+        color: #5a5a5a;
+        margin-bottom: 5px;
+        font-size: 16px;
+    }
+    .profile_legend .pure-button{
+        width: 15px;
+        margin: 0 10px 5px 0;
     }

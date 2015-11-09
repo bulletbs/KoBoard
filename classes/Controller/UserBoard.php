@@ -5,20 +5,20 @@
 
 class Controller_UserBoard extends Controller_User
 {
-    public $board_cfg = array();
     public $auth_required = 'login';
 
     public $skip_auto_content_apply = array(
         'enable',
         'remove',
         'refresh',
+        'multi',
     );
 
     public function before(){
         /* Путь к шаблону */
         $this->uri = 'board/cabinet/'. $this->request->action();
+        $this->styles[] = "assets/board/css/board.css";
         parent::before();
-        $this->board_cfg = Kohana::$config->load('board')->as_array();
     }
 
 
@@ -26,26 +26,23 @@ class Controller_UserBoard extends Controller_User
      * Companies list action
      */
     public function action_list(){
-        $ads = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->order_by('addtime', 'DESC')->find_all();
+        $ads = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->order_by('addtime', 'DESC')->find_all()->as_array('id');
         $this->user_content->set(array(
             'ads' => $ads,
+            'photos' => Model_BoardAdphoto::adsPhotoList(array_keys($ads)),
         ));
+        $this->right_contents = View::factory('board/cabinet/legend');
     }
 
     /**
      * Ad add & edit action
      */
     public function action_edit(){
-        $this->styles[] = "assets/board/css/board.css";
-        $this->scripts[] = "assets/board/js/form.js";
-        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
-        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
-
         $errors = array();
         $id = $this->request->param('id');
         $this->breadcrumbs->add(__('My ads'), URL::site().Route::get('board_myads')->uri());
 
-        if(is_null($id) && $this->board_cfg['addnew_suspend'] === TRUE){
+        if(is_null($id) && BoardConfig::instance()->addnew_suspend === TRUE){
             $this->user_content = View::factory('board/add_suspended');
             return;
         }
@@ -71,14 +68,28 @@ class Controller_UserBoard extends Controller_User
             $ad->category_id =  Arr::get($_POST, 'category_id');
             $ad->values($_POST);
             $ad->user_id = $this->current_user->id;
+            $ad->email = $this->current_user->email;
             if(!$ad->loaded())
                 $ad->publish = 1;
 
             try{
-                $ad->save();
+                $validation = Validation::factory($_POST);
+                if(!$ad->loaded())
+                    $validation
+                        ->rules('termagree', array(
+                            array('Model_BoardAd::checkAgree', array(':value', ':validation', ':field'))
+                        ));
+                $ad->save($validation);
 
-                /* Save photos */
                 $files = Arr::get($_FILES, 'photos', array('tmp_name' => array()));
+                /* Check for big photos */
+                if(in_array(UPLOAD_ERR_INI_SIZE, $files['error'])){
+                    foreach($files['error'] as $_file_id=>$_error)
+                        if($_error == UPLOAD_ERR_INI_SIZE){
+                            Flash::warning(__('File :file too big to be uploaded (max=:max bytes)', array(':file'=>$files['name'][$_file_id], ':max'=>ini_get('upload_max_filesize'))));
+                        }
+                }
+                /* Save photos */
                 foreach ($files['tmp_name'] as $k => $file) {
                     $ad->addPhoto($file);
                 }
@@ -141,6 +152,11 @@ class Controller_UserBoard extends Controller_User
                 $cities = $this->_render_city_list(ORM::factory('BoardCity', $region));
             }
         }
+
+        $this->scripts[] = "assets/board/js/form.js";
+        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
+        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
+        $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
 
         $this->user_content->set(array(
             'user' => $this->current_user,
@@ -209,12 +225,10 @@ class Controller_UserBoard extends Controller_User
         $id = $this->request->param('id');
         $model = ORM::factory('BoardAd')->where('id', '=', $id)->and_where('user_id', '=', $this->current_user->id)->find();
         if($id > 0 && !$model->loaded()){
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
             Flash::warning(__('Ad not found'));
         }
         elseif($model->addtime > time() - Date::DAY){
-            Flash::warning(__('You can update your ads only once a day'));
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
+            Flash::warning(__('You can update your ads only once a week'));
         }
         else{
             try{
@@ -225,9 +239,17 @@ class Controller_UserBoard extends Controller_User
                 $errors = $e->errors('validation', TRUE);
                 Flash::error('- ' . implode("<br>- ", $errors));
             }
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
 
         }
+        $this->redirect(URL::site().Route::get('board_myads')->uri());
+    }
+
+    /**
+     * Operates multi-operations with checked ads
+     */
+    public function action_multi(){
+
+        $this->redirect( Request::current()->referrer() );
     }
 
     /**
@@ -252,6 +274,7 @@ class Controller_UserBoard extends Controller_User
     protected function _render_subcategory_list($category, $selected = NULL){
         $options = $category->children()->as_array('id', 'name');
         if(count($options)){
+            asort($options);
             $options = Arr::merge(array('' => __('Select category')), $options);
             return View::factory('board/form_subcategory_ajax', array(
                 'category' => $category,
@@ -270,6 +293,7 @@ class Controller_UserBoard extends Controller_User
     protected function _render_city_list($region, $selected = NULL){
         $options = $region->children()->as_array('id', 'name');
         if(count($options)){
+            asort($options);
             $options = Arr::merge(array('' => __('Select city')), $options);
             return View::factory('board/form_cities_ajax', array(
                 'region' => $region,

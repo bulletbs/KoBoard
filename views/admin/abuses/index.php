@@ -31,12 +31,12 @@
 </thead>
 <? foreach($abuses as $abuse): ?>
     <tr>
-        <td><?=$abuse->id?></td>
-        <td><?= Model_BoardAbuse::$types[ $abuse->type ]?></td>
-        <td><?= $abuse->ad ? HTML::anchor($abuse->ad->getUri(), $abuse->ad->title, array('target'=>'_blank')) : $abuse->ad->title ?></td>
-<!--        <td>--><?//= $abuse->ad->title ?><!--</td>-->
+        <td><?= $abuse->id ?></td>
+        <td><?= Model_BoardAbuse::$types[ $abuse->type ] ?></td>
+        <td><?= $abuse->ad->loaded() ? HTML::anchor($abuse->ad->getUri(), $abuse->ad->title, array('target'=>'_blank')) : "Объявление удалено" ?></td>
         <td style="width: 150px;">
             <div class="btn-group">
+                <a data-bb="confirm" href="<?=URL::site( 'admin/boardAbuses/remove/'.$abuse->id . URL::query())?>" class='btn btn-inverse' title='<?=__('Delete with ad')?>'><i class="glyphicon glyphicon-remove"></i></a>
                 <a data-bb="confirm" href="<?=URL::site( 'admin/boardAbuses/delete/'.$abuse->id . URL::query())?>" class='btn btn-inverse' title='<?=__('Delete')?>'><i class="glyphicon glyphicon-trash"></i></a>
             </div>
         </td>

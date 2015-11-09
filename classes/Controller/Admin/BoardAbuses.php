@@ -10,6 +10,7 @@
 class Controller_Admin_BoardAbuses extends Controller_System_Admin
 {
     public $skip_auto_render = array(
+        'remove',
         'delete',
         'multi',
         'delall',
@@ -67,9 +68,22 @@ class Controller_Admin_BoardAbuses extends Controller_System_Admin
      * Delete item
      */
     public function action_delete(){
-        $comment = ORM::factory('BoardAbuse', $this->request->param('id'));
-        if($comment->loaded())
-            $comment->delete();
+        $abuse = ORM::factory('BoardAbuse', $this->request->param('id'));
+        if($abuse->loaded())
+            $abuse->delete();
+        $this->redirect('admin/boardAbuses' . URL::query());
+    }
+
+    /**
+     * Delete item with ad
+     */
+    public function action_remove(){
+        $abuse = ORM::factory('BoardAbuse', $this->request->param('id'));
+        if($abuse->loaded()){
+            if($abuse->ad->loaded())
+                $abuse->ad->delete();
+            $abuse->delete();
+        }
         $this->redirect('admin/boardAbuses' . URL::query());
     }
 

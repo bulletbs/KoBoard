@@ -20,7 +20,10 @@ return array(
     'Your ad has been removed' => 'Ваше объявление было удалено',
     'Your ad has been refreshed' => 'Ваше объявление было обновлено',
     'You can update your ads only once a day' => 'Объявления можно обновлять только раз в сутки',
+    'You can update your ads only once a week' => 'Объявления можно обновлять только раз в неделю',
     'Ad publication' => 'Подтверждение публикации',
+    'You\'ve agreed with terms and conditions of ads publication' => 'Вы согласны с правилами и условиями размещения объявлений',
+    'You must agree terms and condition of ads publication' => 'Вы должны согласится с правилами и условиями и условиями размещения объявлений',
 
     'Added' => 'Добавлено',
     'Views' => 'Просмотров',
@@ -90,6 +93,7 @@ return array(
     'Abuse type' => 'Тип жалобы',
     'Ad title' => 'Заголовок объявления',
     'All abuses (:count) was successfully deleted' => 'Все жалобы (:count) были успешно удалены',
+    'Delete with ad' => 'Удалить вместе с объявлением',
     'Delete all' => 'Удалить все',
     'Delete selected' => 'Удалить выбраные',
     'Move ads' => 'Перенести объявления',
@@ -109,4 +113,11 @@ return array(
     'Change' => 'Обменяю',
     'For free' => 'Бесплатно',
     'Trade' => 'Договорная',
+
+/* VALIDATION MESSAGES */
+    'File :file too big to be uploaded (max=:max bytes)' => 'Файл «:file» слишком большой, максимально допустимый размер :maxб',
+    ':field contain restricted words'   => 'Поле «:field» содержит запрещенные слова',
+    ':field duplicate one of yours ads' => 'Поле «:field» дублирует одно из ваших существующих объявлений',
+    ':field can\'t be renewed'        => '«:field» не может быть обновлено',
+    ':field contain too much uppercase letters'        => '«:field» содержит слишком много заглавных букв',
 );

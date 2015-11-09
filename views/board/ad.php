@@ -13,7 +13,7 @@
             });
         </script>
     <?php endif?>
-<h1><?php echo $ad->title ?></h1>
+<h1><?php echo $ad->getTitle() ?></h1>
 <div class="clear"></div>
 
     <div class="first message">
@@ -21,16 +21,16 @@
         <div class="line"></div>
         <?php echo Widget::factory('Banner728x90')?>
         <?php if (count($photos) == 1): ?>
-            <div class="showroom"><?php echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center')) ?></div>
+            <div class="showroom"><?php echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center', 'alt'=>$ad->getTitle(), 'title'=>$ad->getTitle())) ?></div>
         <?php elseif (count($photos) > 1): ?>
             <div id="showroom" class="showroom">
                 <div class="clear"></div>
             </div>
-            <div id="showstack" class="showstack"><?php foreach ($photos as $photo): ?> <?php echo $photo->getPhotoTag() ?> <?php endforeach ?></div>
+            <div id="showstack" class="showstack"><?php foreach ($photos as $photo_id=>$photo): ?> <?php echo $photo->getPhotoTag($ad->getTitle(). ' - фотография #'.($photo_id+1)) ?> <?php endforeach ?></div>
             <div class="board_gallery">
                 <ul id="thumbs" class="thumbs">
-                    <?php foreach ($photos as $photo): ?>
-                        <li><?php echo HTML::anchor($photo->getPhotoUri(), $photo->getThumbTag()) ?></li>
+                    <?php foreach ($photos as $photo_id=>$photo): ?>
+                        <li><?php echo HTML::anchor($photo->getPhotoUri(), $photo->getThumbTag($ad->getTitle(). ' - предпросмотр #'.($photo_id+1))) ?></li>
                     <?php endforeach ?>
                 </ul>
                 <div class="clear"></div>
@@ -107,7 +107,7 @@
     <h2>Другие объявления пользователя <?php echo $ad->name ?></h2>
     <?foreach($user_ads as $_ad):?>
     <div class="detail-also-item">
-        <div class="detail-also-item-img"><?php echo HTML::anchor($_ad->getUri(), isset($user_ads_photos[$_ad->id]) ? $user_ads_photos[$_ad->id]->getThumbTag() : HTML::image('/assets/board/css/images/noimage.png'), array('title'=>$_ad->title))?></div>
+        <div class="detail-also-item-img"><?php echo HTML::anchor($_ad->getUri(), isset($user_ads_photos[$_ad->id]) ? $user_ads_photos[$_ad->id]->getThumbTag($_ad->getTitle()) : HTML::image('/assets/board/css/images/noimage.png'), array('title'=>$_ad->title))?></div>
         <h3><?php echo HTML::anchor($_ad->getUri(), $_ad->title)?></h3>
     </div>
     <?endforeach?>
@@ -117,13 +117,13 @@
     <div class="line"></div>
     <h2>Похожие объявления</h2>
     <table class="tableccat" id="adList">
-    <?foreach($sim_ads as $ad):?>
+    <?foreach($sim_ads as $_ad):?>
     <tr><td class="dashed">
         <table>
             <tr>
-                <td class="list_date"><?= date("d.m.Y", $ad->addtime)?><br><b><?= date('G:i', $ad->addtime) ?></b><a href="#" class="ico_favorite" data-item="<?=$ad->id?>" title="Добавить в избранное"></a></td>
-                <td class="list_img"><?if(isset($sim_ads_photos[$ad->id])):?><img src="<?php echo $sim_ads_photos[$ad->id]->getThumbUri()?>"><?else:?><img alt=<?php echo $ad->title?>" src="/assets/board/css/images/noimage.png"/><?endif?></td>
-                <td class="list_title"><h3><?php echo HTML::anchor($ad->getUri(), $ad->title, array('title'=> $ad->title))?></h3> <?php echo $ad->getShortDescr() ?><br> <span class="quiet"><?php echo Model_BoardCity::getField('name', $ad->city_id)?><br><?php echo Model_BoardCategory::getField('name', $ad->category_id)?></span> </td>
+                <td class="list_date"><?= date("d.m.Y", $_ad->addtime)?><br><b><?= date('G:i', $_ad->addtime) ?></b><a href="#" class="ico_favorite" data-item="<?=$_ad->id?>" title="Добавить в избранное"></a></td>
+                <td class="list_img"><?if(isset($sim_ads_photos[$_ad->id])):?><img src="<?php echo $sim_ads_photos[$_ad->id]->getThumbUri()?>"><?else:?><img alt=<?php echo $_ad->title?>" title=<?php echo $_ad->title?>" src="/assets/board/css/images/noimage.png"/><?endif?></td>
+                <td class="list_title"><h3><?php echo HTML::anchor($_ad->getUri(), $_ad->title, array('title'=> $_ad->title))?></h3> <?php echo $_ad->getShortDescr() ?><br> <span class="quiet"><?php echo Model_BoardCity::getField('name', $_ad->city_id)?><br><?php echo Model_BoardCategory::getField('name', $_ad->category_id)?></span> </td>
             </tr>
         </table>
     </td></tr>

@@ -13,6 +13,17 @@ class Task_BoardAdsCleaner extends Minion_Task
         '60',
         '90',
         '120',
+        '150',
+        '180',
+        '210',
+        '250',
+        '300',
+        '350',
+        '400',
+        '450',
+        '500',
+        '550',
+        '600',
     );
 
     protected function _execute(Array $params){

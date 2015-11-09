@@ -3,6 +3,8 @@ $(function(){
 
     $(document).ajaxStart(function() { $('#loading_layer').show(); });
     $(document).ajaxStop(function() { $('#loading_layer').hide(); });
+    $('#titleInput').limit('80','#titleLeft');
+    $('#textInput').limit('1024','#textLeft');
 
     /* Category handlers */
     $('#catMain').change(function(){

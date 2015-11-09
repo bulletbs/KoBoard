@@ -19,11 +19,23 @@
         <thead>
         <tr>
 <!--            <th>ID</th>-->
-            <th><?php echo $labels['title']?></th>
-            <th><?php echo $labels['category_id']?></th>
+            <th>
+            <a href="<?php echo URL::base().$moderate_uri?><?php echo URL::query(array('orderby'=>'title', 'orderdir'=>'DESC'))?>"><span class="glyphicon glyphicon-arrow-up"></span></a>
+            <?php echo $labels['title']?>
+            <a href="<?php echo URL::base().$moderate_uri?><?php echo URL::query(array('orderby'=>'title', 'orderdir'=>'ASC'))?>"><span class="glyphicon glyphicon-arrow-down"></span></a>
+            </th>
+            <th>
+                <a href="<?php echo URL::base().$moderate_uri?><?php echo URL::query(array('orderby'=>'category_id', 'orderdir'=>'DESC'))?>"><span class="glyphicon glyphicon-arrow-up"></span></a>
+                <?php echo $labels['category_id']?>
+                <a href="<?php echo URL::base().$moderate_uri?><?php echo URL::query(array('orderby'=>'category_id', 'orderdir'=>'ASC'))?>"><span class="glyphicon glyphicon-arrow-down"></span></a>
+            </th>
             <th><?php echo $labels['addTime']?></th>
             <th><?php echo $labels['description']?></th>
-            <th><?php echo $labels['name']?></th>
+            <th>
+                <a href="<?php echo URL::base().$moderate_uri?><?php echo URL::query(array('name'=>'name', 'orderdir'=>'DESC'))?>"><span class="glyphicon glyphicon-arrow-up"></span></a>
+                <?php echo $labels['name']?>
+                <a href="<?php echo URL::base().$moderate_uri?><?php echo URL::query(array('name'=>'name', 'orderdir'=>'ASC'))?>"><span class="glyphicon glyphicon-arrow-down"></span></a>
+            </th>
             <th><?php echo __('Operations')?></th>
             <th><input type="checkbox" value="1" id="toggle_checkbox"></th>
         </tr>

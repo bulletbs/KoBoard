@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
 /**
+ * Board config-loader / parameter-getter
  * Class BoardConfig
  */
 class BoardConfig {

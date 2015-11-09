@@ -42,7 +42,7 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
         'parent_id',
     );
 
-    public $_sort_fields = array(
+    public $_filter_fields = array(
         'category_id' => array(
             'type'=>'select',
             'label'=>'Категория',
@@ -57,8 +57,8 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
 
     protected $_setorder_field = 'ordr';
 
-    protected $_ordeby_field = 'ordr';
-    protected $_ordeby_direction = 'ASC';
+    protected $_orderby_field = 'ordr';
+    protected $_orderby_direction = 'ASC';
 
     public function before(){
         $this->skip_auto_render[] = 'showGeo';
@@ -72,15 +72,15 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
 
     public function action_index(){
         /* TYPE_ID filter field init */
-        $this->_sort_fields['category_id']['data']['options'] = ORM::factory('BoardCategory')->getFullDepthArray();
-        if(!$this->_sort_values['category_id'])
-            $this->_sort_values['category_id'] = key($this->_sort_fields['category_id']['data']['options']);
-        $this->_sort_fields['category_id']['data']['selected'] = $this->_sort_values['category_id'];
+        $this->_filter_fields['category_id']['data']['options'] = ORM::factory('BoardCategory')->getFullDepthArray();
+        if(!$this->_filter_values['category_id'])
+            $this->_filter_values['category_id'] = key($this->_filter_fields['category_id']['data']['options']);
+        $this->_filter_fields['category_id']['data']['selected'] = $this->_filter_values['category_id'];
 
         /* Set category filter value (IN ARRAY)*/
-        $parents = ORM::factory('BoardCategory')->getParentsId($this->_sort_values['category_id']);
-        $parents[] = $this->_sort_values['category_id'];
-        $this->_sort_values['category_id'] = $parents;
+        $parents = ORM::factory('BoardCategory')->getParentsId($this->_filter_values['category_id']);
+        $parents[] = $this->_filter_values['category_id'];
+        $this->_filter_values['category_id'] = $parents;
 
         parent::action_index();
     }

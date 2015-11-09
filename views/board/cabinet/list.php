@@ -6,37 +6,41 @@
 <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit'))?>" class="pure-button pure-button-primary right"><?php echo __('Add ad') ?></a>
 <br class="clear">
 <br class="clear">
-<table class="gray content_full">
-<thead>
-    <tr>
-        <th width="3%">№</th>
-        <th>Заголовок</th>
-        <th>Просмотров</th>
-        <th width="150">Действия</th>
-    </tr>
-</thead>
-<tbody>
+
 <?if(count($ads)):?>
+<table class="tableccat tableccat_full">
 <?foreach($ads as $ad):?>
-    <tr>
-        <td><?php echo $ad->id?></td>
-        <td><?php echo HTML::anchor($ad->getUri(), $ad->title, array('target'=>'_blank'))?></td>
-        <td class="center"><?php echo $ad->views ?></td>
-        <td>
-            <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i></a>
-            <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'enable', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Status')?>"><i class="fa fa-eye<?php echo !$ad->publish ? '-slash' : ''?>"></i></a>
-            <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'refresh', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Refresh')?>"><i class="fa fa-refresh"></i></a>
-            <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'remove', 'id'=>$ad->id))?>" class='pure-button pure-button-error' title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i></a>
-        </td>
-    </tr>
-<?endforeach?>
-<?else:?>
-<tr>
-    <td colspan="3" class="message"><?php echo __('No ads') ?></td>
-</tr>
-<?endif?>
-</tbody>
+    <tr><td class="dashed">
+        <table>
+            <tr>
+                <td class="list_img"><?= HTML::anchor( $ad->getUri(), HTML::image(isset($photos[$ad->id]) ? $photos[$ad->id]->getThumbUri() : "/assets/board/css/images/noimage.png", array('alt'=>htmlspecialchars($ad->getTitle()), 'title'=>htmlspecialchars($ad->getTitle()))) . ($ad->photo_count ? '<span title="Всего фотографий: '.$ad->photo_count.'">'.$ad->photo_count.'</span>' : ''))?></td>
+                <td class="list_title">
+                    <h3><?php echo HTML::anchor($ad->getUri(), $ad->title, array('title'=> $ad->title))?></h3>
+                    <div class="list_price"><?= $ad->getPrice( BoardConfig::instance()->priceTemplate($ad->price_unit) ) ?></div><br>
+                    <span class="quiet"><?php echo Model_BoardCategory::getField('name', $ad->category_id)?><br><b><?php echo Model_BoardCity::getField('name', $ad->city_id)?></b><br><?= Date::smart_date($ad->addtime)?> <?= date('G:i', $ad->addtime) ?> </span>
+                </td>
+                <td class="list_button">
+                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i></a>
+                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'enable', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Status')?>"><i class="fa fa-eye<?php echo !$ad->publish ? '-slash' : ''?>"></i></a>
+                    <?if($ad->isRefreshable()):?>
+                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'refresh', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Refresh')?>"><i class="fa fa-refresh"></i></a>
+                    <?else:?>
+                    <a class='pure-button pure-button pure-button-disabled' title="Обновление доступно один раз в 7 дней"><i class="fa fa-refresh"></i></a>
+                    <?endif?>
+                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'remove', 'id'=>$ad->id))?>" class='pure-button pure-button-error' title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i></a>
+                    <br/><br/>
+                    <span class="quiet">Просмотров: <?php echo $ad->views ?></span>
+                </td>
+            </tr>
+        </table>
+    </td></tr>
+<?endforeach;?>
 </table>
+<div class="clear"></div>
+<?else:?>
+<b>У Вас нет объявлений.<br>Чтоб создать новое объявлений нажмите кнопку "Добавить объявление"</b>
+<?endif?>
+
 <script type="text/javascript">
 $('.pure-button-error').on('click', function(e){
     if(!confirm('<?php echo __('Are you sure?')?>'))

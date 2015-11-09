@@ -1,16 +1,16 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 <div class="line"></div>
 <ul class="city_list">
-    <li><a href="/all/biznes-i-uslugi.html" tooltip="Бизнес и услуги">Бизнес и услуги</a></li>
-    <li><a href="/all/dom-i-sad.html" tooltip="Дом и сад">Дом и сад</a></li>
-    <li><a href="/all/moda-i-stil.html" tooltip="Мода и стиль">Мода и стиль</a></li>
-    <li><a href="/all/rabota.html" tooltip="Работа">Работа</a></li>
-    <li><a href="/all/khobbi-otdykh-i-sport.html" tooltip="Хобби, отдых и спорт">Хобби, отдых и спорт</a></li>
-    <li><a href="/all/detskij-mir.html" tooltip="Детский мир">Детский мир</a></li>
-    <li><a href="/all/zhivotnye.html" tooltip="Животные">Животные</a></li>
-    <li><a href="/all/nedvizhimost.html" tooltip="Недвижимость">Недвижимость</a></li>
-    <li><a href="/all/transport.html" tooltip="Транспорт">Транспорт</a></li>
-    <li><a href="/all/ehlektronika.html" tooltip="Электроника">Электроника</a></li>
+    <li><a href="/all/biznes-i-uslugi.html" title="Бизнес и услуги">Бизнес и услуги</a></li>
+    <li><a href="/all/dom-i-sad.html" title="Дом и сад">Дом и сад</a></li>
+    <li><a href="/all/moda-i-stil.html" title="Мода и стиль">Мода и стиль</a></li>
+    <li><a href="/all/rabota.html" title="Работа">Работа</a></li>
+    <li><a href="/all/khobbi-otdykh-i-sport.html" title="Хобби, отдых и спорт">Хобби, отдых и спорт</a></li>
+    <li><a href="/all/detskij-mir.html" title="Детский мир">Детский мир</a></li>
+    <li><a href="/all/zhivotnye.html" title="Животные">Животные</a></li>
+    <li><a href="/all/nedvizhimost.html" title="Недвижимость">Недвижимость</a></li>
+    <li><a href="/all/transport.html" title="Транспорт">Транспорт</a></li>
+    <li><a href="/all/ehlektronika.html" title="Электроника">Электроника</a></li>
 </ul>
 <div class="line"></div>
 <img src="/assets/board/css/images/map2.png" alt="" class="map" usemap="#rf" id="map">
@@ -27,90 +27,90 @@
 <div class="region_bg">
     <div class="container"><div class="region_holder">
             <ul>
-                <li><a href="/adygeya.html" tooltip="Объявления, Адыгея">Адыгея</a></li>
-                <li><a href="/altayskiy_kray.html" tooltip="Объявления, Алтайский край">Алтайский край</a></li>
-                <li><a href="/amurskaya_obl.html" tooltip="Объявления, Амурская область">Амурская область</a></li>
-                <li><a href="/arhangelskaya_obl.html" tooltip="Объявления, Архангельская область">Архангельская область</a></li>
-                <li><a href="/astrahanskaya_obl.html" tooltip="Объявления, Астраханская область">Астраханская область</a></li>
-                <li><a href="/bashkortostan.html" tooltip="Объявления, Башкортостан">Башкортостан</a></li>
-                <li><a href="/belgorodskaya_obl.html" tooltip="Объявления, Белгородская область">Белгородская область</a></li>
-                <li><a href="/bryanskaya_obl.html" tooltip="Объявления, Брянская область">Брянская область</a></li>
-                <li><a href="/buryatiya.html" tooltip="Объявления, Бурятия">Бурятия</a></li>
-                <li><a href="/vladimirskaya_obl.html" tooltip="Объявления, Владимирская область">Владимирская область</a></li>
-                <li><a href="/volgogradskaya_obl.html" tooltip="Объявления, Волгоградская область">Волгоградская область</a></li>
-                <li><a href="/vologodskaya_obl.html" tooltip="Объявления, Вологодская область">Вологодская область</a></li>
-                <li><a href="/voronezhskaya_obl.html" tooltip="Объявления, Воронежская область">Воронежская область</a></li>
-                <li><a href="/dagestan.html" tooltip="Объявления, Дагестан">Дагестан</a></li>
-                <li><a href="/evreyskaya_ao.html" tooltip="Объявления, Еврейская АО">Еврейская АО</a></li>
-                <li><a href="/zabaykalskiy_kray.html" tooltip="Объявления, Забайкальский край">Забайкальский край</a></li>
-                <li><a href="/ivanovskaya_obl.html" tooltip="Объявления, Ивановская область">Ивановская область</a></li>
-                <li><a href="/ingushetiya.html" tooltip="Объявления, Ингушетия">Ингушетия</a></li>
-                <li><a href="/irkutskaya_obl.html" tooltip="Объявления, Иркутская область">Иркутская область</a></li>
-                <li><a href="/kabardino-balkariya.html" tooltip="Объявления, Кабардино-Балкария">Кабардино-Балкария</a></li>
-                <li><a href="/kaliningradskaya_obl.html" tooltip="Объявления, Калининградская область">Калининградская область</a></li>
+                <li><a href="/adygeya.html" title="Объявления, Адыгея">Адыгея</a></li>
+                <li><a href="/altayskiy_kray.html" title="Объявления, Алтайский край">Алтайский край</a></li>
+                <li><a href="/amurskaya_obl.html" title="Объявления, Амурская область">Амурская область</a></li>
+                <li><a href="/arhangelskaya_obl.html" title="Объявления, Архангельская область">Архангельская область</a></li>
+                <li><a href="/astrahanskaya_obl.html" title="Объявления, Астраханская область">Астраханская область</a></li>
+                <li><a href="/bashkortostan.html" title="Объявления, Башкортостан">Башкортостан</a></li>
+                <li><a href="/belgorodskaya_obl.html" title="Объявления, Белгородская область">Белгородская область</a></li>
+                <li><a href="/bryanskaya_obl.html" title="Объявления, Брянская область">Брянская область</a></li>
+                <li><a href="/buryatiya.html" title="Объявления, Бурятия">Бурятия</a></li>
+                <li><a href="/vladimirskaya_obl.html" title="Объявления, Владимирская область">Владимирская область</a></li>
+                <li><a href="/volgogradskaya_obl.html" title="Объявления, Волгоградская область">Волгоградская область</a></li>
+                <li><a href="/vologodskaya_obl.html" title="Объявления, Вологодская область">Вологодская область</a></li>
+                <li><a href="/voronezhskaya_obl.html" title="Объявления, Воронежская область">Воронежская область</a></li>
+                <li><a href="/dagestan.html" title="Объявления, Дагестан">Дагестан</a></li>
+                <li><a href="/evreyskaya_ao.html" title="Объявления, Еврейская АО">Еврейская АО</a></li>
+                <li><a href="/zabaykalskiy_kray.html" title="Объявления, Забайкальский край">Забайкальский край</a></li>
+                <li><a href="/ivanovskaya_obl.html" title="Объявления, Ивановская область">Ивановская область</a></li>
+                <li><a href="/ingushetiya.html" title="Объявления, Ингушетия">Ингушетия</a></li>
+                <li><a href="/irkutskaya_obl.html" title="Объявления, Иркутская область">Иркутская область</a></li>
+                <li><a href="/kabardino-balkariya.html" title="Объявления, Кабардино-Балкария">Кабардино-Балкария</a></li>
+                <li><a href="/kaliningradskaya_obl.html" title="Объявления, Калининградская область">Калининградская область</a></li>
             </ul><ul>
-                <li><a href="/kalmykiya.html" tooltip="Объявления, Калмыкия">Калмыкия</a></li>
-                <li><a href="/kaluzhskaya_obl.html" tooltip="Объявления, Калужская область">Калужская область</a></li>
-                <li><a href="/kamchatskiy_kray.html" tooltip="Объявления, Камчатский край">Камчатский край</a></li>
-                <li><a href="/karachaevo-cherkesiya.html" tooltip="Объявления, Карачаево-Черкесия">Карачаево-Черкесия</a></li>
-                <li><a href="/kareliya.html" tooltip="Объявления, Карелия">Карелия</a></li>
-                <li><a href="/kemerovskaya_obl.html" tooltip="Объявления, Кемеровская область">Кемеровская область</a></li>
-                <li><a href="/kirovskaya_obl.html" tooltip="Объявления, Кировская область">Кировская область</a></li>
-                <li><a href="/komi.html" tooltip="Объявления, Коми">Коми</a></li>
-                <li><a href="/kostromskaya_obl.html" tooltip="Объявления, Костромская область">Костромская область</a></li>
-                <li><a href="/krasnodarskiy_kray.html" tooltip="Объявления, Краснодарский край">Краснодарский край</a></li>
-                <li><a href="/krasnoyarskiy_kray.html" tooltip="Объявления, Красноярский край">Красноярский край</a></li>
-                <li><a href="/kurganskaya_obl.html" tooltip="Объявления, Курганская область">Курганская область</a></li>
-                <li><a href="/kurskaya_obl.html" tooltip="Объявления, Курская область">Курская область</a></li>
-                <li><a href="/leningradskaya_obl.html" tooltip="Объявления, Ленинградская область">Ленинградская область</a></li>
-                <li><a href="/lipeckaya_obl.html" tooltip="Объявления, Липецкая область">Липецкая область</a></li>
-                <li><a href="/magadanskaya_obl.html" tooltip="Объявления, Магаданская область">Магаданская область</a></li>
-                <li><a href="/mariy_el.html" tooltip="Объявления, Марий Эл">Марий Эл</a></li>
-                <li><a href="/mordoviya.html" tooltip="Объявления, Мордовия">Мордовия</a></li>
-                <li><a href="/moskovskaya_obl.html" tooltip="Объявления, Московская область">Московская область</a></li>
-                <li><a href="/murmanskaya_obl.html" tooltip="Объявления, Мурманская область">Мурманская область</a></li>
-                <li><a href="/neneckiy_ao.html" tooltip="Объявления, Ненецкий АО">Ненецкий АО</a></li>
+                <li><a href="/kalmykiya.html" title="Объявления, Калмыкия">Калмыкия</a></li>
+                <li><a href="/kaluzhskaya_obl.html" title="Объявления, Калужская область">Калужская область</a></li>
+                <li><a href="/kamchatskiy_kray.html" title="Объявления, Камчатский край">Камчатский край</a></li>
+                <li><a href="/karachaevo-cherkesiya.html" title="Объявления, Карачаево-Черкесия">Карачаево-Черкесия</a></li>
+                <li><a href="/kareliya.html" title="Объявления, Карелия">Карелия</a></li>
+                <li><a href="/kemerovskaya_obl.html" title="Объявления, Кемеровская область">Кемеровская область</a></li>
+                <li><a href="/kirovskaya_obl.html" title="Объявления, Кировская область">Кировская область</a></li>
+                <li><a href="/komi.html" title="Объявления, Коми">Коми</a></li>
+                <li><a href="/kostromskaya_obl.html" title="Объявления, Костромская область">Костромская область</a></li>
+                <li><a href="/krasnodarskiy_kray.html" title="Объявления, Краснодарский край">Краснодарский край</a></li>
+                <li><a href="/krasnoyarskiy_kray.html" title="Объявления, Красноярский край">Красноярский край</a></li>
+                <li><a href="/kurganskaya_obl.html" title="Объявления, Курганская область">Курганская область</a></li>
+                <li><a href="/kurskaya_obl.html" title="Объявления, Курская область">Курская область</a></li>
+                <li><a href="/leningradskaya_obl.html" title="Объявления, Ленинградская область">Ленинградская область</a></li>
+                <li><a href="/lipeckaya_obl.html" title="Объявления, Липецкая область">Липецкая область</a></li>
+                <li><a href="/magadanskaya_obl.html" title="Объявления, Магаданская область">Магаданская область</a></li>
+                <li><a href="/mariy_el.html" title="Объявления, Марий Эл">Марий Эл</a></li>
+                <li><a href="/mordoviya.html" title="Объявления, Мордовия">Мордовия</a></li>
+                <li><a href="/moskovskaya_obl.html" title="Объявления, Московская область">Московская область</a></li>
+                <li><a href="/murmanskaya_obl.html" title="Объявления, Мурманская область">Мурманская область</a></li>
+                <li><a href="/neneckiy_ao.html" title="Объявления, Ненецкий АО">Ненецкий АО</a></li>
             </ul><ul>
-                <li><a href="/nizhegorodskaya_obl.html" tooltip="Объявления, Нижегородская область">Нижегородская область</a></li>
-                <li><a href="/novgorodskaya_obl.html" tooltip="Объявления, Новгородская область">Новгородская область</a></li>
-                <li><a href="/novosibirskaya_obl.html" tooltip="Объявления, Новосибирская область">Новосибирская область</a></li>
-                <li><a href="/omskaya_obl.html" tooltip="Объявления, Омская область">Омская область</a></li>
-                <li><a href="/orenburgskaya_obl.html" tooltip="Объявления, Оренбургская область">Оренбургская область</a></li>
-                <li><a href="/orlovskaya_obl.html" tooltip="Объявления, Орловская область">Орловская область</a></li>
-                <li><a href="/penzenskaya_obl.html" tooltip="Объявления, Пензенская область">Пензенская область</a></li>
-                <li><a href="/permskiy_kray.html" tooltip="Объявления, Пермский край">Пермский край</a></li>
-                <li><a href="/primorskiy_kray.html" tooltip="Объявления, Приморский край">Приморский край</a></li>
-                <li><a href="/pskovskaya_obl.html" tooltip="Объявления, Псковская область">Псковская область</a></li>
-                <li><a href="/respublika_altay.html" tooltip="Объявления, Республика Алтай">Республика Алтай</a></li>
-                <li><a href="/rostovskaya_obl.html" tooltip="Объявления, Ростовская область">Ростовская область</a></li>
-                <li><a href="/ryazanskaya_obl.html" tooltip="Объявления, Рязанская область">Рязанская область</a></li>
-                <li><a href="/samarskaya_obl.html" tooltip="Объявления, Самарская область">Самарская область</a></li>
-                <li><a href="/saratovskaya_obl.html" tooltip="Объявления, Саратовская область">Саратовская область</a></li>
-                <li><a href="/saha_yakutiya.html" tooltip="Объявления, Саха (Якутия)">Саха (Якутия)</a></li>
-                <li><a href="/sahalinskaya_obl.html" tooltip="Объявления, Сахалинская область">Сахалинская область</a></li>
-                <li><a href="/sverdlovskaya_obl.html" tooltip="Объявления, Свердловская область">Свердловская область</a></li>
-                <li><a href="/severnaya_osetiya.html" tooltip="Объявления, Северная Осетия">Северная Осетия</a></li>
-                <li><a href="/smolenskaya_obl.html" tooltip="Объявления, Смоленская область">Смоленская область</a></li>
-                <li><a href="/stavropolskiy_kray.html" tooltip="Объявления, Ставропольский край">Ставропольский край</a></li>
+                <li><a href="/nizhegorodskaya_obl.html" title="Объявления, Нижегородская область">Нижегородская область</a></li>
+                <li><a href="/novgorodskaya_obl.html" title="Объявления, Новгородская область">Новгородская область</a></li>
+                <li><a href="/novosibirskaya_obl.html" title="Объявления, Новосибирская область">Новосибирская область</a></li>
+                <li><a href="/omskaya_obl.html" title="Объявления, Омская область">Омская область</a></li>
+                <li><a href="/orenburgskaya_obl.html" title="Объявления, Оренбургская область">Оренбургская область</a></li>
+                <li><a href="/orlovskaya_obl.html" title="Объявления, Орловская область">Орловская область</a></li>
+                <li><a href="/penzenskaya_obl.html" title="Объявления, Пензенская область">Пензенская область</a></li>
+                <li><a href="/permskiy_kray.html" title="Объявления, Пермский край">Пермский край</a></li>
+                <li><a href="/primorskiy_kray.html" title="Объявления, Приморский край">Приморский край</a></li>
+                <li><a href="/pskovskaya_obl.html" title="Объявления, Псковская область">Псковская область</a></li>
+                <li><a href="/respublika_altay.html" title="Объявления, Республика Алтай">Республика Алтай</a></li>
+                <li><a href="/rostovskaya_obl.html" title="Объявления, Ростовская область">Ростовская область</a></li>
+                <li><a href="/ryazanskaya_obl.html" title="Объявления, Рязанская область">Рязанская область</a></li>
+                <li><a href="/samarskaya_obl.html" title="Объявления, Самарская область">Самарская область</a></li>
+                <li><a href="/saratovskaya_obl.html" title="Объявления, Саратовская область">Саратовская область</a></li>
+                <li><a href="/saha_yakutiya.html" title="Объявления, Саха (Якутия)">Саха (Якутия)</a></li>
+                <li><a href="/sahalinskaya_obl.html" title="Объявления, Сахалинская область">Сахалинская область</a></li>
+                <li><a href="/sverdlovskaya_obl.html" title="Объявления, Свердловская область">Свердловская область</a></li>
+                <li><a href="/severnaya_osetiya.html" title="Объявления, Северная Осетия">Северная Осетия</a></li>
+                <li><a href="/smolenskaya_obl.html" title="Объявления, Смоленская область">Смоленская область</a></li>
+                <li><a href="/stavropolskiy_kray.html" title="Объявления, Ставропольский край">Ставропольский край</a></li>
             </ul><ul>
-                <li><a href="/tambovskaya_obl.html" tooltip="Объявления, Тамбовская область">Тамбовская область</a></li>
-                <li><a href="/tatarstan.html" tooltip="Объявления, Татарстан">Татарстан</a></li>
-                <li><a href="/tverskaya_obl.html" tooltip="Объявления, Тверская область">Тверская область</a></li>
-                <li><a href="/tomskaya_obl.html" tooltip="Объявления, Томская область">Томская область</a></li>
-                <li><a href="/tulskaya_obl.html" tooltip="Объявления, Тульская область">Тульская область</a></li>
-                <li><a href="/tyva.html" tooltip="Объявления, Тыва">Тыва</a></li>
-                <li><a href="/tyumenskaya_obl.html" tooltip="Объявления, Тюменская область">Тюменская область</a></li>
-                <li><a href="/udmurtiya.html" tooltip="Объявления, Удмуртия">Удмуртия</a></li>
-                <li><a href="/ulyanovskaya_obl.html" tooltip="Объявления, Ульяновская область">Ульяновская область</a></li>
-                <li><a href="/habarovskiy_kray.html" tooltip="Объявления, Хабаровский край">Хабаровский край</a></li>
-                <li><a href="/hakasiya.html" tooltip="Объявления, Хакасия">Хакасия</a></li>
-                <li><a href="/hanty-mansiyskiy_ao.html" tooltip="Объявления, Ханты-Мансийский АО">Ханты-Мансийский АО</a></li>
-                <li><a href="/chelyabinskaya_obl.html" tooltip="Объявления, Челябинская область">Челябинская область</a></li>
-                <li><a href="/chechenskaya_respublika.html" tooltip="Объявления, Чеченская республика">Чеченская республика</a></li>
-                <li><a href="/chuvashiya.html" tooltip="Объявления, Чувашия">Чувашия</a></li>
-                <li><a href="/chukotskiy_ao.html" tooltip="Объявления, Чукотский АО">Чукотский АО</a></li>
-                <li><a href="/yamalo-neneckiy_ao.html" tooltip="Объявления, Ямало-Ненецкий АО">Ямало-Ненецкий АО</a></li>
-                <li><a href="/yaroslavskaya_obl.html" tooltip="Объявления, Ярославская область">Ярославская область</a></li>
+                <li><a href="/tambovskaya_obl.html" title="Объявления, Тамбовская область">Тамбовская область</a></li>
+                <li><a href="/tatarstan.html" title="Объявления, Татарстан">Татарстан</a></li>
+                <li><a href="/tverskaya_obl.html" title="Объявления, Тверская область">Тверская область</a></li>
+                <li><a href="/tomskaya_obl.html" title="Объявления, Томская область">Томская область</a></li>
+                <li><a href="/tulskaya_obl.html" title="Объявления, Тульская область">Тульская область</a></li>
+                <li><a href="/tyva.html" title="Объявления, Тыва">Тыва</a></li>
+                <li><a href="/tyumenskaya_obl.html" title="Объявления, Тюменская область">Тюменская область</a></li>
+                <li><a href="/udmurtiya.html" title="Объявления, Удмуртия">Удмуртия</a></li>
+                <li><a href="/ulyanovskaya_obl.html" title="Объявления, Ульяновская область">Ульяновская область</a></li>
+                <li><a href="/habarovskiy_kray.html" title="Объявления, Хабаровский край">Хабаровский край</a></li>
+                <li><a href="/hakasiya.html" title="Объявления, Хакасия">Хакасия</a></li>
+                <li><a href="/hanty-mansiyskiy_ao.html" title="Объявления, Ханты-Мансийский АО">Ханты-Мансийский АО</a></li>
+                <li><a href="/chelyabinskaya_obl.html" title="Объявления, Челябинская область">Челябинская область</a></li>
+                <li><a href="/chechenskaya_respublika.html" title="Объявления, Чеченская республика">Чеченская республика</a></li>
+                <li><a href="/chuvashiya.html" title="Объявления, Чувашия">Чувашия</a></li>
+                <li><a href="/chukotskiy_ao.html" title="Объявления, Чукотский АО">Чукотский АО</a></li>
+                <li><a href="/yamalo-neneckiy_ao.html" title="Объявления, Ямало-Ненецкий АО">Ямало-Ненецкий АО</a></li>
+                <li><a href="/yaroslavskaya_obl.html" title="Объявления, Ярославская область">Ярославская область</a></li>
             </ul>
         </div>
 

@@ -80,9 +80,10 @@ class Model_BoardCategory extends ORM_MPTT{
     /**
      *
      */
-    public static function getCategoriesTree(){
+    public static function  getCategoriesTree(){
         if(NULL === $array = Cache::instance()->get(self::BOARD_TREE_CACHE)){
             $list = ORM::factory('BoardCategory')
+                ->order_by('name', 'ASC')
                 ->find_all()
                 ->as_array('id');
             if(is_array($list))

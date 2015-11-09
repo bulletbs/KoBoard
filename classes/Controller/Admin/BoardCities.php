@@ -37,7 +37,7 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
         'subcats' => array('type'=>'call_view', 'data'=>'admin/cities/formOptions'),
     );
 
-    public $_sort_fields = array(
+    public $_filter_fields = array(
         'parent_id'=>array(
             'label' => 'Регион',
             'type' => 'select',
@@ -46,13 +46,13 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
 
     public function action_index(){
         /* Filter Parent_id initialize  */
-        $this->_sort_fields['parent_id']['data']['options'][0] = 'Все области';
+        $this->_filter_fields['parent_id']['data']['options'][0] = 'Все области';
         foreach(ORM::factory('BoardCity')->fulltree() as $item)
-            $this->_sort_fields['parent_id']['data']['options'][$item->id] = $item->getLeveledName(0);
+            $this->_filter_fields['parent_id']['data']['options'][$item->id] = $item->getLeveledName(0);
 
-        if(!isset($this->_sort_values['parent_id']))
-            $this->_sort_values['parent_id'] = 0;
-        $this->_sort_fields['parent_id']['data']['selected'] = $this->_sort_values['parent_id'];
+        if(!isset($this->_filter_values['parent_id']))
+            $this->_filter_values['parent_id'] = 0;
+        $this->_filter_fields['parent_id']['data']['selected'] = $this->_filter_values['parent_id'];
 
         parent::action_index();
     }
@@ -149,13 +149,13 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
      * @param ORM $model
      */
     protected function _applyQueryFilters(ORM &$model){
-        if(count($this->_sort_fields) && count($this->_sort_values))
-            foreach($this->_sort_values as $k=>$v)
+        if(count($this->_filter_fields) && count($this->_filter_values))
+            foreach($this->_filter_values as $k=>$v)
                 if($v || $k=='parent_id')
                     $model->where(
                         $k ,
-                        isset($this->_sort_fields[$k]['oper']) ? $this->_sort_fields[$k]['oper'] : '=',
-                        isset($this->_sort_fields[$k]['oper']) && strtolower($this->_sort_fields[$k]['oper']) == 'like' ? "%{$v}%" : $v
+                        isset($this->_filter_fields[$k]['oper']) ? $this->_filter_fields[$k]['oper'] : '=',
+                        isset($this->_filter_fields[$k]['oper']) && strtolower($this->_filter_fields[$k]['oper']) == 'like' ? "%{$v}%" : $v
                     );
     }
 

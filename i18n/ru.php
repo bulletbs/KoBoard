@@ -19,6 +19,7 @@ return array(
     'Your ad successfully turned on' => 'Ваше объявление опубликовано',
     'Your ad has been removed' => 'Ваше объявление было удалено',
     'Your ad has been refreshed' => 'Ваше объявление было обновлено',
+    'Your ads has been refreshed' => 'Ваши объявления были обновлены',
     'You can update your ads only once a day' => 'Объявления можно обновлять только раз в сутки',
     'You can update your ads only once a week' => 'Объявления можно обновлять только раз в неделю',
     'Ad publication' => 'Подтверждение публикации',
@@ -59,6 +60,8 @@ return array(
     'Save ad' => 'Сохранить объявление',
     'Classifieds by region' => 'Объявления в регионах',
     'Classifieds by category' => 'Объявления в категориях',
+    'Refresh All'=>'Обновить все',
+    'Favorites'=>'Избранное',
 /* BOARD ADMIN */
     'ad' => 'объявление',
     'Site Ads' => 'Объявления',
@@ -102,6 +105,7 @@ return array(
     'All user ads' => 'Все объявления пользователя',
 
 /* BOARD SEARCH */
+    'Advanced search' => 'Расширенный поиск',
     'From' => 'от',
     'To' => 'до',
     'Any' => 'Все',

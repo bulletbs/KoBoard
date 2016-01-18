@@ -23,10 +23,13 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
         'add',
         'edit',
         'import',
+        'aliases',
     );
 
     public $_form_fields = array(
         'name' => array('type'=>'text'),
+        'name_in' => array('type'=>'text'),
+        'name_of' => array('type'=>'text'),
         'alias' => array('type'=>'text'),
         'parent_id' => array('type'=>'select', 'data'=>array(
             'list'=>array(
@@ -95,13 +98,13 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
                 $model->delete();
             $parent = ORM::factory('BoardCity', Arr::get($_POST, 'parent_id'));
             $model = ORM::factory('BoardCity');
-            $model->values(Arr::extract($_POST, array('name', 'alias')));
+            $model->values(Arr::extract($_POST, array('name', 'name_of', 'name_in', 'alias')));
             if(empty($model->alias))
                 $model->alias = Text::transliterate($model->name, true);
             $model->insert_as_last_child($parent);
         }
         else{
-            $model->values(Arr::extract($_POST, array('name', 'alias')))->save();
+            $model->values(Arr::extract($_POST, array('name', 'name_of', 'name_in', 'alias')))->save();
         }
 
         /* Save Present Options */
@@ -167,6 +170,31 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
         }
         foreach($cities[0] as $cat){
             Model_BoardCity::import_city($cities, $cat);
+        }
+    }
+
+    public function action_aliases(){
+        /*
+            SELECT DISTINCT (
+            alias
+            ), COUNT( alias ) cnt, id
+            FROM ad_cities
+            GROUP BY 1
+            HAVING cnt >1
+         */
+        $regions = ORM::factory('BoardCity')->where('parent_id', '=', 0)->find_all()->as_array('id', 'alias');
+        $duplicates = DB::select('alias', DB::expr('COUNT( alias ) cnt'))
+            ->from('ad_cities')
+            ->group_by('alias')
+            ->having('cnt','>','1')
+            ->execute()
+        ;
+        foreach($duplicates as $_alias){
+            $aliases = ORM::factory('BoardCity')->where('alias', '=', $_alias['alias'])->find_all();
+            foreach($aliases as $_row){
+                $_row->alias .= '_'.$regions[$_row->parent_id];
+                $_row->update();
+            }
         }
     }
 }

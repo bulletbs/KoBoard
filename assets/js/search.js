@@ -5,18 +5,20 @@ $(function(){
  * Города показать все или только крупные
  */
     $('#showAllCity').click(function(e){
+        e.preventDefault();
         $(this).addClass('active');
         $('#showBigCity').removeClass('active');
-        $('#city_list li.smallcity').show();
-        e.preventDefault();
+        $('#big_city_list').hide();
+        $('#all_city_list').show();
     });
     $('#showBigCity').click(function(e){
+        e.preventDefault();
         $(this).addClass('active');
         $('#showAllCity').removeClass('active');
-        $('#city_list li.smallcity').hide();
-        e.preventDefault();
+        $('#big_city_list').show();
+        $('#all_city_list').hide();
     });
-    $('#filtersList').slideDown(500);
+    //$('#filtersList').slideDown(500);
 
 /**
  * Regions selector
@@ -106,6 +108,14 @@ $('#boardTopForm').submit(function(e){
         $('#boardTopForm').unbind('submit');
         $('#boardTopForm').attr('action', uri).submit();
     });
+
+/**
+ * Open advanced search (filters panel)
+ */
+$('#openAdvanced').on('click', function(e){
+    e.preventDefault();
+    $('#filtersList').toggle(200);
+});
 
 /**
  * Click out of list of close button event handler

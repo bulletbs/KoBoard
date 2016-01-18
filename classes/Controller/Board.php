@@ -28,10 +28,8 @@ class Controller_Board extends Controller_System_Page
         parent::before();
 
         /* Script & style */
-        $this->styles[] = "media/libs/pure-release-0.5.0/grids-min.css";
-        $this->styles[] = "media/libs/pure-release-0.5.0/tables-min.css";
-        $this->styles[] = "media/libs/pure-release-0.5.0/menus-min.css";
         $this->styles[] = "assets/board/css/board.css";
+        $this->styles[] = 'media/libs/pure-release-0.6.0/grids-min.css';
 
         /* Config */
         $this->board_cfg = Kohana::$config->load('board')->as_array();
@@ -86,17 +84,25 @@ class Controller_Board extends Controller_System_Page
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
                 $city_counter = array();
+                $big_city_counter = array();
                 $_ads_city_count = DB::select('city_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $city->id)->group_by('city_id')->order_by('cnt', 'DESC')->cached(Model_BoardAd::CACHE_TIME)->execute()->as_array('city_id', 'cnt');
                 $_childs = ORM::factory('BoardCity')->where('parent_id','=',$city->id)->order_by('name', 'ASC')->find_all()->as_array('id','name');
                 foreach($_childs as $_city_id=>$_city){
-                    if(isset($_ads_city_count[ $_city_id ]))
+                    if(isset($_ads_city_count[ $_city_id ])){
                         $city_counter[] = array(
                             'city_id' => $_city_id,
                             'cnt' => $_ads_city_count[ $_city_id ],
                         );
+                        if($_ads_city_count[ $_city_id ] > 100)
+                            $big_city_counter[] = array(
+                                'city_id' => $_city_id,
+                                'cnt' => $_ads_city_count[ $_city_id ],
+                            );
+                    }
                 }
                 $this->template->content->set(array(
                     'city_counter'=> $city_counter,
+                    'big_city_counter'=> $big_city_counter,
                 ));
             }
             else{
@@ -372,6 +378,7 @@ class Controller_Board extends Controller_System_Page
             $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
             foreach($category_parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri($city->alias));
+            $this->breadcrumbs->add($ad->getTitle(), FALSE);
 
             /* Photos */
             $photos = $ad->photos->find_all();
@@ -411,13 +418,33 @@ class Controller_Board extends Controller_System_Page
 //                ->and_where('id', '<>', $ad->id)
 //                ->and_where('user_id', '<>', $ad->user_id)
 //                ->order_by('rel', 'DESC')
-//                ->limit($this->board_cfg['similars_ads_limit'])
+//                ->limit(BoardConfig::instance()->similars_ads_limit)
 //                ->as_object(get_class(ORM::factory('BoardAd')))
 //                ->execute();
-            if(count($sim_ads)){
-                $sim_ads_ids = array();
+
+            $sphinxql = new SphinxQL;
+            $query = $sphinxql->new_query()
+                ->add_index('sellmania_ads')
+                ->add_field('addtime')
+                ->search('"'.$ad->getTitle().'"/1')
+                ->where('category_id', (string) $ad->category_id)
+                ->where('@id', (string) $ad->id, '!=')
+                ->where('user_id', (string) $ad->user_id, '!=')
+                ->order('@weight', 'DESC')
+                ->order('addtime', 'DESC')
+                ->limit(BoardConfig::instance()->similars_ads_limit)
+                ->option('ranker', 'matchany')
+            ;
+            $sim_ads = $query->execute();
+
+            $sim_count = count($sim_ads);
+            if($sim_count && $sim_count >= BoardConfig::instance()->similars_ads_limit / 2){
                 foreach($sim_ads as $_ad)
-                    $sim_ads_ids[] = $_ad->id;
+                    $sim_ads_ids[] = $_ad['id'];
+//                    $sim_ads_ids[] = $_ad->id;
+                if($sim_count < BoardConfig::instance()->similars_ads_limit)
+                    $sim_ads_ids = array_slice($sim_ads_ids, 0, BoardConfig::instance()->similars_ads_limit / 2);
+                $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads_ids)->and_where('publish', '=', 1)->find_all();
                 $this->template->content->set(array(
                     'sim_ads' => $sim_ads,
                     'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList($sim_ads_ids),
@@ -429,23 +456,42 @@ class Controller_Board extends Controller_System_Page
             Model_BoardFilter::loadFilterValues($filters, NULL, $ad->id);
 
             $ad->increaseViews();
+
             $ad_meta_params = array(
                 'ad_title' => $ad->getTitle(),
-                'ad_price' => $ad->getPrice(),
+                'ad_price' => html_entity_decode( $ad->getPrice( BoardConfig::instance()->priceTemplate($ad->price_unit) )),
                 'ad_descr' => $ad->getMetaDescription(),
                 'pcategory' => $category_parents[ $category_parents[$ad->category_id]->parent_id ]->name,
                 'category' => $category_parents[$ad->category_id]->name,
                 'city' => $city->name,
+                'city_of' => $city->name_of,
+                'city_in' => $city->name_in,
                 'region' => $region->name,
             );
             $this->title = $this->_generateMetaTitle('ad_title', $ad_meta_params);
             $this->description = $this->_generateMetaDescription('ad_description', $ad_meta_params);
             $this->keywords = $this->_generateMetaKeywords('ad_keywords', $ad_meta_params);
+            $this->add_meta_content(array('property'=>'og:title', 'content'=>$ad->getTitle()));
+            $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
+            $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base('http').$ad->getUri()));
+            $this->add_meta_content(array('property'=>'og:site_name', 'content'=>$this->config['project']['host']));
+            $this->add_meta_content(array('property'=>'og:description', 'content'=>$ad->getMetaDescription()));
+            $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . (count($photos) ? $photos[0]->getPhotoUri() : "media/css/images/logo.png")));
 
             $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
             $this->scripts[] = 'assets/board/js/message.js';
+            $this->scripts[] = "assets/board/js/search.js";
             $this->scripts[] = "assets/board/js/favorite.js";
+            $this->scripts[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.js";
+            $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
+            $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
+            $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
 
+            /* Bottom breadcrumbs */
+            $breadcrumbs = clone $this->breadcrumbs;
+            $breadcrumbs->setOption('addon_class', 'bread_crumbs_message');
+
+            $this->template->search_form = Widget::factory('BoardSearch')->render();
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,
@@ -456,6 +502,7 @@ class Controller_Board extends Controller_System_Page
                 'region' => $region,
                 'is_job_category' => in_array($ad->category_id, Model_BoardCategory::getJobIds()),
                 'is_noprice_category' => in_array($ad->category_id, Model_BoardCategory::getNopriceIds()),
+                'breadcrumbs' => $breadcrumbs,
             ));
         }
         else
@@ -597,13 +644,6 @@ class Controller_Board extends Controller_System_Page
             $ad = ORM::factory('BoardAd');
         }
 
-        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
-        $this->scripts[] = "assets/board/js/form.js";
-
-        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
-        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
-        $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
-
         /* Категории и фильтры */
         $categories_main = array(''=>"Выберите категорию");
         $categories_main += ORM::factory('BoardCategory')->where('parent_id', '=', 0)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name','ASC')->find_all()->as_array('id','name');
@@ -647,7 +687,17 @@ class Controller_Board extends Controller_System_Page
         /* META tags */
         $this->title = $this->_generateMetaTitle('add_title');
 
-        /* Templates */
+        /* Templates & styles*/
+
+        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
+        $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
+        $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
+        $this->scripts[] = "assets/board/js/form.js";
+
+        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
+        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
+        $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
+
         $this->template->content->bind('errors', $errors);
         $this->template->content->set(array(
             'model' => $ad,
@@ -979,6 +1029,7 @@ class Controller_Board extends Controller_System_Page
                                 'email'=> Arr::get($_POST, 'email'),
                                 'text'=> strip_tags(Arr::get($_POST, 'text')),
                                 'site_name'=> $this->config['project']['name'],
+                                'server_name'=> URL::base('http'),
                             ))->render()
                             , true)
                         ->send();
@@ -992,6 +1043,118 @@ class Controller_Board extends Controller_System_Page
             $this->json['content'] = View::factory('board/user_mailto')->set(array(
                 'errors' => $errors,
                 'ad_id' => $ad->id,
+            ))->render();
+        }
+    }
+
+    /**
+     * Отображение формы отправки сообщения (AJAX)
+     */
+    public function action_send_message(){
+        if(!$this->request->is_ajax())
+            $this->go(Route::get('board')->uri());
+        $id = $this->request->param('id');
+        $ad = ORM::factory('BoardAd', $id);
+        if($ad->loaded()){
+            $this->json['status'] = TRUE;
+            if($this->request->method() == Request::POST){
+                $validation = Validation::factory($_POST)
+                    ->rule('text', 'not_empty')
+                    ->rule('text', 'min_length', array(':value',10))
+                    ->rule('text', 'max_length', array(':value',1000))
+                    ->labels(array(
+                        'email' => __('Your e-mail'),
+                        'text' => __('Message text'),
+                        'captcha' => __('Enter captcha code'),
+                    ))
+                ;
+                if(!$this->logged_in){
+                    $validation->rules('captcha', array(
+                        array('not_empty'),
+                        array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
+                    ));
+                    $validation->rules('email', array(
+                        array('not_empty'),
+                        array('email'),
+                    ));
+                }
+
+                $errors = array();
+                try{
+                    if(!$validation->check())
+                        throw new Validation_Exception($validation);
+
+                    /* Get users (new or existing an opponent) */
+                    if(!$this->logged_in){
+                        $userdata = Arr::extract($_POST, array('email'));
+                        $user = ORM::factory('User')->where('email','=',$_POST['email'])->find();
+                        if(!$user->loaded()){
+                            /* registering new user */
+                            $user = ORM::factory('User');
+                            $userdata['password'] = substr(md5($userdata['email'] . time()), 0,7);
+                            $user->create_user($userdata, array('email', 'username', 'password'));
+                            $user->profile->user_id = $user->id;
+                            $user->profile->values(array(
+                                'name' => preg_replace('~@.*$~', '', Arr::get($_POST, 'email'))
+                            ));
+                            $user->profile->save();
+                        }
+                    }
+                    else
+                        $user = $this->current_user;
+
+                    /* Creating dialog and message */
+                    $dialog = Model_UserDialog::create_dialog($user->id, $user->profile->name, $ad->user->id, $ad->name, $ad->id, $ad->getTitle(), $ad->object_name());
+                    $dialog->last_message_time = time();
+                    $dialog->last_message_user = $user->id;
+                    $dialog->update();
+                    $dialog->addMessage($dialog->user_id, Arr::get($_POST, 'text'));
+
+                    /* Notifying user about new messages */
+                    if($dialog->opponent->loaded() && !$dialog->opponent->no_mails){
+                        $message = View::factory('board/mail/user_message_notify', array(
+                            'name' => $dialog->opponent_name,
+                            'title'=> $dialog->subject,
+                            'dialog_link'=> URL::base('http') . Model_User::generateCryptoLink('messaging', $dialog->opponent_id, array('dialog_id' => $dialog->id)),
+                            'site_name'=> $this->config['project']['name'],
+                            'server_name'=> URL::base('http'),
+                            'unsubscribe_link'=> URL::base('http') . Model_User::generateCryptoLink('unsubscribe', $dialog->opponent_id),
+                        ))->render();
+//                        file_put_contents(DOCROOT. '/debug_mail.txt', PHP_EOL.PHP_EOL. $message, FILE_APPEND);
+                        Email::instance()
+                            ->to($dialog->opponent->email)
+                            ->from($this->config->robot_email)
+                            ->subject($this->config['project']['name'] .': '. __('Message from bulletin board'))
+                            ->message($message, true)
+                            ->send();
+                    }
+                    Flash::success(__("Your message successfully sended"));
+                    $this->json['content'] = Flash::render('global/flash');
+                    if(Auth::instance()->logged_in('login'))
+                        $this->json['content'] .= View::factory('inbox/goto_dialog')->set(array(
+                            'dialog_link' => Route::get('messaging')->uri(array(
+                                'action' => 'dialog',
+                                'id' => $dialog->id,
+                            ))
+                        ))->render();
+                    return;
+                }
+                catch(Validation_Exception $e){
+                    $errors = $validation->errors('error/validation');
+                }
+                catch(ORM_Validation_Exception $e){
+                    $errors = $validation->errors('error/validation');
+                }
+            }
+            $this->json['content'] = View::factory('board/user_outbox')->set(array(
+                'errors' => $errors,
+                'ad_id' => $ad->id,
+            ))->render();
+        }
+        else{
+            $this->json['content'] = View::factory('board/user_outbox')->set(array(
+                'errors' => array(__('Nothing found')),
+                'ad_id' => NULL,
             ))->render();
         }
     }

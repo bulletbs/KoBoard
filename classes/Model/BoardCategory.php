@@ -305,6 +305,21 @@ class Model_BoardCategory extends ORM_MPTT{
         return ORM::factory('BoardCategory')->select('id')->where('noprice','=',1)->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->find_all()->as_array('id','id');
     }
 
+
+    /**
+     * Request module parts links array for sitemap generation
+     * @return array
+     */
+    public function sitemapCategories(){
+        $links = array();
+        $categories = $this->getCategoriesList();
+
+        foreach($categories as $category){
+            $links[] = $category->getUri();
+        }
+        return $links;
+    }
+
     /**
      * Добавить категорию
      * @param $categories

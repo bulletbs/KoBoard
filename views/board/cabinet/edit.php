@@ -15,7 +15,8 @@
     <fieldset>
         <legend>Описание объявления</legend>
         <?= Form::label('title', 'Заголовок')?>
-        <?= Form::input('title', Arr::get($_POST,'title', $model->title), array('class'=>isset($errors['title']) ? 'error-input': '', 'id'=>'titleInput'))?>
+        <?= Form::input('title', Arr::get($_POST,'title', $model->title), array('class'=>'poshytip'.(isset($errors['title']) ? ' error-input': ''), 'id'=>'titleInput'))?>
+        <p style="display: none;" id="titleInputTip"><b>Введите наименование товара, объекта или услуги.</b><br>В заголовке <b>не допускается: номер телефона, электронный адрес, ссылки</b><br>Так же не допускаются заглавные буквы (кроме аббревиатур).</p>
         <div class="quiet">Осталось символов: <span id="titleLeft"></span></div><br>
 
         <?= Form::label('category_id', 'Категория')?>
@@ -25,7 +26,8 @@
         <div id="filter_holder"><?= $filters ?></div>
 
         <?= Form::label('description', 'Описание')?>
-            <?= Form::textarea('description', Arr::get($_POST,'description', $model->description), array('class'=>isset($errors['description']) ? 'error-input': '', 'id'=>'textInput'))?>
+        <?= Form::textarea('description', Arr::get($_POST,'description', $model->description), array('class'=>'poshytip'.(isset($errors['description']) ? ' error-input': ''), 'id'=>'textInput'))?>
+        <p id="textInputTip" style="display: none;"><b>Добавьте описание вашего товара/услуги,</b> укажите преимущества и важные детали.<br>В описании <b>не допускается указание контактных данных.</b><br>Описание должно соответствовать заголовку и предлагаемому товару/услуге.<br>Не допускаются заглавные буквы (кроме аббревиатур).</li></p>
         <div class="quiet">Осталось символов: <span id="textLeft"></span></div><br>
 
         <?= Form::label('type', 'Тип объявления')?>
@@ -60,12 +62,9 @@
             <?endforeach;?>
             <legend></legend>
         <?endif?>
-        <strong>Запрещены к размещению фотографии с обнаженными людьми и фотографии эротического содержания.
-        </strong><br />
-        Добавить новое изображение (gif, jpg). Рекомендуемый размер - не более <?php echo ini_get('upload_max_filesize')?>б.
         <br /><br />
 
-        <div class="pure-g">
+        <div class="pure-g poshytip" id="photosInput">
             <div class="pure-u-1-2">
                 <?= Form::file('photos[]') ?>
                 <?= Form::file('photos[]') ?>
@@ -77,28 +76,37 @@
                 <?= Form::file('photos[]') ?>
             </div>
         </div>
+        <p id="photosInputTip" style="display: none;">
+            <b>Запрещены к размещению фотографии с обнаженными людьми и фотографии эротического содержания.</b><br>
+            Максимальный размер файла <?php echo ini_get('upload_max_filesize')?>б, формат .jpg, .jpeg, .png, .gif <br>
+            Обратите внимание: указание контактной информации на фото не допускается.
+        </p>
         Объявления с фото получают в среднем в 3-5 раз больше откликов.
 
         <legend>Контактная информация</legend>
         <?= Form::label('name', 'Имя')?>
-        <?= Form::input('name', Arr::get($_POST,'name', $model->name)) ?>
+        <?= Form::input('name', Arr::get($_POST,'name', $model->name), array('id'=>'nameInput', 'class'=>'poshytip')) ?>
+        <p id="nameInputTip" style="display: none;">Как к Вам обращаться?</p>
 
         <?= Form::label('email', 'E-mail')?>
         <?= Form::input('email', Arr::get($_POST,'email', $model->email), array('disabled'=>'disabled')) ?>
 
         <?= Form::label('phone', 'Телефон')?>
-        <?= Form::input('phone', Arr::get($_POST,'phone', $model->phone)) ?>
+        <?= Form::input('phone', Arr::get($_POST,'phone', $model->phone), array('id'=>'phoneInput', 'class'=>'poshytip')) ?>
+        <p id="phoneInputTip" style="display: none;">Вы можете ввести несколько номеров, разделив их запятой.</p>
 
         <?= Form::label('site', 'Адрес сайта')?>
-        <?= Form::input('site', Arr::get($_POST,'site', $model->site)) ?>
+        <?= Form::input('site', Arr::get($_POST,'site', $model->site), array('id'=>'siteInput', 'class'=>'poshytip')) ?>
+        <p id="siteInputTip" style="display: none;">Укажите адрес страницы описывающей товар или услугу, если таковая имеется</p>
 
         <?= Form::label('city_id', 'Регион')?>
         <?= Form::hidden('city_id', Arr::get($_POST,'city_id', $model->city_id) , array('id'=>'city_id')) ?>
-        <?= Form::select('region', $regions, Arr::get($_POST,'region', $model->pcity_id), array('class'=>isset($errors['city_id']) ? 'error-input': '', 'id'=>'region'))?>
+        <?= Form::select('region', $regions, Arr::get($_POST,'region', $model->pcity_id), array(isset($errors['city_id']) ? 'error-input': '', 'id'=>'region'))?>
         <span id="subRegion"><?= $cities ?></span>
 
         <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>
-        <?= Form::input('address', Arr::get($_POST,'address', $model->address)) ?>
+        <?= Form::input('address', Arr::get($_POST,'address', $model->address), array('id'=>'addressInput', 'class'=>'poshytip')) ?>
+        <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
         <br><br>
         <?=Form::submit('update', __('Save ad'), array('class' => 'pure-button pure-button-primary left'));  ?>
         <?if(!$model->loaded()):?><?= Form::label('termagree', Form::checkbox('termagree', 1, TRUE) . HTML::anchor('/page/terms', __('You\'ve agreed with terms and conditions of ads publication'), array('target'=>'_blank')), array('class'=>'left')) ?><?endif?>

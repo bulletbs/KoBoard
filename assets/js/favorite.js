@@ -3,13 +3,27 @@ $(function(){
     $(document).ajaxStop(function() { $('#loading_layer').hide(); });
 
     var base_uri = '/board/';
-    $('#message_icons').on('click', '#ico_out_favorite, #ico_favorite', function(e){
-        var oper = $(this).attr('id') == 'ico_favorite' ? 'add' : 'del';
-        makeFavorite($(this).data('item'), oper);
-        $(this).attr('id', oper == 'del' ? 'ico_favorite' : 'ico_out_favorite');
-        $(this).text(oper == 'del' ? 'В избранное':'Удалить из избранного');
+
+    /**************************
+     * Message item Section
+     */
+    $('.message_actions').on('click', '#go_favorite', function(e){
         e.preventDefault();
+        var oper = $(this).hasClass('delfav') ? 'del' : 'add';
+        makeFavorite($(this).data('item'), oper);
+        if(oper == 'del'){
+            $(this).text('В избранное');
+            $(this).removeClass('delfav');
+        }
+        else{
+            $(this).text('Удалить из избранного');
+            $(this).addClass('delfav');
+        }
     });
+
+    /**************************
+     * AD List Section
+     */
     $('#adList').on('click', '.ico_out_favorite, .ico_favorite, .remove_favorite', function(e){
         e.preventDefault();
         if($(this).hasClass('remove_favorite')){
@@ -45,7 +59,13 @@ $(function(){
         }).done(function(data) {
             if(data.message)
                 alert(data.message);
-            $('#favCount').text(data.favcount > 0 ? ' ('+data.favcount+')' : '');
+            $('#favCount').text(data.favcount);
+            if(data.favcount > 0){
+                $('#favorite_wrapper').removeClass('hide');
+            }
+            else{
+                $('#favorite_wrapper').addClass('hide');
+            }
         });
     }
 

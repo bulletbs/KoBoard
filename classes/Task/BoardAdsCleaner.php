@@ -40,7 +40,7 @@ class Task_BoardAdsCleaner extends Minion_Task
         foreach($this->remind_on_days as $days) {
             $ads = ORM::factory('BoardAd')
                 ->where('publish', '=', 1)
-//                ->and_where('user_id', '=', 1)
+//                ->and_where('user_id', 'IN', array(1, 265906, 261511))
                 ->and_where('addtime', '>', DB::expr('UNIX_TIMESTAMP() - ' . Date::DAY * ($days + 1)))
                 ->and_where('addtime', '<', DB::expr('UNIX_TIMESTAMP() - ' . Date::DAY * $days))
                 ->find_all()
@@ -56,17 +56,17 @@ class Task_BoardAdsCleaner extends Minion_Task
 //            $ad->publish = 0;
 //            $ad->update();
             $user = ORM::factory('User', $user_id);
-            if($user->email_verified){
+            if($user->loaded() && $user->email_verified && !$user->no_mails){
                 Email::instance()
                     ->reset()
-                    ->to($ad->email)
+                    ->to($user->email)
                     ->from($cfg->robot_email)
                     ->subject($cfg['project']['name'] .': '. __('Old classifieds out of date'))
                     ->message(View::factory('board/mail/ad_refresh_reminder', array(
                         'user_ads'=>$ads,
                         'site_name'=> $cfg['project']['name'],
                         'server_name'=> $cfg['project']['host'],
-                        //                    'activation_link'=> Route::get('board_ad_confirm')->uri(array('id'=>$ad->id)),
+                        'unsubscribe_link' => Model_User::generateCryptoLink('unsubscribe', $user_id),
                     ))->render()
                         , true)
                     ->send();

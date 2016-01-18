@@ -18,6 +18,10 @@
 <br />
 <br />
 С уважением,<br />
-Администрация сайта <a href="http://<?php echo $server_name ?>"><?php echo $site_name ?></a>
+Администрация сайта <a href="http://<?php echo $server_name ?>"><?php echo $site_name ?></a><br/>
+<br/>
+<small>Если Вы не желаете больше получать наши письма - перейдите по ссылке ниже.<br>
+<a href="http://<?php echo $server_name ?>/<?php echo $unsubscribe_link?>">Отписаться от рассылки</a><br />
+Внимание! Указаная ссылка действительна только в течении трех дней с момента получения<small>
 </body>
 </html>

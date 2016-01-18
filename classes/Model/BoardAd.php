@@ -127,6 +127,18 @@ class Model_BoardAd extends ORM{
             'moderated' => 'Проверено',
         );
     }
+
+    public function filters(){
+        return array(
+            'title' => array(
+                array('Text::trimall', array(':value')),
+            ),
+            'description' => array(
+                array('Text::trimall', array(':value')),
+            ),
+        );
+    }
+
     /**
      * Ручная проверка данных из POST
      * для внешней валидации данных при добавлении объявлений с созданием пользователей
@@ -204,10 +216,10 @@ class Model_BoardAd extends ORM{
         /**
          * Setting parents
          */
-        if(!$this->pcity_id && $this->city_id){
+        if($this->changed('city_id')){
             $this->pcity_id = ORM::factory('BoardCity', $this->city_id)->parent_id;
         }
-        if(!$this->pcategory_id && $this->category_id){
+        if($this->changed('category_id')){
             $this->pcategory_id = ORM::factory('BoardCategory', $this->category_id)->parent_id;
         }
         return parent::save($validation);
@@ -376,7 +388,9 @@ class Model_BoardAd extends ORM{
      * @return mixed|string
      */
     public function getShortDescr(){
-       return  mb_strlen($this->description)>150 ? mb_substr($this->description, 0, 150, 'UTF-8').'...' : $this->description;
+        $descr = mb_strlen($this->description)>150 ? mb_substr($this->description, 0, 150, 'UTF-8').'...' : $this->description;
+        $descr = htmlspecialchars($descr);
+        return  Text::stripNL($descr);
     }
 
     /**
@@ -426,6 +440,7 @@ class Model_BoardAd extends ORM{
     public function getTitle(){
         if(is_null($this->_prepearedTitle)){
             $this->_prepearedTitle = Text::mb_ucfirst($this->title);
+            $this->_prepearedTitle = preg_replace('~[!.? ]+$~', '', $this->_prepearedTitle);
         }
         return $this->_prepearedTitle;
     }
@@ -444,8 +459,9 @@ class Model_BoardAd extends ORM{
      * @return string
      */
     public function getMetaDescription(){
-        $description = mb_substr(strip_tags($this->description), 0, 255);
-        return htmlspecialchars($description);
+        $descr = mb_strlen($this->description)>255 ? mb_substr($this->description, 0, 255, 'UTF-8').'...' : $this->description;
+        $descr = htmlspecialchars($descr);
+        return  Text::stripNL($descr);
     }
 
     /**
@@ -584,6 +600,8 @@ class Model_BoardAd extends ORM{
         $this->stopwords = count($this->_findStopWords($field));
         if($this->stopwords > 0)
             $this->stopword = 1;
+        else
+            $this->stopword = 0;
     }
 
     /**
@@ -687,5 +705,38 @@ class Model_BoardAd extends ORM{
     public static function checkAgree($value, Validation $validation, $field){
         if(is_null($value))
             $validation->error($field, 'termagree');
+    }
+
+    /**
+     * Request module parts links array for sitemap generation
+     * @return array
+     */
+    public function sitemapAds(){
+        $amount = Model_BoardAd::boardOrmCounter()->execute();
+        $amount = $amount[0]['cnt'];
+//        $amount = 200000;
+        $step = 10000;
+        $path = 'media/upload/sitemap/';
+
+        $sitemaps = array();
+        for($i=0; $i*$step < $amount; $i++){
+            $sitemap = new Sitemap();
+            $url = new Sitemap_URL;
+            $file = DOCROOT . $path . "board_ads_".($i+1).".xml";
+            $sitemap_link = URL::base('http'). $path ."board_ads_".($i+1).".xml";
+
+            $links = Model_BoardAd::boardOrmFinder()->offset($i*$step)->limit($step)->execute();
+            foreach($links as $_link){
+                $url->set_loc(URL::base('http').$_link->getUri())
+                    ->set_last_mod(time())
+                    ->set_change_frequency('monthly')
+                    ->set_priority('0.5');
+                $sitemap->add($url);
+            }
+            $response = $sitemap->render();
+            file_put_contents($file, $response);
+            $sitemaps[] = $sitemap_link;
+        }
+        return $sitemaps;
     }
 }

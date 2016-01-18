@@ -1,5 +1,5 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
-<div class="line"></div>
+<div class="line-0-10"></div>
 <ul class="city_list">
     <li><a href="/all/biznes-i-uslugi.html" title="Бизнес и услуги">Бизнес и услуги</a></li>
     <li><a href="/all/dom-i-sad.html" title="Дом и сад">Дом и сад</a></li>

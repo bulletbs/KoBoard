@@ -11,6 +11,7 @@ class Controller_UserBoard extends Controller_User
         'enable',
         'remove',
         'refresh',
+        'refresh_all',
         'multi',
     );
 
@@ -41,6 +42,7 @@ class Controller_UserBoard extends Controller_User
         $errors = array();
         $id = $this->request->param('id');
         $this->breadcrumbs->add(__('My ads'), URL::site().Route::get('board_myads')->uri());
+
 
         if(is_null($id) && BoardConfig::instance()->addnew_suspend === TRUE){
             $this->user_content = View::factory('board/add_suspended');
@@ -153,6 +155,8 @@ class Controller_UserBoard extends Controller_User
             }
         }
 
+        $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
+        $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
         $this->scripts[] = "assets/board/js/form.js";
         $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
         $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
@@ -219,7 +223,7 @@ class Controller_UserBoard extends Controller_User
     }
 
     /**
-     * Ad remove action
+     * Ad refresh action
      */
     public function action_refresh(){
         $id = $this->request->param('id');
@@ -240,6 +244,28 @@ class Controller_UserBoard extends Controller_User
                 Flash::error('- ' . implode("<br>- ", $errors));
             }
 
+        }
+        $this->redirect(URL::site().Route::get('board_myads')->uri());
+    }
+
+    /**
+     *  Renew all ads
+     */
+    public function action_refresh_all(){
+        $ads = ORM::factory('BoardAd')
+            ->where('user_id', '=', $this->current_user->id)
+            ->and_where('publish', '=', 1)
+            ->and_where('addtime', '<', time() - Model_BoardAd::REFRESH_TIME)
+            ->find_all()
+        ;
+        try{
+            foreach($ads as $model)
+                $model->refresh();
+            Flash::success(__('Your ads has been refreshed'));
+        }
+        catch(ORM_Validation_Exception $e){
+            $errors = $e->errors('validation', TRUE);
+            Flash::error('- ' . implode("<br>- ", $errors));
         }
         $this->redirect(URL::site().Route::get('board_myads')->uri());
     }

@@ -146,18 +146,19 @@ class Controller_Admin_BoardFilters extends Controller_Admin_Crud{
             }
             else{
                 foreach($newOptions as $option)
-                    ORM::factory('BoardOption')->values(array('value'=>$option, 'filter_id'=>$model->id))->save();
+                    ORM::factory('BoardOption')->values(array('value'=>$option, 'filter_id'=>$model->id, 'alias'=> $model->main ? Text::transliterate($option, true) : NULL ))->save();
             }
 
             /* Save New Options */
             $options = Arr::get($_POST,'options', array());
             foreach($options as $key=>$option)
-                ORM::factory('BoardOption', $key)->values(array('value'=>$option))->save();
+                ORM::factory('BoardOption', $key)->values(array('value'=>$option, 'alias'=> $model->main ? Text::transliterate($option, true) : NULL ))->save();
 
             /* Delete Options */
             $deleteOptions = Arr::get($_POST,'deleted', array());
             foreach($deleteOptions as $option)
                 ORM::factory('BoardOption', $option)->delete();
+
         }
     }
 

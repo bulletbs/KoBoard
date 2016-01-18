@@ -4,7 +4,7 @@ $(function(){
     $(document).ajaxStart(function() { $('#loading_layer').show(); });
     $(document).ajaxStop(function() { $('#loading_layer').hide(); });
     $('#titleInput').limit('80','#titleLeft');
-    $('#textInput').limit('1024','#textLeft');
+    $('#textInput').limit('4096','#textLeft');
 
     /* Category handlers */
     $('#catMain').change(function(){
@@ -28,6 +28,37 @@ $(function(){
     setLabels();
     setPrice();
     setStyle();
+
+    /* Tips initialization */
+    $('#addForm .poshytip').poshytip({
+        className: 'tip-yellowsimple',
+        showOn : 'focus',
+        showTimeout: 1,
+        alignTo: 'target',
+        alignX: 'right',
+        alignY: 'center',
+        offsetX: 8,
+        allowTipHover: false,
+        content: function(){
+            var tip = $('#' + $(this).attr('id') + 'Tip');
+            if(tip.html() != 'undefinded')
+                return tip.html();
+            return null;
+        }
+    });
+    $('#photosInput').poshytip({
+        className: 'tip-yellowsimple',
+        showOn : 'over',
+        showTimeout: 1,
+        alignTo: 'target',
+        alignX: 'center',
+        alignY: 'top',
+        offsetY: 8,
+        allowTipHover: false,
+        content: function(){
+            return $('#photosInputTip').html();
+        }
+    });
 
     /**
      * Loading filters

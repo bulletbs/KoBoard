@@ -1,4 +1,4 @@
-    <?php defined('SYSPATH') or die('No direct script access.');
+<?php defined('SYSPATH') or die('No direct script access.');
 
 class Controller_Admin_Board extends Controller_Admin_Crud
 {
@@ -28,6 +28,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         'multi',
         'clearphotos',
         'clearads',
+        'similar',
     );
 
     public $crud_render_actions = array(
@@ -129,6 +130,17 @@ class Controller_Admin_Board extends Controller_Admin_Crud
             'user_uri' => 'admin/users',
             'photos' => Model_BoardAdphoto::adsFullPhotoList($this->items->as_array('id','id')),
         ));
+    }
+
+
+
+    /**
+     * Applying filters values (from _sort_values) to model query (Index Action)
+     * @param ORM $model
+     */
+    protected function _applyQueryFilters(ORM &$model){
+        $model->where('key','=','');
+        parent::_applyQueryFilters($model);
     }
 
     /**
@@ -260,6 +272,10 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         echo count($result);
     }
 
+    /**
+     * Create partitions at ADS table
+     * @throws Kohana_Exception
+     */
     public function action_partitions(){
         $subcats = array();
         $pcategories = ORM::factory('BoardCategory')->where('lvl','=','1')->find_all()->as_array('id');
@@ -350,5 +366,28 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         foreach($ads as $ad)
             $ad->delete();
         echo count($ads);
+    }
+
+    public function action_similar(){
+        $text = 'Аппаратный и европейский маникюр, покрытие шеллак';
+//        echo "'\"".$text."\"/1'";
+        $sphinxql = new SphinxQL;
+        $query = $sphinxql->new_query()
+            ->add_index('sellmania_ads')
+//            ->add_field('addtime')
+            ->search("\"".$text."\"/1")
+            ->where('@id', '3046710', '!=')
+            ->where('user_id', '1', '!=')
+            ->where('category_id', '106')
+            ->order('@weight', 'desc')
+            ->order('addtime', 'DESC')
+            ->limit(5)
+            ->option('ranker', 'matchany')
+        ;
+//        echo Debug::vars($query);
+        $result = $query->execute();
+//        echo count($result);
+        foreach($result as $row)
+            echo Debug::vars($row);
     }
 }

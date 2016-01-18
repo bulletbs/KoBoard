@@ -23,4 +23,15 @@ class Model_BoardOption extends ORM{
             'value'      => 'Value',
         );
     }
+
+    public function filters(){
+        return array(
+            'value' => array(
+                array('trim'),
+            ),
+            'alias' => array(
+                array('trim'),
+            ),
+        );
+    }
 }

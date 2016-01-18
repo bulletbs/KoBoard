@@ -18,6 +18,7 @@ $(function(){
             dataType: "json",
             success: function(data){
                 $('#mailto').html(data.content);
+                $('html, body').animate({scrollTop: $("#mailto").offset().top}, 500);
                 $('body').on('click', '#cancel_mailto', function(e){
                     e.preventDefault();
                     $('body').off('click', '#cancel_mailto');
@@ -27,7 +28,7 @@ $(function(){
                 $('body').on('submit', '#mailtoForm', function(e){
                     e.preventDefault();
                     $.ajax({
-                        url: base_uri + "show_mailto/"+ this_id,
+                        url: base_uri + "send_message/"+ this_id,
                         method: 'post',
                         dataType: "json",
                         data: {
@@ -91,9 +92,10 @@ $(function(){
     });
 
     /* Жалоба */
-    $('#ico_note').click(function(e){
+    $('#go_abuse').click(function(e){
         e.preventDefault();
         $('#addabuse').toggle();
+        $('html, body').animate({scrollTop: $("#addabuse").offset().top}, 500);
         $('#abuseform').submit(function(e){
             e.preventDefault();
             $.ajax({
@@ -113,7 +115,7 @@ $(function(){
     });
 
     /* Печать */
-    $('#ico_print').click(function(e){
+    $('#go_print').click(function(e){
         e.preventDefault();
         window.open($(this).data('link'),'qq','resizable=yes, scrollbars=yes, width=560, height=700');
     });

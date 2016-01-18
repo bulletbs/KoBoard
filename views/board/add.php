@@ -1,12 +1,12 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
-<h1>Подать бесплатное объявление на ZXCC.RU</h1>
+<h1>Подать бесплатное объявление на Doreno</h1>
 <br />
 <p style="background-color: #fffacc; padding:10px;">
 <b>Внимание!</b>
 <br> Запрещено подавать объявления с одинаковыми (похожими) заголовками, содержимым и фотографиями.<br />
 Запрещено использовать в тексте и в заголовке объявления ЗАГЛАВНЫЕ буквы.<br />
 <b>Подобные объявления будут удаляться без предупреждения пользователя.</b><br />
-С полными правилами вы можете ознакомиться <a title="Правила" href="http://zxcc.ru/page/terms"><b>тут</b></a>.
+С полными правилами вы можете ознакомиться <a title="Правила" href="http://doreno.ru/page/terms"><b>тут</b></a>.
 </p>
 
 <?=Form::open('', array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'addForm'))?>
@@ -14,7 +14,8 @@
     <fieldset>
         <legend>Заголовок и описание</legend>
         <?= Form::label('title', 'Заголовок')?>
-        <?= Form::input('title', $model->title, array('class'=>isset($errors['title']) ? 'error-input': '', 'id'=>'titleInput'))?>
+        <?= Form::input('title', $model->title, array('class'=>'poshytip'.(isset($errors['title']) ? ' error-input': ''), 'id'=>'titleInput'))?>
+        <p style="display: none;" id="titleInputTip"><b>Введите наименование товара, объекта или услуги.</b><br>В заголовке <b>не допускается: номер телефона, электронный адрес, ссылки</b><br>Так же не допускаются заглавные буквы (кроме аббревиатур).</p>
         <div class="quiet">Осталось символов: <span id="titleLeft"></span></div><br>
 
         <?= Form::label('maincategory_id', 'Категория')?>
@@ -24,7 +25,8 @@
         <div id="filter_holder"><?= $filters ?></div>
 
         <?= Form::label('description', 'Описание')?>
-        <?= Form::textarea('description', $model->description , array('class'=>isset($errors['description']) ? 'error-input': '', 'id'=>'textInput'))?>
+        <?= Form::textarea('description', $model->description , array('class'=>'poshytip'.(isset($errors['description']) ? ' error-input': ''), 'id'=>'textInput', 'title'=>'Укажите подробное описание товара или услуги.<br>Максимально допускается 4096 символов.'))?>
+        <p id="textInputTip" style="display: none;"><b>Добавьте описание вашего товара/услуги,</b> укажите преимущества и важные детали.<br>В описании <b>не допускается указание контактных данных.</b><br>Описание должно соответствовать заголовку и предлагаемому товару/услуге.<br>Не допускаются заглавные буквы (кроме аббревиатур).</li></p>
         <div class="quiet">Осталось символов: <span id="textLeft"></span></div><br>
 
         <div id="price_holder">
@@ -50,12 +52,10 @@
     </fieldset>
     <fieldset>
         <legend>Фотографии</legend>
-<strong>Запрещены к размещению фотографии с обнаженными людьми и фотографии эротического содержания.
+<strong>
 </strong><br />
-Добавить новое изображение (gif, jpg). Рекомендуемый размер - не более <?php echo ini_get('upload_max_filesize')?>б.
-<br /><br />
 
-        <div class="pure-g">
+        <div class="pure-g" id="photosInput">
             <div class="pure-u-1-2">
                 <?= Form::file('photos[]') ?>
                 <?= Form::file('photos[]') ?>
@@ -67,25 +67,34 @@
                 <?= Form::file('photos[]') ?>
             </div>
         </div>
-Объявления с фото получают в среднем в 3-5 раз больше откликов.
+        <p id="photosInputTip" style="display: none;">
+            <b>Запрещены к размещению фотографии с обнаженными людьми и фотографии эротического содержания.</b><br>
+            Максимальный размер файла <?php echo ini_get('upload_max_filesize')?>б, формат .jpg, .jpeg, .png, .gif <br>
+            Обратите внимание: указание контактной информации на фото не допускается.
+        </p>
+        Объявления с фото получают в среднем в 3-5 раз больше откликов.
     </fieldset>
     <fieldset>
         <legend>Контактная информация</legend>
         <?= Form::label('name', 'Имя')?>
-        <?= Form::input('name', Arr::get($_POST,'name', $logged ? $user->profile->name : NULL) , array('class'=>isset($errors['name']) ? 'error-input': '')) ?>
+        <?= Form::input('name', Arr::get($_POST,'name', $logged ? $user->profile->name : NULL) , array('class'=>'poshytip' . (isset($errors['name']) ? ' error-input': ''), 'id'=>'nameInput')) ?>
+        <p id="nameInputTip" style="display: none;">Как к Вам обращаться?</p>
 
         <?= Form::label('email', 'E-mail')?>
         <?if(Auth::instance()->logged_in()):?>
-        <?= Form::input('email', Arr::get($_POST,'email', $logged ? $user->email : NULL) , array('disabled'=>'disabled')) ?>
+        <?= Form::input('email', Arr::get($_POST,'email', $logged ? $user->email : NULL) , array('disabled'=>'disabled', 'id'=>'emailInput')) ?>
         <?else:?>
-        <?= Form::input('email', Arr::get($_POST,'email', $logged ? $user->email : NULL) , array('class'=>isset($errors['email']) ? 'error-input': '')) ?>
+        <?= Form::input('email', Arr::get($_POST,'email', $logged ? $user->email : NULL) , array('class'=>'poshytip' . (isset($errors['email']) ? ' error-input': ''), 'id'=>'emailInput')) ?>
+        <p id="emailInputTip" style="display: none;">Введите ваш email-адрес<br>Вы будете использовать указанный e-mail для входа на сайт. Допускается одна учетная запись для одного пользователя.</p>
         <?endif?>
 
         <?= Form::label('phone', 'Телефон')?>
-        <?= Form::input('phone', Arr::get($_POST,'phone', $logged ? $user->profile->phone : NULL) , array('class'=>isset($errors['phone']) ? 'error-input': '')) ?>
+        <?= Form::input('phone', Arr::get($_POST,'phone', $logged ? $user->profile->phone : NULL) , array('class'=>'poshytip' . (isset($errors['phone']) ? ' error-input': ''), 'id'=>'phoneInput')) ?>
+        <p id="phoneInputTip" style="display: none;">Вы можете ввести несколько номеров, разделив их запятой.</p>
 
         <?= Form::label('site', 'Адрес сайта')?>
-        <?= Form::input('site', Arr::get($_POST,'site')) ?>
+        <?= Form::input('site', Arr::get($_POST,'site'), array('class'=>'poshytip', 'id'=>'siteInput')) ?>
+        <p id="siteInputTip" style="display: none;">Укажите адрес страницы описывающей товар или услугу, если таковая имеется</p>
 
         <?= Form::label('city_id', 'Регион ')?>
         <?= Form::hidden('city_id', Arr::get($_POST, 'city_id', $city_id) , array('id'=>'city_id')) ?>
@@ -93,7 +102,8 @@
         <span id="subRegion"><?= $cities ?></span>
 
         <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>
-        <?= Form::input('address', Arr::get($_POST,'address', $logged ? $user->profile->address : NULL) , array('class'=>isset($errors['address']) ? 'error-input': '')) ?>
+        <?= Form::input('address', Arr::get($_POST,'address', $logged ? $user->profile->address : NULL) , array('class'=>'poshytip' . (isset($errors['address']) ? ' error-input': ''), 'id'=>'addressInput')) ?>
+        <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
 
         <?if(!Auth::instance()->logged_in()):?>
             <Br><?php echo Captcha::instance() ?>

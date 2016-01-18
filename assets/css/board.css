@@ -136,7 +136,13 @@
         float: left;
         margin: 0 15px 0 5px;
     }
-
+#addForm{}
+    #addForm #titleInput{
+        width: 600px;
+    }
+    #addForm #textInput{
+        width: 600px;
+    }
 /* GALLERY */
 .board_gallery{
 
@@ -149,7 +155,7 @@
         width: 720px;
         height: 450px;
         border: 5px solid #cacaca;
-        margin: 15px 0 5px;
+        margin: 5px 0 5px;
         text-align: center;
     }
     .showroom img{
@@ -185,6 +191,14 @@
 
 
 /* SEARCH */
+h1.category_small{
+    font-size: 21px;
+    font-weight: normal;
+}
+h1.small_14{
+    font-size: 14px;
+    font-weight: bolder;
+}
 .goroda{
     background-color: #CCCCCC;
     border-bottom: 0 none;
@@ -293,22 +307,36 @@ table.tableccat tr:nth-child(2n) td {
 }
 
 .detail-also-item {
-    border: 1px solid #dadada;
-    background-color: #eeefef;
+   /* border: 1px solid #dadada; */
+   /* background-color: #fffacc; */
     float: left;
-    height: 135px;
-    margin-bottom: 5px;
+    height: 165px;
+    margin-bottom: 15px;
     margin-left: 4px;
-    margin-right: 4px;
+    margin-right: 6px;
     padding: 3px 1px;
     width: 170px;
 }
-    .detail-also-item-img {
+
+    .detail-also-item-img{
+        margin: 0 auto;
+        width: 142px;
         text-align: center;
     }
+    .detail-also-item-img a{
+        display: block;
+        position: relative;
+        border: 1px solid #dadada;
+        width: 140px;
+        height: 105px;
+    }
     .detail-also-item-img img {
-        border: 1px solid #DADADA;
-        padding: 1px;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
     }
     .detail-also-item-price {
         text-align: center;
@@ -427,19 +455,26 @@ table.tableccat tr:nth-child(2n) td {
     width: 20px;
     text-align: center;
 }
-    #adList a.ico_favorite{background: url("images/zvezda.png") top center no-repeat;}
-    #adList a.ico_out_favorite{background: url("images/zvezda_act.png") top center no-repeat;}
+    #adList a.ico_favorite {background: url("images/zvezda.png") top center no-repeat;}
+    #adList a.ico_out_favorite {background: url("images/zvezda_act.png") top center no-repeat;}
 
 /* ******************** */
 /*     ADS STYLE   */
+
+.mess_h1{
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 40px;
+}
 .message{
     font-size: 13px;
+    padding-right: 5px;
 }
     .message a.active{
         border: 1px dashed #9a9a9a;
     }
-    .message .tableccat table{
-        width: 740px;
+    .message .tableccat{
+        width: 730px;
     }
     .message dl{
         vertical-align: baseline;
@@ -488,7 +523,43 @@ table.tableccat tr:nth-child(2n) td {
     .message_icons #ico_print{background: url("images/ico_print.png") top center no-repeat;}
     .message_icons #ico_edit{background: url("images/ico_edit.png") top center no-repeat;}
     .message_icons #ico_note{background: url("images/ico_note.png") top center no-repeat; color: #bb0000;}
-
+.message_actions{
+    background: #f3fafd;
+    border: 1px solid #9ad5e7;
+    padding: 10px;
+    margin: 10px auto;
+}
+    .message_actions:after{
+         content: '.';
+         display: block;
+         height: 0;
+         clear: both;
+         visibility: hidden;
+     }
+    .message_actions a.action_mail, .message_actions a.action_favorite, .message_actions a.action_abuse, .message_actions a.action_shared, .message_actions a.action_print{
+        display: block;
+        float: left;
+        margin-right: 20px;
+        padding-left: 20px;
+    }
+    .message_actions a.action_mail{
+        background: url("images/message_icon_mail.png") no-repeat;
+    }
+    .message_actions a.action_favorite{
+        background: url("images/message_icon_favorite.png") no-repeat;
+    }
+    .message_actions a.action_abuse{
+        background: url("images/message_icon_abuse.png") no-repeat;
+    }
+    .message_actions a.action_shared{
+        background: url("images/message_icon_shared.png") no-repeat;
+    }
+    .message_actions a.action_print{
+        background: url("images/message_icon_print.png") no-repeat;
+    }
+    .message_actions .ya-share2{
+        float: right;
+    }
 .showAddress{
     display: none;
     height: 400px;
@@ -582,15 +653,39 @@ table.tableccat tr:nth-child(2n) td {
         text-decoration: none;
         color: #F06939;
     }
+    .search_sub_row_4 li {
+        width: 240px;
+    }
 
+/* Search page category/city list (COL style)*/
+.search_sub_col {
+    float: left;
+    margin: 10px 10px 10px 0;
+    padding-left: 0;
+    width: 190px;
+}
+    .search_sub_col li {
+        list-style: outside none none;
+    }
+    .search_sub_col li a {
+        color: #008cc3;
+        font-size: 14px;
+        line-height: 22px;
+        text-decoration: none;
+    }
+    .search_sub_col li a:hover{
+        text-decoration: none;
+        color: #F06939;
+    }
+    .search_sub_col_4 {
+        width: 240px;
+    }
 .search_sub_col span, .search_sub_row span {
     color: #808080;
     font: 13px Arial,sans-serif;
     padding: 0;
 }
-.search_sub_row_4 li {
-    width: 240px;
-}
+
 
 /****************
    SEARCH FORM
@@ -600,16 +695,21 @@ table.tableccat tr:nth-child(2n) td {
     background: #fdf17f;
     position: relative;
     border-radius: 3px;
-    margin-top: 10px;
+    margin-top: 0;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     -khtml-border-radius: 3px;
 }
+    .board_search_form .boardSubmit::-moz-focus-inner {
+        border: 0px;
+        padding: 0px;
+    }
     .board_search_form .boardSubmit{
         background: #0000cc;
-        padding: 7px 13px;
-        border: 2px solid #ffffff;
+        padding: 0 13px;
+        border: 3px solid #ffffff;
         font-size: 13px;
+        line-height: 30px;
         font-weight: bold;
         color: #ffffff;
         border-radius: 3px;
@@ -627,7 +727,7 @@ table.tableccat tr:nth-child(2n) td {
         margin-right: 15px;
         z-index: 100;
         background: #ffffff;
-        width: 300px;
+        width: 275px;
         padding: 0 5px;
         border: 1px solid #dadada;
     }
@@ -664,6 +764,14 @@ table.tableccat tr:nth-child(2n) td {
     }
     .board_search_form .checkboxLabel input{
         margin-top: 3px;
+    }
+    .board_search_form .advancedSearch{
+        float: right;
+    }
+    .board_search_form .advancedSearch a{
+        display: block;
+        padding-top: 5px;
+        cursor: pointer;
     }
 .board_search_form .selector .selectorWrapper{
     display: none;
@@ -796,6 +904,6 @@ table.tableccat tr:nth-child(2n) td {
         font-size: 16px;
     }
     .profile_legend .pure-button{
-        width: 15px;
+        width: 35px;
         margin: 0 10px 5px 0;
     }

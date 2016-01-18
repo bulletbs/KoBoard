@@ -197,17 +197,18 @@ class Model_BoardCity extends ORM_MPTT{
     }
 
     /**
-     * Получить список ключей детей категории
-     * @param $id           - категория родитель
+     * Получить список ключей детей региона
+     * @param $id - категория родитель
      * @return array
      */
     public function getChildrenId($id = NULL){
-        if(NULL === $array = Cache::instance()->get(self::CHILDREN_CACHE . $id)){
+        $cache_id = is_null($id) ? $this->id : $id;
+        if(NULL === $array = Cache::instance()->get(self::CHILDREN_CACHE . $cache_id)){
             $city = $this;
             if($id)
                 $city = ORM::factory('BoardCity', $id);
-            $array = $city->children(TRUE)->as_array('id', 'id');
-            Cache::instance()->set(self::CHILDREN_CACHE . $id, $array, self::CITIES_CACHE_TIME);
+            $array = $city->children()->as_array('id', 'id');
+            Cache::instance()->set(self::CHILDREN_CACHE . $cache_id, $array, self::CITIES_CACHE_TIME);
         }
         return $array;
     }
@@ -267,5 +268,19 @@ class Model_BoardCity extends ORM_MPTT{
             foreach($cities[$row['id']] as $_row)
                 self::import_city($cities, $_row, $new->id);
         }
+    }
+
+
+
+    /**
+     * Request module parts links array for sitemap generation
+     * @return array
+     */
+    public function sitemapRegions(){
+        $links = array();
+        $regions = Model_BoardCity::getCitiesList();
+        foreach($regions as $region)
+            $links[] = $region->getUri();
+        return $links;
     }
 }

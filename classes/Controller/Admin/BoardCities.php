@@ -67,7 +67,7 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
      * @return array|bool|void
      */
     protected function _processForm($model, $data = array()){
-        $this->template->scripts[] = 'assets/board/js/admin/filter_form.js';
+        $this->scripts[] = 'assets/board/js/admin/filter_form.js';
 
         /* Parent_id field intialize */
         $this->_form_fields['parent_id']['data']['options'][0] = 'Корневой регион';

@@ -54,9 +54,9 @@ class Controller_Admin_BoardCategoryMove extends Controller_System_Admin
             }
         }
 
-        $this->template->scripts[] = "media/libs/bootstrap/js/bootbox.min.js";
-        $this->template->scripts[] = "media/libs/bootstrap/js/bbox_".I18n::$lang.".js";
-        $this->template->scripts[] = "media/js/admin/check_all.js";
+        $this->scripts[] = "media/libs/bootstrap/js/bootbox.min.js";
+        $this->scripts[] = "media/libs/bootstrap/js/bbox_".I18n::$lang.".js";
+        $this->scripts[] = "media/js/admin/check_all.js";
 
         $categories = ORM::factory('BoardCategory')->getFullDepthArray();
         $categories_options = Arr::merge(array('0' => '..'), ORM::factory('BoardCategory')->getFullDepthArray());

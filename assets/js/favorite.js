@@ -28,7 +28,7 @@ $(function(){
         e.preventDefault();
         if($(this).hasClass('remove_favorite')){
             makeFavorite($(this).data('id'), 'del');
-            $(this).parents('tr').fadeOut(200);
+            $(this).parents('tr,div.tm-favorite-block').fadeOut(200);
             return;
         }
         var oper = $(this).hasClass('ico_favorite') ? 'add' : 'del';

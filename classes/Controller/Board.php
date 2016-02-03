@@ -48,13 +48,14 @@ class Controller_Board extends Controller_System_Page
         $this->breadcrumbs = Breadcrumbs::factory();
         $this->scripts[] = "assets/board/js/jquery.highlight.js";
         $this->scripts[] = "assets/board/js/jquery.tooltip.js";
-        if(!$content = Cache::instance()->get("BoardMainPage")){
-            $content = View::factory('board/map');
+        if(!$content = Cache::instance()->get( $this->getCacheName("BoardMainPage") )){
+//            $content = View::factory('board/map');
+            $content = $this->getContentTemplate('board/map');
             $content->set('site_name', $this->config['project']['name']);
             $content->set('ads_count', Model_BoardAd::countActiveAds());
 
             $content = $content->render();
-            Cache::instance()->set("BoardMainPage", $content, Date::DAY);
+            Cache::instance()->set($this->getCacheName("BoardMainPage"), $content, Date::DAY);
         }
         $this->template->content = $content;
     }
@@ -86,7 +87,7 @@ class Controller_Board extends Controller_System_Page
                 $city_counter = array();
                 $big_city_counter = array();
                 $_ads_city_count = DB::select('city_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $city->id)->group_by('city_id')->order_by('cnt', 'DESC')->cached(Model_BoardAd::CACHE_TIME)->execute()->as_array('city_id', 'cnt');
-                $_childs = ORM::factory('BoardCity')->where('parent_id','=',$city->id)->order_by('name', 'ASC')->find_all()->as_array('id','name');
+                $_childs = ORM::factory('BoardCity')->where('parent_id','=',$city->id)->order_by('name', 'ASC')->cached(Date::MONTH)->find_all()->as_array('id','name');
                 foreach($_childs as $_city_id=>$_city){
                     if(isset($_ads_city_count[ $_city_id ])){
                         $city_counter[] = array(
@@ -329,6 +330,10 @@ class Controller_Board extends Controller_System_Page
 //        ));
 
         $this->template->search_form = Widget::factory('BoardSearch')->render();
+        if(is_null($city))
+            $this->template->content->set(array(
+                'regions' => Model_BoardCity::getRegionsArray(),
+            ));
         $this->template->content->set(array(
             'title' => $title,
             'city' => $city,
@@ -362,11 +367,11 @@ class Controller_Board extends Controller_System_Page
         $ad = $ad[0];
 
         if($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) == $alias){
-            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $ad->addtime){
-                header('HTTP/1.1 304 Not Modified');
-                die;
-            }
-            $this->add_page_header('Last-Modified: '.gmdate('D, d M Y H:i:s', $ad->addtime).' GMT');
+//            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $ad->addtime){
+//                header('HTTP/1.1 304 Not Modified');
+//                die;
+//            }
+//            $this->add_page_header('Last-Modified: '.gmdate('D, d M Y H:i:s', $ad->addtime).' GMT');
 
             /* Breadcrumbs & part parents */
             $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
@@ -478,14 +483,32 @@ class Controller_Board extends Controller_System_Page
             $this->add_meta_content(array('property'=>'og:description', 'content'=>$ad->getMetaDescription()));
             $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . (count($photos) ? $photos[0]->getPhotoUri() : "media/css/images/logo.png")));
 
-            $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
-            $this->scripts[] = 'assets/board/js/message.js';
-            $this->scripts[] = "assets/board/js/search.js";
-            $this->scripts[] = "assets/board/js/favorite.js";
-            $this->scripts[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.js";
-            $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
-            $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
-            $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+            if($this->is_mobile){
+                $this->mobile_scripts[] = 'assets/board/js/message.js';
+                $this->mobile_scripts[] = "assets/board/js/favorite.js";
+
+                $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/lightbox.min.js';
+                $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slidenav.almost-flat.min.css';
+
+//                $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/slider.min.js';
+//                $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slider.almost-flat.min.css';
+
+//                $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/slideshow.min.js';
+//                $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slideshow.almost-flat.min.css';
+
+//                $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/slideset.min.js';
+//                $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slideset.almost-flat.min.css';
+            }
+            else{
+                $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
+                $this->scripts[] = 'assets/board/js/message.js';
+                $this->scripts[] = "assets/board/js/search.js";
+                $this->scripts[] = "assets/board/js/favorite.js";
+                $this->scripts[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.js";
+                $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
+                $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
+                $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+            }
 
             /* Bottom breadcrumbs */
             $breadcrumbs = clone $this->breadcrumbs;
@@ -688,15 +711,23 @@ class Controller_Board extends Controller_System_Page
         $this->title = $this->_generateMetaTitle('add_title');
 
         /* Templates & styles*/
+        if($this->is_mobile){
+            $this->mobile_scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
 
-        $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
-        $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
-        $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
-        $this->scripts[] = "assets/board/js/form.js";
+            $this->mobile_scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
+            $this->mobile_styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
+            $this->mobile_scripts[] = "assets/board/js/form.js";
+        }
+        else{
+            $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
+            $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
+            $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
+            $this->scripts[] = "assets/board/js/form.js";
 
-        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
-        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
-        $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
+            $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
+            $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
+            $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
+        }
 
         $this->template->content->bind('errors', $errors);
         $this->template->content->set(array(
@@ -726,8 +757,8 @@ class Controller_Board extends Controller_System_Page
     public function action_tree(){
         $this->breadcrumbs = Breadcrumbs::factory();
         $this->title = $this->_generateMetaTitle('region_map_title');
-        if(!$content = Cache::instance()->get("BoardCityTreePage")){
-            $content = View::factory('board/tree');
+        if(!$content = Cache::instance()->get( $this->getCacheName("BoardCityTreePage"))){
+            $content = $this->getContentTemplate('board/tree');
             $regions = ORM::factory('BoardCity')->where('lvl', '=', 1)->order_by('name', 'ASC')->find_all();
             $cities = array();
             foreach(ORM::factory('BoardCity')->where('lvl', '=', 2)->order_by('name', 'ASC')->find_all() as $city){
@@ -738,7 +769,7 @@ class Controller_Board extends Controller_System_Page
                 'cities' => $cities,
             ));
             $content = $content->render();
-            Cache::instance()->set("BoardCityTreePage", $content, Date::MONTH);
+            Cache::instance()->set($this->getCacheName("BoardCityTreePage"), $content, Date::MONTH);
         }
         $this->template->content = $content;
     }
@@ -750,8 +781,8 @@ class Controller_Board extends Controller_System_Page
         $this->breadcrumbs = Breadcrumbs::factory();
         $this->title = $this->_generateMetaTitle('category_map_title');
 
-        if(!$content = Cache::instance()->get("BoardCategoryTreePage")){
-            $content = View::factory('board/categories');
+        if(!$content = Cache::instance()->get($this->getCacheName("BoardCategoryTreePage"))){
+            $content = $this->getContentTemplate('board/categories');
             $parts = ORM::factory('BoardCategory')->where('lvl', '=', 1)->order_by('name', 'ASC')->find_all();
             $categories = array();
             foreach(ORM::factory('BoardCategory')->where('lvl', '=', 2)->order_by('name', 'ASC')->find_all() as $category){
@@ -762,7 +793,7 @@ class Controller_Board extends Controller_System_Page
                 'categories' => $categories,
             ));
             $content = $content->render();
-            Cache::instance()->set("BoardCategoryTreePage", $content, Date::MONTH);
+            Cache::instance()->set($this->getCacheName("BoardCategoryTreePage"), $content, Date::MONTH);
         }
         $this->template->content = $content;
     }
@@ -900,8 +931,10 @@ class Controller_Board extends Controller_System_Page
                 $ads_ids[] = $_ad->id;
             $photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
         }
-
-        $this->scripts[] = "assets/board/js/favorite.js";
+        if($this->is_mobile)
+            $this->mobile_scripts[] = "assets/board/js/favorite.js";
+        else
+            $this->scripts[] = "assets/board/js/favorite.js";
         $this->template->content->set(array(
             'ads' => $ads,
             'photos' => $photos,
@@ -924,11 +957,11 @@ class Controller_Board extends Controller_System_Page
         if(isset($_POST['oper']) && $_POST['oper'] == 'add' && isset($_POST['id']) && (int) $_POST['id'] > 0 && !isset($_COOKIE['board_favorites'][$_POST['id']])){
             $_COOKIE['board_favorites'][$_POST['id']] = 1;
             foreach($_COOKIE['board_favorites'] as $_cookie_id=>$_cookie)
-                setcookie('board_favorites['.$_cookie_id.']', $_cookie, null, '/');
+                setcookie('board_favorites['.$_cookie_id.']', $_cookie, null, '/', '.'.$this->config['project']['host']);
         }
         if(isset($_POST['oper']) && $_POST['oper'] == 'del' && isset($_POST['id']) && isset($_COOKIE['board_favorites'][$_POST['id']])){
             unset($_COOKIE['board_favorites'][$_POST['id']]);
-            setcookie('board_favorites['.$_POST['id'].']', NULL, NULL, '/');
+            setcookie('board_favorites['.$_POST['id'].']', NULL, NULL, '/', '.'.$this->config['project']['host']);
         }
         $this->json['favcount'] = ' ';
         if(count($_COOKIE['board_favorites']))
@@ -1022,7 +1055,7 @@ class Controller_Board extends Controller_System_Page
                 if($validation->check()){
                     Email::instance()
                         ->to($ad->email)
-                        ->from($this->config->robot_email)
+                        ->from($this->config['robot_email'])
                         ->subject($this->config['project']['name'] .': '. __('Message from bulletin board'))
                         ->message(View::factory('board/mail/user_mailto_letter', array(
                                 'name' => $ad->name,
@@ -1040,7 +1073,7 @@ class Controller_Board extends Controller_System_Page
                 else
                     $errors = $validation->errors('error/validation');
             }
-            $this->json['content'] = View::factory('board/user_mailto')->set(array(
+            $this->json['content'] = $this->getContentTemplate('board/user_mailto')->set(array(
                 'errors' => $errors,
                 'ad_id' => $ad->id,
             ))->render();
@@ -1055,6 +1088,9 @@ class Controller_Board extends Controller_System_Page
             $this->go(Route::get('board')->uri());
         $id = $this->request->param('id');
         $ad = ORM::factory('BoardAd', $id);
+
+        $errors = array();
+
         if($ad->loaded()){
             $this->json['status'] = TRUE;
             if($this->request->method() == Request::POST){
@@ -1079,7 +1115,6 @@ class Controller_Board extends Controller_System_Page
                     ));
                 }
 
-                $errors = array();
                 try{
                     if(!$validation->check())
                         throw new Validation_Exception($validation);
@@ -1123,13 +1158,13 @@ class Controller_Board extends Controller_System_Page
 //                        file_put_contents(DOCROOT. '/debug_mail.txt', PHP_EOL.PHP_EOL. $message, FILE_APPEND);
                         Email::instance()
                             ->to($dialog->opponent->email)
-                            ->from($this->config->robot_email)
+                            ->from($this->config['robot_email'])
                             ->subject($this->config['project']['name'] .': '. __('Message from bulletin board'))
                             ->message($message, true)
                             ->send();
                     }
                     Flash::success(__("Your message successfully sended"));
-                    $this->json['content'] = Flash::render('global/flash');
+                    $this->json['content'] = $this->getContentTemplate('board/user_outbox_done');
                     if(Auth::instance()->logged_in('login'))
                         $this->json['content'] .= View::factory('inbox/goto_dialog')->set(array(
                             'dialog_link' => Route::get('messaging')->uri(array(
@@ -1146,13 +1181,13 @@ class Controller_Board extends Controller_System_Page
                     $errors = $validation->errors('error/validation');
                 }
             }
-            $this->json['content'] = View::factory('board/user_outbox')->set(array(
+            $this->json['content'] = $this->getContentTemplate('board/user_outbox')->set(array(
                 'errors' => $errors,
                 'ad_id' => $ad->id,
             ))->render();
         }
         else{
-            $this->json['content'] = View::factory('board/user_outbox')->set(array(
+            $this->json['content'] = $this->getContentTemplate('board/user_outbox')->set(array(
                 'errors' => array(__('Nothing found')),
                 'ad_id' => NULL,
             ))->render();
@@ -1183,7 +1218,8 @@ class Controller_Board extends Controller_System_Page
         $values = Arr::get($_POST, 'filters', array());
         Model_BoardFilter::loadFilterValues($filters, $values, $model_id);
 
-        return View::factory('board/form_filters_ajax', array('filters' => $filters))->render();
+        $content = $this->getContentTemplate('board/form_filters_ajax');
+        return $content->set(array('filters' => $filters))->render();
     }
 
     /**
@@ -1262,7 +1298,7 @@ class Controller_Board extends Controller_System_Page
     protected function _sendActivationLetter(Model_BoardAd $ad, Model_User $user, $password = NULL){
         Email::instance()
             ->to($user->email)
-            ->from($this->config->robot_email)
+            ->from($this->config['robot_email'])
             ->subject($this->config['project']['name'] .': '. __('New classified ad confirmation'))
             ->message(View::factory('board/mail/ad_confirm_letter', array(
                     'user'=>$user,

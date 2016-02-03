@@ -227,6 +227,8 @@ $(function(){
     }
 
     function setStyle(){
-        $('input, select').styler({});
+        if ($.fn.styler) {
+            $('input, select').styler({});
+        }
     }
 });

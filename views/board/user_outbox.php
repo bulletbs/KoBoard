@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');?>
 
-<?=Form::open('/board/show_mailto/'. $ad_id, array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'mailtoForm'))?>
+<?=Form::open('/board/send_message/'. $ad_id, array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'mailtoForm'))?>
     <fieldset>
         <legend><?php echo __('Send message to user')?></legend>
         <?if(isset($errors)) echo View::factory('error/validation', array('errors'=>$errors))->render()?>

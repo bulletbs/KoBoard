@@ -11,6 +11,7 @@ class Model_BoardCity extends ORM_MPTT{
     CONST FULL_DEPTH_CACHE = 'boardFullDepthCities';
     CONST PARENTS_CACHE = 'boardCityParents_';
     CONST CHILDREN_CACHE = 'boardCityChilds_';
+    CONST REGIONS_CACHE = 'boardRegionsList';
 
     CONST CITIES_CACHE_TIME = 86400;
 
@@ -194,6 +195,18 @@ class Model_BoardCity extends ORM_MPTT{
             Cache::instance()->set(self::PARENTS_CACHE . $id, $array, self::CITIES_CACHE_TIME);
         }
         return $array;
+    }
+
+    /**
+     * Получить список ключей родителей категории
+     * @return array
+     */
+    public static function getRegionsArray(){
+        if(NULL === $list = Cache::instance()->get(self::REGIONS_CACHE)){
+            $list = (array) ORM::factory('BoardCity')->where('parent_id','=',0)->order_by('name', 'ASC')->cached(Date::MONTH)->find_all()->as_array('id','name');
+            Cache::instance()->set(self::REGIONS_CACHE , $list, Date::MONTH);
+        }
+        return $list;
     }
 
     /**

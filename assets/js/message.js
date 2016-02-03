@@ -14,7 +14,7 @@ $(function(){
         e.preventDefault();
         var this_id = $(this).data('id')
         $.ajax({
-            url: base_uri + "show_mailto/"+ this_id,
+            url: base_uri + "send_message/"+ this_id,
             dataType: "json",
             success: function(data){
                 $('#mailto').html(data.content);
@@ -108,7 +108,7 @@ $(function(){
                 },
                 success: function(data){
                     $('#addabuse').html(data.message);
-                    $('#addabuse').addClass('pure-alert pure-alert-`success');
+                    $('#addabuse').addClass('uk-alert uk-alert-success');
                 }
             });
         });

@@ -12,9 +12,9 @@ class Controller_Admin_BoardModerateSw extends Controller_Admin_BoardModerate{
      * List items
      */
     public function action_index(){
-        $this->template->scripts[] = "media/libs/bootstrap/js/bootbox.min.js";
-        $this->template->scripts[] = "media/libs/bootstrap/js/bbox_".I18n::$lang.".js";
-        $this->template->scripts[] = "media/js/admin/check_all.js";
+        $this->scripts[] = "media/libs/bootstrap/js/bootbox.min.js";
+        $this->scripts[] = "media/libs/bootstrap/js/bbox_".I18n::$lang.".js";
+        $this->scripts[] = "media/js/admin/check_all.js";
 
         $orm = ORM::factory($this->model_name);
         $orm->where('moderated','=',self::NOT_MODERATED);

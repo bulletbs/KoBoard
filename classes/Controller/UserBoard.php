@@ -43,9 +43,8 @@ class Controller_UserBoard extends Controller_User
         $id = $this->request->param('id');
         $this->breadcrumbs->add(__('My ads'), URL::site().Route::get('board_myads')->uri());
 
-
         if(is_null($id) && BoardConfig::instance()->addnew_suspend === TRUE){
-            $this->user_content = View::factory('board/add_suspended');
+            $this->user_content = $this->getContentTemplate('board/add_suspended');
             return;
         }
 
@@ -155,12 +154,21 @@ class Controller_UserBoard extends Controller_User
             }
         }
 
-        $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
-        $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
-        $this->scripts[] = "assets/board/js/form.js";
-        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
-        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
-        $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
+        if($this->is_mobile){
+            $this->mobile_scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
+
+            $this->mobile_scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
+            $this->mobile_styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
+            $this->mobile_scripts[] = "assets/board/js/form.js";
+        }
+        else {
+            $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
+            $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
+            $this->scripts[] = "assets/board/js/form.js";
+            $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
+            $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
+            $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
+        }
 
         $this->user_content->set(array(
             'user' => $this->current_user,
@@ -289,7 +297,8 @@ class Controller_UserBoard extends Controller_User
         $values = Arr::get($_POST, 'filters', array());
         Model_BoardFilter::loadFilterValues($filters, $values, $model_id);
 
-        return View::factory('board/form_filters_ajax', array('filters' => $filters))->render();
+        $content = $this->getContentTemplate('board/form_filters_ajax');
+        return $content->set(array('filters' => $filters))->render();
     }
     /**
      * Загрузить список дочерних категорий

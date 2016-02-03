@@ -33,9 +33,9 @@ class Controller_Admin_BoardAbuses extends Controller_System_Admin
     public function action_index(){
         $this->uri = '';
 
-        $this->template->scripts[] = "media/libs/bootstrap/js/bootbox.min.js";
-        $this->template->scripts[] = "media/libs/bootstrap/js/bbox_".I18n::$lang.".js";
-        $this->template->scripts[] = "media/js/admin/check_all.js";
+        $this->scripts[] = "media/libs/bootstrap/js/bootbox.min.js";
+        $this->scripts[] = "media/libs/bootstrap/js/bbox_".I18n::$lang.".js";
+        $this->scripts[] = "media/js/admin/check_all.js";
 
         $orm = ORM::factory('BoardAbuse');
         $count = $orm->count_all();

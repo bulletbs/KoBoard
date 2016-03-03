@@ -167,11 +167,11 @@ class Model_BoardCategory extends ORM_MPTT{
      * во вложеный массив (для вывода в SELECT c группами)
      * @return array|mixed
      */
-    public function getTwoLevelArray(){
+    public static function getTwoLevelArray(){
         Cache::instance()->delete(self::TWO_LEVEL_CACHE);
         if(NULL === $array = Cache::instance()->get(self::TWO_LEVEL_CACHE)){
             $array = array();
-            $list = $this
+            $list = ORM::factory('BoardCategory')
                 ->where('lvl','<=','2')
                 ->where('lvl','>','0')
                 ->find_all()

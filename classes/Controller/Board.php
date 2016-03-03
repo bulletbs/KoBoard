@@ -76,7 +76,7 @@ class Controller_Board extends Controller_System_Page
             if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
             $city = ORM::factory('BoardCity', $city);
-            $title .= $city->name_in;
+            $title = $this->board_cfg['h1_prefix'] . $city->name_in;
             $this->description = $city->name_in;
             $parents = $city->parents()->as_array('id');
             foreach($parents as $_parent)
@@ -84,34 +84,13 @@ class Controller_Board extends Controller_System_Page
             $this->breadcrumbs->add($city->name, $city->getUri());
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
-                $city_counter = array();
-                $big_city_counter = array();
-                $_ads_city_count = DB::select('city_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $city->id)->group_by('city_id')->order_by('cnt', 'DESC')->cached(Model_BoardAd::CACHE_TIME)->execute()->as_array('city_id', 'cnt');
-                $_childs = ORM::factory('BoardCity')->where('parent_id','=',$city->id)->order_by('name', 'ASC')->cached(Date::MONTH)->find_all()->as_array('id','name');
-                foreach($_childs as $_city_id=>$_city){
-                    if(isset($_ads_city_count[ $_city_id ])){
-                        $city_counter[] = array(
-                            'city_id' => $_city_id,
-                            'cnt' => $_ads_city_count[ $_city_id ],
-                        );
-                        if($_ads_city_count[ $_city_id ] > 100)
-                            $big_city_counter[] = array(
-                                'city_id' => $_city_id,
-                                'cnt' => $_ads_city_count[ $_city_id ],
-                            );
-                    }
-                }
-                $this->template->content->set(array(
-                    'city_counter'=> $city_counter,
-                    'big_city_counter'=> $big_city_counter,
-                ));
             }
             else{
                 $ads->and_where('city_id','=',$city->id);
             }
         }
         elseif($city_alias == 'all'){
-            $title = $this->board_cfg['all_country'];
+            $title = $this->board_cfg['h1_prefix'] . $this->board_cfg['all_country'];
         }
 
         /*************************
@@ -135,12 +114,25 @@ class Controller_Board extends Controller_System_Page
             else{
                 $ads->and_where('category_id','=',$category->id);
             }
-            $title = $category->name .' '. ($city instanceof ORM ? $city->name : $this->board_cfg['in_country']);
+            $title = $this->board_cfg['h1_prefix'] . $category->name .' '. ($city instanceof ORM ? $city->name_of : $this->board_cfg['in_country']);
             $this->description = $category->getDescription() . (!empty($this->description) ? ' '.$this->description : '' );
         }
         else{
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array();
             $childs_categories_col = 5;
+        }
+
+        /*****************
+         * Подсчет объявлений в регионе
+         */
+        if(!$city instanceof ORM || !$city->parent_id){
+            $city_id = $city instanceof ORM ? $city->id : NULL;
+            $limit = $city instanceof ORM ? 100 : 10000;
+            $ads_count = Model_BoardCity::regionCounter($city_id, $limit);
+            $this->template->content->set(array(
+                'city_counter'=> $ads_count['all'],
+                'big_city_counter'=> $ads_count['big'],
+            ));
         }
 
         /*****************
@@ -167,6 +159,7 @@ class Controller_Board extends Controller_System_Page
                     $search->update();
                 }
             }
+            $title = " ".$_query;
         }
 
         /*****************
@@ -191,9 +184,9 @@ class Controller_Board extends Controller_System_Page
             $ad = ORM::factory('BoardAd', Arr::get($_GET, 'userfrom'));
             if($ad->loaded() && $ad->user_id){
                 $ads->and_where('user_id', '=', $ad->user_id);
+                $username = $ad->name;
+                $title = "Объявления пользователя ".$ad->name;
                 $this->template->content->set('search_by_user', true);
-                $title = 'Объявления пользователя '.$ad->name;
-                $this->title = 'Объявления пользователя '.$ad->name. ' - '. $this->config['view']['title'];
             }
         }
 
@@ -293,20 +286,36 @@ class Controller_Board extends Controller_System_Page
         $title_params = array(
             'page' => $pagination->current_page,
         );
-        if($city instanceof ORM)
+        if($city instanceof ORM){
             $title_params['region'] = $city->name;
-        else
+            $title_params['region_in'] = $city->name_in;
+            $title_params['region_of'] = $city->name_of;
+        }
+        else{
             $title_params['region'] = $this->board_cfg['country_name'];
+            $title_params['region_in'] = $this->board_cfg['all_country'];
+            $title_params['region_of'] = $this->board_cfg['all_country'];
+        }
         if($category instanceof ORM) {
             $title_type = 'category_title';
-            $title_params['category'] = $category->name;
+            $title_params['category'] = isset($main_filter) && is_array($main_filter) ? $main_filter['selected_name'] : $category->name;
             $title_params['cat_title'] = $category->title;
             $title_params['cat_descr'] = $category->description;
         }
         if(!is_null($city) && !is_null($category))
             $title_type = 'region_category_title';
+        if(isset($_query)){
+            $title_type = 'query_title';
+            $title_params['query'] = $_query;
+        }
+        if(isset($username)){
+            $title_type = 'user_search_title';
+            $title_params['username'] = $username;
+        }
         $this->title = $this->_generateMetaTitle($title_type, $title_params);
         $this->description = $this->_generateMetaDescription(str_replace('title', 'description', $title_type), $title_params);
+        $title = $this->_generateMetaTitle(str_replace('title', 'h1', $title_type), $title_params);
+        $subtitle = $this->_generateMetaTitle(str_replace('title', 'h2', $title_type), $title_params);
 
         /*****************
          * scripts / styles / widgets
@@ -336,6 +345,7 @@ class Controller_Board extends Controller_System_Page
             ));
         $this->template->content->set(array(
             'title' => $title,
+            'subtitle' => $subtitle,
             'city' => $city,
             'category' => $category,
             'childs_categories' => $childs_categories,
@@ -383,7 +393,7 @@ class Controller_Board extends Controller_System_Page
             $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
             foreach($category_parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri($city->alias));
-            $this->breadcrumbs->add($ad->getTitle(), FALSE);
+//            $this->breadcrumbs->add($ad->getTitle(), FALSE);
 
             /* Photos */
             $photos = $ad->photos->find_all();
@@ -394,7 +404,7 @@ class Controller_Board extends Controller_System_Page
             }
 
             /* Other user ads */
-            if($ad->user_id>0){
+            if(BoardConfig::instance()->user_ads_show && $ad->user_id>0){
                 $user_ads = Model_BoardAd::boardOrmFinder()
                     ->and_where('id', '<>', $ad->id)
                     ->limit($this->board_cfg['user_ads_limit']);
@@ -414,46 +424,35 @@ class Controller_Board extends Controller_System_Page
             }
 
             /* Similar ads */
-            $sim_ads = array();
-            $table = ORM::factory('BoardAd')->table_name();
-//            $sim_ads = DB::select($table.'.*')->from($table)
-//                ->select(array(DB::expr('round(MATCH (title) AGAINST ("'.mysql_real_escape_string($ad->title).'"))'), 'rel'))
-//                ->and_where('publish', '=', 1)
-//                ->and_where('category_id', '=', $ad->category_id)
-//                ->and_where('id', '<>', $ad->id)
-//                ->and_where('user_id', '<>', $ad->user_id)
-//                ->order_by('rel', 'DESC')
-//                ->limit(BoardConfig::instance()->similars_ads_limit)
-//                ->as_object(get_class(ORM::factory('BoardAd')))
-//                ->execute();
-
-            $sphinxql = new SphinxQL;
-            $query = $sphinxql->new_query()
-                ->add_index('sellmania_ads')
-                ->add_field('addtime')
-                ->search('"'.$ad->getTitle().'"/1')
-                ->where('category_id', (string) $ad->category_id)
-                ->where('@id', (string) $ad->id, '!=')
-                ->where('user_id', (string) $ad->user_id, '!=')
-                ->order('@weight', 'DESC')
-                ->order('addtime', 'DESC')
-                ->limit(BoardConfig::instance()->similars_ads_limit)
-                ->option('ranker', 'matchany')
-            ;
-            $sim_ads = $query->execute();
-
-            $sim_count = count($sim_ads);
-            if($sim_count && $sim_count >= BoardConfig::instance()->similars_ads_limit / 2){
-                foreach($sim_ads as $_ad)
-                    $sim_ads_ids[] = $_ad['id'];
-//                    $sim_ads_ids[] = $_ad->id;
-                if($sim_count < BoardConfig::instance()->similars_ads_limit)
-                    $sim_ads_ids = array_slice($sim_ads_ids, 0, BoardConfig::instance()->similars_ads_limit / 2);
-                $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads_ids)->and_where('publish', '=', 1)->find_all();
-                $this->template->content->set(array(
-                    'sim_ads' => $sim_ads,
-                    'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList($sim_ads_ids),
-                ));
+            if(BoardConfig::instance()->similars_ads_show){
+                $sphinxql = new SphinxQL;
+                $query = $sphinxql->new_query()
+                    ->add_index('sellmania_ads')
+                    ->add_field('addtime')
+                    ->add_field('photo_count>0', 'photos')
+                    ->search('"'.$ad->getTitle().'"/1')
+                    ->where('category_id', (string) $ad->category_id)
+                    ->where('@id', (string) $ad->id, '!=')
+                    ->where('user_id', (string) $ad->user_id, '!=')
+                    ->order('photos', 'DESC')
+                    ->order('@weight', 'DESC')
+                    ->order('addtime', 'DESC')
+                    ->limit(BoardConfig::instance()->similars_ads_limit)
+                    ->option('ranker', 'matchany')
+                ;
+                $sim_ads = $query->execute();
+                $sim_count = count($sim_ads);
+                if($sim_count && $sim_count >= BoardConfig::instance()->similars_ads_limit / 2){
+                    foreach($sim_ads as $_ad)
+                        $sim_ads_ids[] = $_ad['id'];
+                    if($sim_count < BoardConfig::instance()->similars_ads_limit)
+                        $sim_ads_ids = array_slice($sim_ads_ids, 0, BoardConfig::instance()->similars_ads_limit / 2);
+                    $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads_ids)->and_where('publish', '=', 1)->find_all();
+                    $this->template->content->set(array(
+                        'sim_ads' => $sim_ads,
+                        'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList($sim_ads_ids),
+                    ));
+                }
             }
 
             /* Filters */
@@ -489,15 +488,6 @@ class Controller_Board extends Controller_System_Page
 
                 $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/lightbox.min.js';
                 $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slidenav.almost-flat.min.css';
-
-//                $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/slider.min.js';
-//                $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slider.almost-flat.min.css';
-
-//                $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/slideshow.min.js';
-//                $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slideshow.almost-flat.min.css';
-
-//                $this->mobile_scripts[] = 'media/libs/uikit-2.24.3/js/components/slideset.min.js';
-//                $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slideset.almost-flat.min.css';
             }
             else{
                 $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
@@ -687,7 +677,7 @@ class Controller_Board extends Controller_System_Page
 
         /* Регионы и города */
         $regions = array(''=>"Выберите регион");
-        $regions += ORM::factory('BoardCity')->where('parent_id', '=', 0)->cached(Model_BoardCity::CITIES_CACHE_TIME)->find_all()->as_array('id','name');
+        $regions += ORM::factory('BoardCity')->where('parent_id', '=', 0)->order_by('name')->cached(Model_BoardCity::CITIES_CACHE_TIME)->find_all()->as_array('id','name');
         $cities = '';
         $city_id = Arr::get($_POST, 'city_id');
         if($ad->city_id > 0){

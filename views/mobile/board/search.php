@@ -1,5 +1,5 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
-<h1 class="uk-h2"><?echo !$search_by_user ? "Все объявления в ". $title : $title?></h1>
+<h1 class="uk-h2"><?echo $title?></h1>
 
 <?if(!$search_by_user):?>
 <?if(isset($city_counter)):?>

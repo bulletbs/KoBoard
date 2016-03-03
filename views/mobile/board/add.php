@@ -49,10 +49,10 @@
         <label id="trade_styler" class="uk-form-label uk-float-left uk-margin-left"><?php echo Form::hidden('trade', 0) ?><?php echo Form::checkbox('trade', 1, $model->trade==1) ?> <?php echo __('Trade')?></label>
     </div>
 
-    <div class="uk-form-row">
+    <?/*<div class="uk-form-row">
         <?php echo Form::label('type', 'Тип объявления', array('class'=>'uk-form-label'))?>
         <?php echo Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'uk-form-danger': ''), 'id'=>'eventType')) ?>
-    </div>
+    </div>*/?>
 
     <legend class="uk-margin-top">Фотографии</legend>
     <div class="uk-column-large-1-3 uk-column-medium-1-2 uk-column-small-1-1" id="photosInput">

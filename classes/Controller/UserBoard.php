@@ -7,6 +7,8 @@ class Controller_UserBoard extends Controller_User
 {
     public $auth_required = 'login';
 
+    public $company;
+
     public $skip_auto_content_apply = array(
         'enable',
         'remove',
@@ -20,6 +22,12 @@ class Controller_UserBoard extends Controller_User
         $this->uri = 'board/cabinet/'. $this->request->action();
         $this->styles[] = "assets/board/css/board.css";
         parent::before();
+
+        if(Auth::instance()->logged_in('company')){
+            $company = ORM::factory('CatalogCompany')->where('user_id', '=', $this->current_user->id)->find();
+            if($company->loaded())
+                $this->company = $company;
+        }
     }
 
 
@@ -70,6 +78,12 @@ class Controller_UserBoard extends Controller_User
             $ad->values($_POST);
             $ad->user_id = $this->current_user->id;
             $ad->email = $this->current_user->email;
+        // company data
+            if($this->company instanceof Model_CatalogCompany && $this->company->loaded()){
+                $ad->type = (int) Auth::instance()->logged_in('company');
+                $ad->company_id = $this->company->id;
+            }
+
             if(!$ad->loaded())
                 $ad->publish = 1;
 
@@ -83,28 +97,30 @@ class Controller_UserBoard extends Controller_User
                 $ad->save($validation);
 
                 $files = Arr::get($_FILES, 'photos', array('tmp_name' => array()));
-                /* Check for big photos */
+            /* Check for big photos */
                 if(in_array(UPLOAD_ERR_INI_SIZE, $files['error'])){
                     foreach($files['error'] as $_file_id=>$_error)
                         if($_error == UPLOAD_ERR_INI_SIZE){
                             Flash::warning(__('File :file too big to be uploaded (max=:max bytes)', array(':file'=>$files['name'][$_file_id], ':max'=>ini_get('upload_max_filesize'))));
                         }
                 }
-                /* Save photos */
+            //Save photos
                 foreach ($files['tmp_name'] as $k => $file) {
                     $ad->addPhoto($file);
                 }
-
-                /* Deleting photos */
+            //Deleting photos
                 $files = Arr::get($_POST, 'delphotos', array());
                 foreach ($files as $file_id)
                     $ad->deletePhoto($file_id);
-
-                /* Setting up main photo */
+            //Setting up main photo
                 $setmain = Arr::get($_POST, 'setmain');
                 $ad->setMainPhoto($setmain);
+            //FILTERS */
                 $filters = Arr::get($_POST, 'filters');
                 $ad->saveFilters($filters);
+            //Company categories
+                if($this->company instanceof Model_CatalogCompany && $this->company->loaded())
+                    Model_CatalogCompany::updateCompanyCategories($this->company->id);
 
                 Flash::success(__('Your ad successfully saved'));
                 $this->redirect(URL::site().Route::get('board_myads')->uri());
@@ -251,7 +267,6 @@ class Controller_UserBoard extends Controller_User
                 $errors = $e->errors('validation', TRUE);
                 Flash::error('- ' . implode("<br>- ", $errors));
             }
-
         }
         $this->redirect(URL::site().Route::get('board_myads')->uri());
     }

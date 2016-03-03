@@ -245,6 +245,41 @@ class Model_BoardCity extends ORM_MPTT{
     }
 
     /**
+     * Counts all ads in region cities
+     * Return double items array
+     * array(
+     *      'all' => ... all cities pairs city_id=>count,
+     *      'big' => ... only big cities pairs city_id=>count (> $big_limit)
+     * )
+     * @param null $region_id
+     * @param int $big_limit
+     * @return array
+     * @throws Kohana_Exception
+     */
+    public static function regionCounter($region_id = NULL, $big_limit = 100){
+        $regions = array();
+        if($region_id > 0)
+            $_ads_count = DB::select('city_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $region_id)->group_by('city_id')->order_by('cnt', 'DESC')->cached(Date::HOUR)->execute()->as_array('city_id', 'cnt');
+        else
+            $_ads_count = DB::select('pcity_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->group_by('pcity_id')->order_by('cnt', 'DESC')->cached(Date::DAY)->execute()->as_array('pcity_id', 'cnt');
+        $_childs = ORM::factory('BoardCity')->where('parent_id', '=', $region_id ? $region_id : 0)->order_by('name', 'ASC')->cached(Date::MONTH)->find_all()->as_array('id','name');
+        foreach($_childs as $_city_id=>$_city){
+            if(isset($_ads_count[ $_city_id ])){
+                $regions['all'][] = array(
+                    'city_id' => $_city_id,
+                    'cnt' => $_ads_count[ $_city_id ],
+                );
+                if($_ads_count[ $_city_id ] > $big_limit)
+                    $regions['big'][] = array(
+                        'city_id' => $_city_id,
+                        'cnt' => $_ads_count[ $_city_id ],
+                    );
+            }
+        }
+        return $regions;
+    }
+
+    /**
      * Добавить категорию
      * @param $cities
      * @param $row
@@ -282,8 +317,6 @@ class Model_BoardCity extends ORM_MPTT{
                 self::import_city($cities, $_row, $new->id);
         }
     }
-
-
 
     /**
      * Request module parts links array for sitemap generation

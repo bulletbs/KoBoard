@@ -47,8 +47,8 @@
             <div class="hspacer_10"></div>
         </div>
 
-        <?= Form::label('type', 'Тип объявления')?>
-        <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>
+        <?/*<?= Form::label('type', 'Тип объявления')?>
+        <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>*/?>
     </fieldset>
     <fieldset>
         <legend>Фотографии</legend>

@@ -75,13 +75,14 @@ class Controller_Board extends Controller_System_Page
         if($city_alias && $city_alias!= 'all'){
             if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
-            $city = ORM::factory('BoardCity', $city);
+            $city = ORM::factory('BoardCity', $city)->fillNames();
             $title = $this->board_cfg['h1_prefix'] . $city->name_in;
             $this->description = $city->name_in;
             $parents = $city->parents()->as_array('id');
             foreach($parents as $_parent)
-                $this->breadcrumbs->add($_parent->name, $_parent->getUri());
-            $this->breadcrumbs->add($city->name, $city->getUri());
+                    $this->breadcrumbs->add($_parent->name, $_parent->getUri());
+            if(BoardConfig::instance()->breadcrumbs_region_title)
+                $this->breadcrumbs->add($city->name, $city->getUri());
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
             }
@@ -101,11 +102,14 @@ class Controller_Board extends Controller_System_Page
         if($category_alias){
             if(FALSE === ($category = Model_BoardCategory::getAliases($category_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
+            if(!BoardConfig::instance()->breadcrumbs_region_title && $city instanceof ORM)
+                $this->breadcrumbs->add($city->name, $city->getUri());
             $category = ORM::factory('BoardCategory', $category);
             $parents = $category->parents()->as_array('id');
             foreach($parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri($city_alias));
-            $this->breadcrumbs->add($category->name, $category->getUri($city_alias));
+            if(BoardConfig::instance()->breadcrumbs_category_title)
+                $this->breadcrumbs->add($category->name, $category->getUri($city_alias));
             $childs_categories = ORM::factory('BoardCategory')->where('parent_id','=',$category->id)->order_by('name', 'ASC')->find_all()->as_array();
             $childs_categories_col = 4;
             if(!$category->parent_id){
@@ -119,16 +123,30 @@ class Controller_Board extends Controller_System_Page
         }
         else{
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array();
-            $childs_categories_col = 5;
+            $childs_categories_col = 4;
         }
+
+        /*****************
+         * Подсчет объявлений в категории
+         */
+        if(!$category instanceof ORM || !$category->parent_id){
+            $category_id = $category instanceof ORM ? $category->id : NULL;
+            $city_id = $city instanceof ORM ? $city->id : NULL;
+            $counter = Model_BoardCategory::categoryCounter($category_id, $city_id);
+            $this->template->content->set(array(
+                'category_counter'=> $counter,
+            ));
+        }
+
 
         /*****************
          * Подсчет объявлений в регионе
          */
         if(!$city instanceof ORM || !$city->parent_id){
             $city_id = $city instanceof ORM ? $city->id : NULL;
+            $category_id = $category instanceof ORM ? $category->id : NULL;
             $limit = $city instanceof ORM ? 100 : 10000;
-            $ads_count = Model_BoardCity::regionCounter($city_id, $limit);
+            $ads_count = Model_BoardCity::regionCounter($city_id, $category_id, $limit);
             $this->template->content->set(array(
                 'city_counter'=> $ads_count['all'],
                 'big_city_counter'=> $ads_count['big'],
@@ -298,7 +316,7 @@ class Controller_Board extends Controller_System_Page
         }
         if($category instanceof ORM) {
             $title_type = 'category_title';
-            $title_params['category'] = isset($main_filter) && is_array($main_filter) ? $main_filter['selected_name'] : $category->name;
+            $title_params['category'] = isset($main_filter) && Arr::get($main_filter, 'selected_name', FALSE) ? $main_filter['selected_name'] : $category->name;
             $title_params['cat_title'] = $category->title;
             $title_params['cat_descr'] = $category->description;
         }
@@ -393,7 +411,8 @@ class Controller_Board extends Controller_System_Page
             $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
             foreach($category_parents as $_parent)
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri($city->alias));
-//            $this->breadcrumbs->add($ad->getTitle(), FALSE);
+            if(BoardConfig::instance()->breadcrumbs_ad_title)
+                $this->breadcrumbs->add($ad->getTitle(), FALSE);
 
             /* Photos */
             $photos = $ad->photos->find_all();
@@ -501,16 +520,18 @@ class Controller_Board extends Controller_System_Page
             }
 
             /* Bottom breadcrumbs */
+            $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
             $breadcrumbs = clone $this->breadcrumbs;
             $breadcrumbs->setOption('addon_class', 'bread_crumbs_message');
 
             $this->template->search_form = Widget::factory('BoardSearch')->render();
+            $region_counts = Model_BoardCity::regionCounter($region->id, $ad->category_id, 100);
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,
                 'filters' => $filters,
                 'price_template' => BoardConfig::instance()->priceTemplate($ad->price_unit),
-                'region_cities_ids' => $region->getChildrenId(),
+                'region_cities_counts' => $region_counts['all'],
                 'city' => $city,
                 'region' => $region,
                 'is_job_category' => in_array($ad->category_id, Model_BoardCategory::getJobIds()),

@@ -74,7 +74,7 @@ $(document).ready(function(){
             content = content.replace('PARENT_ID', $(this).data('id'));
         $(this).before(content);
     });
-    $(optionsWrapper).on('click', '.del', function(){
+    $(optionsList).on('click', '.del', function(){
         var id = $(this).data('id');
         if(id)
             deletedList.append(deletedOptionHtml.replace('optionKey', id));

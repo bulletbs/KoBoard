@@ -1,5 +1,5 @@
 <?php defined('SYSPATH') or die('No direct script access.');?>
-
+<!--noindex-->
 <div class="board_search_form">
 <?php echo Form::open($form_action, array('id'=>'boardTopForm', 'method'=>'get'))?>
     <div id="queryInput" class="selector">
@@ -49,3 +49,4 @@
     <div class="clear"></div>
 <?php echo Form::close()?>
 </div>
+<!--/noindex-->

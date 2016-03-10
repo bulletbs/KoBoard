@@ -251,29 +251,30 @@ class Model_BoardCity extends ORM_MPTT{
      *      'all' => ... all cities pairs city_id=>count,
      *      'big' => ... only big cities pairs city_id=>count (> $big_limit)
      * )
-     * @param null $region_id
+     * @param int|null $region_id
+     * @param int|null $category_id
      * @param int $big_limit
      * @return array
      * @throws Kohana_Exception
      */
-    public static function regionCounter($region_id = NULL, $big_limit = 100){
-        $regions = array();
+    public static function regionCounter($region_id=NULL, $category_id=NULL, $big_limit = 100){
+        $regions = array(
+            'big' => array(),
+            'all' => array(),
+        );
         if($region_id > 0)
-            $_ads_count = DB::select('city_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $region_id)->group_by('city_id')->order_by('cnt', 'DESC')->cached(Date::HOUR)->execute()->as_array('city_id', 'cnt');
+            $sql = DB::select(array('city_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $region_id);
         else
-            $_ads_count = DB::select('pcity_id', array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->group_by('pcity_id')->order_by('cnt', 'DESC')->cached(Date::DAY)->execute()->as_array('pcity_id', 'cnt');
+            $sql = DB::select(array('pcity_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() );
+        if($category_id)
+            $sql->and_where((Model_BoardCategory::getField('parent_id', $category_id) ? '' : 'p') . 'category_id', '=', $category_id);
+        $_ads_count = $sql->group_by('cit_id')->order_by('cnt', 'DESC')->cached(Date::HOUR)->execute()->as_array('cit_id', 'cnt');
         $_childs = ORM::factory('BoardCity')->where('parent_id', '=', $region_id ? $region_id : 0)->order_by('name', 'ASC')->cached(Date::MONTH)->find_all()->as_array('id','name');
         foreach($_childs as $_city_id=>$_city){
             if(isset($_ads_count[ $_city_id ])){
-                $regions['all'][] = array(
-                    'city_id' => $_city_id,
-                    'cnt' => $_ads_count[ $_city_id ],
-                );
+                $regions['all'][$_city_id] = $_ads_count[ $_city_id ];
                 if($_ads_count[ $_city_id ] > $big_limit)
-                    $regions['big'][] = array(
-                        'city_id' => $_city_id,
-                        'cnt' => $_ads_count[ $_city_id ],
-                    );
+                    $regions['big'][$_city_id] = $_ads_count[ $_city_id ];
             }
         }
         return $regions;
@@ -328,5 +329,17 @@ class Model_BoardCity extends ORM_MPTT{
         foreach($regions as $region)
             $links[] = $region->getUri();
         return $links;
+    }
+
+    /**
+     * Fill other model names if empty
+     * @return $this
+     */
+    public function fillNames(){
+        if(empty($this->name_in))
+            $this->name_in = $this->name;
+        if(empty($this->name_of))
+            $this->name_of = $this->name;
+        return $this;
     }
 }

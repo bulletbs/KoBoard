@@ -321,6 +321,30 @@ class Model_BoardCategory extends ORM_MPTT{
     }
 
     /**
+     * Counts all ads in categories
+     * Return counts array
+     * array(
+     *      city_id=>count,
+     *      ...
+     *      city_id=>count,
+     * )
+     * @param int|null $category_id
+     * @param int|null $city_id
+     * @return array
+     * @throws Kohana_Exception
+     */
+    public static function categoryCounter($category_id = NULL, $city_id=NULL){
+        if($category_id > 0)
+            $sql = DB::select(array('category_id','cat_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcategory_id', '=', $category_id);
+        else
+            $sql = DB::select(array('pcategory_id', 'cat_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() );
+        if($city_id)
+            $sql->and_where( (Model_BoardCity::getField('parent_id', $city_id) ? '' : 'p') .'city_id', '=', $city_id);
+        $sql->group_by('cat_id')->order_by('cnt', 'DESC')->cached(Date::HOUR);
+        return $sql->execute()->as_array('cat_id', 'cnt');
+    }
+
+    /**
      * Добавить категорию
      * @param $categories
      * @param $row

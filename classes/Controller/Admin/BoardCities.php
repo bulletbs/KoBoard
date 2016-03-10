@@ -110,18 +110,30 @@ class Controller_Admin_BoardCities extends Controller_Admin_Crud{
         /* Save Present Options */
 //        echo Debug::vars($_POST);
         $present_options = Arr::get($_POST,'options', array());
+        $options_in = Arr::get($_POST,'options_in', array());
+        $options_of = Arr::get($_POST,'options_of', array());
         foreach($present_options as $k=>$option){
-            $option = ORM::factory('BoardCity', $k)->values(array('name'=>$option));
+            $option = ORM::factory('BoardCity', $k)->values(array(
+                'name'=>$option,
+                'name_in'=>Arr::get($options_in, $k, NULL),
+                'name_of'=>Arr::get($options_of, $k, NULL),
+            ));
             if(empty($option->alias))
                 $option->alias = Text::transliterate($option->name, true);
             $option->update();
         }
 
         /* Save New Options */
-        foreach(Arr::get($_POST,'newOptions', array()) as $option){
+        $options_in = Arr::get($_POST,'newOptions_in', array());
+        $options_of = Arr::get($_POST,'newOptions_of', array());
+        foreach(Arr::get($_POST,'newOptions', array()) as $k=>$option){
             $option = trim($option);
             if(!empty($option) && !in_array($option, $present_options)){
-                $newOption = ORM::factory('BoardCity')->values(array('name'=>$option));
+                $newOption = ORM::factory('BoardCity')->values(array(
+                    'name'=>$option,
+                    'name_in'=>Arr::get($options_in, $k, NULL),
+                    'name_of'=>Arr::get($options_of, $k, NULL),
+                ));
                 $newOption->alias = Text::transliterate($newOption->name, true);
                 $newOption->insert_as_last_child($model);
             }

@@ -470,6 +470,11 @@ table.tableccat tr:nth-child(2n) td {
     font-size: 13px;
     padding-right: 5px;
 }
+    .message h1{
+        font-size: 36px;
+        font-weight: normal;
+        padding-bottom: 3px;
+    }
     .message a.active{
         border: 1px dashed #9a9a9a;
     }
@@ -579,6 +584,11 @@ table.tableccat tr:nth-child(2n) td {
     .seeAlso li a{
         font-weight: bold;
         font-size: 11px;
+    }
+    .seeAlso li span{
+        font-size: 11px;
+        color: #555;
+        padding-left: 5px;
     }
 .note-block {
     background-color: #EEEFEF;

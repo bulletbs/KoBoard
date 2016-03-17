@@ -105,7 +105,7 @@ return array(
     'All user ads' => 'Все объявления пользователя',
 
 /* BOARD SEARCH */
-    'Advanced search' => 'Расширенный поиск',
+    'Advanced search' => 'Показать параметры поиска',
     'From' => 'от',
     'To' => 'до',
     'Any' => 'Все',

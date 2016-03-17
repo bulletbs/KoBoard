@@ -468,7 +468,6 @@ table.tableccat tr:nth-child(2n) td {
 }
 .message{
     font-size: 13px;
-    padding-right: 5px;
 }
     .message h1{
         font-size: 36px;
@@ -778,8 +777,16 @@ table.tableccat tr:nth-child(2n) td {
     .board_search_form .advancedSearch{
         float: right;
     }
+    .board_search_form .advancedSearch .fa{
+        color: #008cc3;
+        display: block;
+        float: left;
+        font-size: 16px;
+        margin: 2px 0 0 2px;
+    }
     .board_search_form .advancedSearch a{
         display: block;
+        float: left;
         padding-top: 5px;
         cursor: pointer;
     }

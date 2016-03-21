@@ -6,6 +6,9 @@
  */
 class Controller_Admin_BoardModerateSw extends Controller_Admin_BoardModerate{
 
+    const NOT_MODERATED = 1;
+    const IS_MODERATED = 0;
+
     public $moderate_field = 'stopword';
 
     /**
@@ -57,16 +60,5 @@ class Controller_Admin_BoardModerateSw extends Controller_Admin_BoardModerate{
             ->set('item_name',$this->_item_name)
             ->set('labels',$this->_getModelLabels())
         ;
-    }
-
-    /**
-     * Check all not moderated comments as moderated
-     * @return int
-     */
-    protected function _setAllModerated(){
-        $query = DB::update(ORM::factory($this->model_name)->table_name())->set(array($this->moderate_field=>0))->where($this->moderate_field, '=', 1);
-//        echo $query;
-//        die();
-        return $query->execute();
     }
 }

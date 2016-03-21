@@ -50,6 +50,7 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
         $route_params = array(
             'controller'=>lcfirst($this->request->controller()),
             'id'=>NULL,
+            'action'=>NULL,
         );
         $this->_user_uri = 'admin/users';
         $this->_crud_uri = 'admin/board';
@@ -179,7 +180,7 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
      * @return int
      */
     protected function _setAllModerated(){
-        return DB::update(ORM::factory($this->model_name)->table_name())->set(array($this->moderate_field=>1))->where($this->moderate_field, '=', self::NOT_MODERATED)->execute();
+        return DB::update(ORM::factory($this->model_name)->table_name())->set(array($this->moderate_field=>static::IS_MODERATED))->where($this->moderate_field, '=', static::NOT_MODERATED)->execute();
     }
 
     /**
@@ -188,7 +189,8 @@ class Controller_Admin_BoardModerate extends Controller_System_Admin{
      * @return object
      */
     protected function _setModerated(Array $ids){
-        return DB::update(ORM::factory($this->model_name)->table_name())->set(array($this->moderate_field=>1))->where($this->moderate_field, '=', self::NOT_MODERATED)->and_where('id','IN',$ids)->execute();
+        $sql = DB::update(ORM::factory($this->model_name)->table_name())->set(array($this->moderate_field=>static::IS_MODERATED))->where($this->moderate_field, '=', static::NOT_MODERATED)->and_where('id','IN',$ids);
+        return $sql->execute();
     }
 
     /**

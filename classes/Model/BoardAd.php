@@ -67,7 +67,7 @@ class Model_BoardAd extends ORM{
             'description' => array(
                 array('not_empty'),
                 array(array($this, 'checkStopWords'), array(':validation', ':field')),
-                array('max_length', array('value:',1024)),
+                array('max_length', array(':value',1024)),
                 array(array($this, 'setModerate'), array(':field')),
             ),
             'price' => array(

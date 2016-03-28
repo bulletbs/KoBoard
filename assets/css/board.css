@@ -3,6 +3,66 @@
     margin: 0 auto;
     display: block;
 }
+.mainPageCategories{
+    text-align: center;
+}
+    .mainPageCategories li{
+        display: inline;
+        list-style: none;
+        text-align: left;
+    }
+    .mainPageCategories a{
+        padding: 22px 0 0 65px;
+        display: inline-block;
+        width: 130px;
+        height: 45px;
+        background-repeat: no-repeat;
+        color: #ff6800;
+        text-transform: uppercase;
+        text-decoration: none;
+        font-family: Tahoma, Arial;
+        font-size: 12px;
+    }
+    .mainPageCategories a:hover{
+        text-decoration: underline;
+    }
+    .mainPageCategories a.cat_icon1{
+        background-image: url("images/icon1.png");
+    }
+    .mainPageCategories a.cat_icon2{
+        background-image: url("images/icon2.png");
+    }
+    .mainPageCategories a.cat_icon3{
+        background-image: url("images/icon3.png");
+    }
+    .mainPageCategories a.cat_icon4{
+        background-image: url("images/icon4.png");
+    }
+    .mainPageCategories a.cat_icon5{
+        background-image: url("images/icon5.png");
+    }
+    .mainPageCategories a.cat_icon6{
+        background-image: url("images/icon6.png");
+    }
+    .mainPageCategories a.cat_icon7{
+        background-image: url("images/icon7.png");
+    }
+    .mainPageCategories a.cat_icon8{
+        background-image: url("images/icon8.png");
+    }
+    .mainPageCategories a.cat_icon9{
+        background-image: url("images/icon9.png");
+    }
+    .mainPageCategories a.cat_icon10{
+        background-image: url("images/icon10.png");
+    }
+    .mainPageCategories a.cat_icon11{
+        background-image: url("images/icon11.png");
+        width: 160px;
+    }
+    .mainPageCategories a.cat_icon12{
+        background-image: url("images/icon12.png");
+    }
 .categoryList{}
     .categoryList h3{
         margin: 10px 0 5px;

@@ -145,7 +145,7 @@ class Controller_Board extends Controller_System_Page
         if(!$city instanceof ORM || !$city->parent_id){
             $city_id = $city instanceof ORM ? $city->id : NULL;
             $category_id = $category instanceof ORM ? $category->id : NULL;
-            $limit = $city instanceof ORM ? 100 : 10000;
+            $limit = $city instanceof ORM ? 100 : 500;
             $ads_count = Model_BoardCity::regionCounter($city_id, $category_id, $limit);
             $this->template->content->set(array(
                 'city_counter'=> $ads_count['all'],

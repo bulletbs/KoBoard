@@ -385,10 +385,12 @@ class Model_BoardAd extends ORM{
 
     /**
      * Generate short description for AD brief
-     * @return mixed|string
+     * @param int $strlen
+     * @return string
      */
-    public function getShortDescr(){
-        $descr = mb_strlen($this->description)>150 ? mb_substr($this->description, 0, 150, 'UTF-8').'...' : $this->description;
+    public function getShortDescr($strlen = 150){
+        $descr = mb_strlen($this->description)>$strlen ? mb_substr($this->description, 0, $strlen, 'UTF-8').'...' : $this->description;
+        $descr = strip_tags($descr);
         $descr = htmlspecialchars($descr);
         return  Text::stripNL($descr);
     }

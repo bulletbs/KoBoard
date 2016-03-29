@@ -4,63 +4,63 @@
     display: block;
 }
 .mainPageCategories{
-    text-align: center;
 }
     .mainPageCategories li{
-        display: inline;
+        width: 165px;
+        height: 75px;
+        display: block;
+        float: left;
         list-style: none;
         text-align: left;
     }
     .mainPageCategories a{
-        padding: 22px 0 0 65px;
-        display: inline-block;
-        width: 130px;
-        height: 45px;
-        background-repeat: no-repeat;
         color: #ff6800;
-        text-transform: uppercase;
         text-decoration: none;
         font-family: Tahoma, Arial;
-        font-size: 12px;
+        font-size: 13px;
+        display: block;
+        width: 100px;
+        height: 57px;
+        background-repeat: no-repeat;
+        padding: 20px 0 0 60px;
     }
     .mainPageCategories a:hover{
         text-decoration: underline;
     }
-    .mainPageCategories a.cat_icon1{
+    .mainPageCategories .cat_icon1{
         background-image: url("images/icon1.png");
     }
-    .mainPageCategories a.cat_icon2{
+    .mainPageCategories .cat_icon2{
         background-image: url("images/icon2.png");
     }
-    .mainPageCategories a.cat_icon3{
+    .mainPageCategories .cat_icon3{
         background-image: url("images/icon3.png");
     }
-    .mainPageCategories a.cat_icon4{
+    .mainPageCategories .cat_icon4{
         background-image: url("images/icon4.png");
     }
-    .mainPageCategories a.cat_icon5{
+    .mainPageCategories .cat_icon5{
         background-image: url("images/icon5.png");
     }
-    .mainPageCategories a.cat_icon6{
+    .mainPageCategories .cat_icon6{
         background-image: url("images/icon6.png");
     }
-    .mainPageCategories a.cat_icon7{
+    .mainPageCategories .cat_icon7{
         background-image: url("images/icon7.png");
     }
-    .mainPageCategories a.cat_icon8{
+    .mainPageCategories .cat_icon8{
         background-image: url("images/icon8.png");
     }
-    .mainPageCategories a.cat_icon9{
+    .mainPageCategories .cat_icon9{
         background-image: url("images/icon9.png");
     }
-    .mainPageCategories a.cat_icon10{
+    .mainPageCategories .cat_icon10{
         background-image: url("images/icon10.png");
     }
-    .mainPageCategories a.cat_icon11{
+    .mainPageCategories .cat_icon11{
         background-image: url("images/icon11.png");
-        width: 160px;
     }
-    .mainPageCategories a.cat_icon12{
+    .mainPageCategories .cat_icon12{
         background-image: url("images/icon12.png");
     }
 .categoryList{}
@@ -491,14 +491,20 @@ table.tableccat tr:nth-child(2n) td {
     }
 
     .list_price{
-      /*   color: #FF6600; */
+           color: #777777;
         font-family: "Verdana",Arial,Helvetica,sans-serif;
       /*   padding-top: 40px; */
       /*   width: 100px; */
       /*   font-size: 14px; */
-      /*   font-weight: bold; */
+           font-weight: bold;
       /*   text-align: right; */
     }
+    .list_desk{
+           font-family: "Verdana",Arial,Helvetica,sans-serif;
+           padding-top: 5px;
+           padding-bottom: 5px;
+    }
+
     .list_box{
         width: 100px;
         text-align: center;

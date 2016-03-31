@@ -548,10 +548,17 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_add()
     {
+        /* Добавление временно закрыто */
         if($this->board_cfg['addnew_suspend']){
             $this->template->content = View::factory('board/add_suspended');
             return;
         }
+
+        /* Добавление для зарегистрированых проводить через личный кабинет */
+        if(Auth::instance()->logged_in('login')){
+            $this->redirect( Route::get('board_myads')->uri(array('action'=>'edit')) );
+        }
+
         $user = $this->current_user;
         if(isset($_POST['cancel']))
             $this->go('/');
@@ -570,7 +577,7 @@ class Controller_Board extends Controller_System_Page
                 $validation = Validation::factory($_POST)->rules('termagree', array(
                     array('Model_BoardAd::checkAgree', array(':value', ':validation', ':field'))
                 ));
-                if(!$this->logged_in){
+                if(!$this->logged_in || Model_BoardAd::checkFrequentlyAdded()){
                     $validation
                         ->rules('captcha', array(
                             array('not_empty'),
@@ -597,6 +604,8 @@ class Controller_Board extends Controller_System_Page
                         $user->load_roles();
                         if($user->has_role('banned'))
                             throw new Kohana_HTTP_Exception_403(__('Your account is banned'));
+                        if($user->has_role('company'))
+                            throw new Kohana_HTTP_Exception_403(__('Companies can add ads only from private cabinet'));
                     }
                     $ad->publish = 0;
                     $ad->key = md5($ad->title . time());
@@ -669,9 +678,7 @@ class Controller_Board extends Controller_System_Page
                     $errors = array_merge( $errors, $ad->validateData($this->request->post()) );
             }
             catch(Kohana_HTTP_Exception_403 $e){
-                $errors = $e->errors('', TRUE);
-                /* Валидация полей объявления */
-                $errors = array_merge( $errors, $ad->validateData($this->request->post()) );
+                $errors[] = $e->getMessage();
             }
         }
         else{

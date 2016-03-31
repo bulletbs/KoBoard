@@ -1,12 +1,12 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
 <h1>Подать бесплатное объявление на Doreno</h1>
 <br />
-<p style="background-color: #fffacc; padding:10px;">
-<b>Внимание!</b>
-<br> Запрещено подавать объявления с одинаковыми (похожими) заголовками, содержимым и фотографиями.<br />
-Запрещено использовать в тексте и в заголовке объявления ЗАГЛАВНЫЕ буквы.<br />
-<b>Подобные объявления будут удаляться без предупреждения пользователя.</b><br />
-С полными правилами вы можете ознакомиться <a title="Правила" href="http://doreno.ru/page/terms"><b>тут</b></a>.
+<p class="pure-alert pure-alert-warning">
+    <b>Внимание!</b>
+    <br> Запрещено подавать объявления с одинаковыми (похожими) заголовками, содержимым и фотографиями.<br />
+    Запрещено использовать в тексте и в заголовке объявления ЗАГЛАВНЫЕ буквы.<br />
+    <b>Подобные объявления будут удаляться без предупреждения пользователя.</b><br />
+    С полными правилами вы можете ознакомиться <a title="Правила" target="_blank" href="http://zxcc.ru/page/terms"><b>здесь</b></a>.
 </p>
 
 <?=Form::open('', array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'addForm'))?>
@@ -105,7 +105,7 @@
         <?= Form::input('address', Arr::get($_POST,'address', $logged ? $user->profile->address : NULL) , array('class'=>'poshytip' . (isset($errors['address']) ? ' error-input': ''), 'id'=>'addressInput')) ?>
         <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
 
-        <?if(!Auth::instance()->logged_in()):?>
+        <?if(!Auth::instance()->logged_in('login') || Model_BoardAd::checkFrequentlyAdded()):?>
             <Br><?php echo Captcha::instance() ?>
             <?= Form::label('captcha', __('Enter captcha code')) ?>
             <?php echo Form::input('captcha', NULL, array('id' => 'captcha-key'))?>

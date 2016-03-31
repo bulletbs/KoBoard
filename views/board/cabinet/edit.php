@@ -1,14 +1,14 @@
 <?php defined('SYSPATH') or die('No direct script access.');?>
-<h1><?php echo __('Ad edit')?></h1>
+<h1><?php echo $model->loaded() ? __('Ad edit') : __('Add ad') ?></h1>
 <?if(!$model->loaded()):?>
-<br />
-<p style="background-color: #fffacc; padding:10px;">
+<p class="pure-alert pure-alert-warning">
     <b>Внимание!</b>
     <br> Запрещено подавать объявления с одинаковыми (похожими) заголовками, содержимым и фотографиями.<br />
     Запрещено использовать в тексте и в заголовке объявления ЗАГЛАВНЫЕ буквы.<br />
     <b>Подобные объявления будут удаляться без предупреждения пользователя.</b><br />
-    С полными правилами вы можете ознакомиться <a title="Правила" href="http://zxcc.ru/page/terms"><b>тут</b></a>.
+    С полными правилами вы можете ознакомиться <a title="Правила" target="_blank" href="http://zxcc.ru/page/terms"><b>здесь</b></a>.
 </p>
+<?if(Auth::instance()->logged_in('company')):?><div class="pure-alert">Для магазинов, <b>все новые объявления автоматически получают тип "Бизнес"</b> и привязываются к вашему магазину.</div><?endif;?>
 <?endif?>
 <?=Form::open('', array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'addForm'))?>
 <?if(isset($errors)) echo View::factory('error/validation', array('errors'=>$errors))->render()?>
@@ -101,12 +101,18 @@
 
         <?= Form::label('city_id', 'Регион')?>
         <?= Form::hidden('city_id', Arr::get($_POST,'city_id', $model->city_id) , array('id'=>'city_id')) ?>
-        <?= Form::select('region', $regions, Arr::get($_POST,'region', $model->pcity_id), array(isset($errors['city_id']) ? 'error-input': '', 'id'=>'region'))?>
+        <?= Form::select('region', $regions, Arr::get($_POST,'region', $model->pcity_id), array('class'=>isset($errors['city_id']) ? 'error-input': '', 'id'=>'region'))?>
         <span id="subRegion"><?= $cities ?></span>
 
         <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>
         <?= Form::input('address', Arr::get($_POST,'address', $model->address), array('id'=>'addressInput', 'class'=>'poshytip')) ?>
         <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
+
+        <?if(!$model->loaded() && Model_BoardAd::checkFrequentlyAdded()):?>
+            <Br><?php echo Captcha::instance() ?>
+            <?= Form::label('captcha', __('Enter captcha code')) ?>
+            <?php echo Form::input('captcha', NULL, array('class'=>isset($errors['_external']['captcha']) ? 'error-input': '', 'id' => 'captcha-key'))?>
+        <?endif?>
         <br><br>
         <?=Form::submit('update', __('Save ad'), array('class' => 'pure-button pure-button-primary left'));  ?>
         <?if(!$model->loaded()):?><?= Form::label('termagree', Form::checkbox('termagree', 1, TRUE) . HTML::anchor('/page/terms', __('You\'ve agreed with terms and conditions of ads publication'), array('target'=>'_blank')), array('class'=>'left')) ?><?endif?>

@@ -18,6 +18,8 @@ class Model_BoardAd extends ORM{
         'Vacancy',
     );
 
+    public static $lastAdded;
+
     public $stopwords = 0;
 
     protected $_uriToMe;
@@ -707,6 +709,26 @@ class Model_BoardAd extends ORM{
     public static function checkAgree($value, Validation $validation, $field){
         if(is_null($value))
             $validation->error($field, 'termagree');
+    }
+
+    /**
+     * Checks if user has added last ad less than $seconds seconds
+     * @param int $seconds
+     * @return bool
+     */
+    public static function checkFrequentlyAdded($seconds = 600){
+        if(!Auth::instance()->logged_in('login'))
+            return false;
+        if(is_null(self::$lastAdded)){
+            $db = DB::select('addtime')->from('ads')
+                ->where('user_id', '=', Auth::instance()->get_user()->id)
+                ->execute();
+            self::$lastAdded = $db[0]['addtime'];
+        }
+
+        if(self::$lastAdded>0  && time()-self::$lastAdded < $seconds)
+            return true;
+        return false;
     }
 
     /**

@@ -6,8 +6,9 @@
     <br> Запрещено подавать объявления с одинаковыми (похожими) заголовками, содержимым и фотографиями.<br />
     Запрещено использовать в тексте и в заголовке объявления ЗАГЛАВНЫЕ буквы.<br />
     <b>Подобные объявления будут удаляться без предупреждения пользователя.</b><br />
-    С полными правилами вы можете ознакомиться <a title="Правила" href="http://doreno.ru/page/terms"><b>тут</b></a>.
+    С полными правилами вы можете ознакомиться <a title="Правила" target="_blank" href="http://zxcc.ru/page/terms"><b>здесь</b></a>.
 </p>
+    <?if(Auth::instance()->logged_in('company')):?><div class="uk-alert">После регистрации магазина <b>все новые объявления автоматически получают тип "Бизнес"</b> и привязываются к вашему магазину.</div><?endif;?>
 <?endif?>
 <?=Form::open('', array('class' => 'uk-form  uk-form-stacked', 'enctype' => 'multipart/form-data','id'=>'addForm'))?>
 <?if(isset($errors)) echo View::factory('mobile/error/validation', array('errors'=>$errors))->render()?>
@@ -116,6 +117,13 @@
         <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
     </div>
 
+    <?if(!$model->loaded() && Model_BoardAd::checkFrequentlyAdded()):?>
+        <div class="uk-form-row">
+            <Br><?php echo Captcha::instance() ?>
+            <?php echo Form::label('captcha', __('Enter captcha code'), array('class'=>'uk-form-label')) ?>
+            <?php echo Form::input('captcha', NULL, array('id' => 'captcha-key'))?>
+        </div>
+    <?endif?>
     <div class="uk-margin">
         <?if(!$model->loaded()):?><?= Form::label('termagree', Form::checkbox('termagree', 1, TRUE) . HTML::anchor('/page/terms', __('You\'ve agreed with terms and conditions of ads publication'), array('target'=>'_blank')), array('class'=>'left')) ?><?endif?>
     </div>

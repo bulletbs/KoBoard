@@ -94,6 +94,17 @@ class Controller_UserBoard extends Controller_User
                         ->rules('termagree', array(
                             array('Model_BoardAd::checkAgree', array(':value', ':validation', ':field'))
                         ));
+
+                if(!$ad->loaded() && Model_BoardAd::checkFrequentlyAdded()){
+                    $validation
+                        ->rules('captcha', array(
+                            array('not_empty'),
+                            array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
+                        ))
+                        ->labels(array(
+                            'captcha' => __('Enter captcha code'),
+                        ));
+                }
                 $ad->save($validation);
 
                 $files = Arr::get($_FILES, 'photos', array('tmp_name' => array()));
@@ -218,6 +229,8 @@ class Controller_UserBoard extends Controller_User
             try{
                 $model->flipStatus();
                 Flash::success(__('Your ad successfully turned '. (!$model->publish ? 'off' : 'on')));
+                if($this->company instanceof Model_CatalogCompany && $this->company->loaded())
+                    Model_CatalogCompany::updateCompanyCategories($this->company->id);
             }
             catch(ORM_Validation_Exception $e){
                 $errors = $e->errors('validation', TRUE);
@@ -241,8 +254,9 @@ class Controller_UserBoard extends Controller_User
         else{
             $model->delete();
             Flash::success(__('Your ad has been removed'));
+            if($this->company instanceof Model_CatalogCompany && $this->company->loaded())
+                Model_CatalogCompany::updateCompanyCategories($this->company->id);
             $this->redirect(URL::site().Route::get('board_myads')->uri());
-
         }
     }
 

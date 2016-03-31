@@ -8,6 +8,7 @@ return array(
     'Select city' => 'Выберите город',
 
     'Ads creation temporarily suspended' => 'Создание объявлений временно отключено',
+    'Companies can add ads only from private cabinet' => 'Добавление объявлений магазинами доступно только из личного кабинета.',
 
     'New classified ad confirmation' => 'Подтвреждение публикации объявления',
     'Old classified out of date' => 'Ваше объявление устарело',

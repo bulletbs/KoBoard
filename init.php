@@ -1,9 +1,9 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 if(!Route::cache()){
-    if(!is_file('base_uri.cfg'))
-        throw new Exception('Cannot find file base_uri.cfg');
-    $board_base_url = file_get_contents('base_uri.cfg');
+    if(!is_file(__DIR__ . '/base_uri.cfg'))
+        throw new Exception('Cannot find file '.__DIR__ .'/base_uri.cfg');
+    $board_base_url = file_get_contents(__DIR__ . '/base_uri.cfg');
     $_init_actions = array(
         'main',
         'add',

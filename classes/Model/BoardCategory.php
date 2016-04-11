@@ -12,7 +12,7 @@ class Model_BoardCategory extends ORM_MPTT{
     CONST PARENTS_CACHE = 'boardCategoryParents_';
     CONST CHILDREN_CACHE = 'boardCategoryChilds_';
 
-    CONST CATEGORIES_CACHE_TIME = 86400;
+    CONST CATEGORIES_CACHE_TIME = 2592000;
 
     protected $_reload_on_wakeup   = FALSE;
 

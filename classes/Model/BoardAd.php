@@ -744,14 +744,16 @@ class Model_BoardAd extends ORM{
         $sitemaps = array();
         for($i=0; $i*$step < $amount; $i++){
             $sitemap = new Sitemap();
+            $sitemap->gzip = TRUE;
             $url = new Sitemap_URL;
-            $file = DOCROOT . $path . "board_ads_".($i+1).".xml";
-            $sitemap_link = URL::base('http'). $path ."board_ads_".($i+1).".xml";
+            $file = DOCROOT . $path . "board_ads_".($i+1).".xml.gz";
+            $sitemap_link = URL::base('http'). $path ."board_ads_".($i+1).".xml.gz";
 
             $links = Model_BoardAd::boardOrmFinder()->offset($i*$step)->limit($step)->execute();
             foreach($links as $_link){
                 $url->set_loc(URL::base('http').$_link->getUri())
                     ->set_last_mod($_link->addtime)
+                    ->set_last_mod(time())
                     ->set_change_frequency('hourly')
                     ->set_priority('0.7');
                 $sitemap->add($url);

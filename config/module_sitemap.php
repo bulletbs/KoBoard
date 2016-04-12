@@ -2,8 +2,8 @@
 return array(
     array(
         'name' => 'board',
-        'priority' => '0.5',
-        'frequency' => 'daily',
+        'priority' => '1.0',
+        'frequency' => 'hourly',
         'sources' =>array(
             array(
                 'file' => 'categories',

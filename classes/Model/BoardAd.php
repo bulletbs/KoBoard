@@ -752,8 +752,8 @@ class Model_BoardAd extends ORM{
             foreach($links as $_link){
                 $url->set_loc(URL::base('http').$_link->getUri())
                     ->set_last_mod($_link->addtime)
-                    ->set_change_frequency('weekly')
-                    ->set_priority('0.5');
+                    ->set_change_frequency('hourly')
+                    ->set_priority('0.7');
                 $sitemap->add($url);
             }
             $response = $sitemap->render();

@@ -393,7 +393,7 @@ class Model_BoardAd extends ORM{
     public function getShortDescr($strlen = 150){
         $descr = mb_strlen($this->description)>$strlen ? mb_substr($this->description, 0, $strlen, 'UTF-8').'...' : $this->description;
         $descr = strip_tags($descr);
-        $descr = htmlspecialchars($descr);
+//        $descr = htmlspecialchars($descr);
         return  Text::stripNL($descr);
     }
 
@@ -738,7 +738,6 @@ class Model_BoardAd extends ORM{
     public function sitemapAds(){
         $amount = Model_BoardAd::boardOrmCounter()->execute();
         $amount = $amount[0]['cnt'];
-//        $amount = 200000;
         $step = 10000;
         $path = 'media/upload/sitemap/';
 

@@ -3,9 +3,10 @@ return array(
     array(
         'name' => 'board',
         'priority' => '0.5',
+        'frequency' => 'daily',
         'sources' =>array(
             array(
-                'file' => 'caegories',
+                'file' => 'categories',
                 'model' => 'BoardCategory',
                 'get_links_method' => 'sitemapCategories',
             ),
@@ -19,6 +20,8 @@ return array(
                 'get_links_method' => 'sitemapAds',
                 'return' => 'sitemaps', // returns links to sitemap files
                 'partable' => 10000,    // links per file
+                'priority' => '0.5',
+                'frequency' => 'weekly',
             ),
         ),
         'links' => array(

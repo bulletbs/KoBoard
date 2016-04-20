@@ -583,8 +583,11 @@ class Controller_Board extends Controller_System_Page
                             array('not_empty'),
                             array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
                         ))
+                        ->rules('email', array(
+                            array(array('Model_User', 'checkBannedDomain'), array(':validation', ':value')),
+                        ))
                         ->labels(array(
-                            'email' => __('Your e-mail'),
+                            'email' => __('E-mail'),
                             'text' => __('Message text'),
                             'captcha' => __('Enter captcha code'),
                     ));
@@ -674,8 +677,15 @@ class Controller_Board extends Controller_System_Page
             catch(ORM_Validation_Exception $e){
                 $errors = $e->errors('', TRUE);
                 /* Валидация полей объявления */
-                if($e->alias() == 'user')
-                    $errors = array_merge( $errors, $ad->validateData($this->request->post()) );
+                if($e->alias() == 'user'){
+                    $errors = array_merge(
+                        $errors,
+                        $ad->validateData(Arr::merge(
+                            $this->request->post(),
+                            array('category_id'=>$this->request->post('maincategory_id'))
+                        ))
+                    );
+                }
             }
             catch(Kohana_HTTP_Exception_403 $e){
                 $errors[] = $e->getMessage();

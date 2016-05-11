@@ -134,9 +134,11 @@ class Model_BoardAd extends ORM{
         return array(
             'title' => array(
                 array('Text::trimall', array(':value')),
+                array('strip_tags', array(':value')),
             ),
             'description' => array(
                 array('Text::trimall', array(':value')),
+                array('strip_tags', array(':value')),
             ),
         );
     }

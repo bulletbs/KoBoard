@@ -509,7 +509,7 @@ class Controller_Board extends Controller_System_Page
                 $this->mobile_styles[] = 'media/libs/uikit-2.24.3/css/components/slidenav.almost-flat.min.css';
             }
             else{
-                $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
+                $this->styles[] = "media/libs/pure-release-0.6.0/forms.css";
                 $this->scripts[] = 'assets/board/js/message.js';
                 $this->scripts[] = "assets/board/js/search.js";
                 $this->scripts[] = "assets/board/js/favorite.js";
@@ -747,7 +747,7 @@ class Controller_Board extends Controller_System_Page
             $this->mobile_scripts[] = "assets/board/js/form.js";
         }
         else{
-            $this->styles[] = "media/libs/pure-release-0.5.0/forms.css";
+            $this->styles[] = "media/libs/pure-release-0.6.0/forms.css";
             $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
             $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
             $this->scripts[] = "assets/board/js/form.js";

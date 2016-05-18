@@ -115,7 +115,6 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
         }
 
         /* Save Present Options */
-        echo Debug::vars($_POST);
         foreach(Arr::get($_POST,'options', array()) as $k=>$option){
             $option = ORM::factory('BoardCategory', $k)->values(array('name'=>$option));
             if(empty($option->alias))

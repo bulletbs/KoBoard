@@ -122,7 +122,5 @@
 <script type="text/javascript">
     var job_ids = <?php echo json_encode($job_ids)?>;
     var noprice_ids = <?php echo json_encode($noprice_ids)?>;
-    <?if($model->loaded()):?>
-    var modelId = <?php echo $model->id?>;
-    <?endif?>
+    <?if($model->loaded()):?>var modelId = <?php echo $model->id?>;<?endif?>
 </script>

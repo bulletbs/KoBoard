@@ -446,7 +446,7 @@ class Controller_Board extends Controller_System_Page
             if(BoardConfig::instance()->similars_ads_show){
                 $sphinxql = new SphinxQL;
                 $query = $sphinxql->new_query()
-                    ->add_index('sellmania_ads')
+                    ->add_index($this->board_cfg['sphinx_index'])
                     ->add_field('addtime')
                     ->add_field('photo_count>0', 'photos')
                     ->search('"'.$ad->getTitle().'"/1')

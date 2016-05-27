@@ -4,6 +4,8 @@ return array(
     'board_as_module'   => false, // set to TRUE, if Board is module of big portal
     'addnew_suspend'    => false, // set to TRUE to block adding ads
 
+    'sphinx_index'      => 'sellmania_ads',
+
     /* Country settings */
     'country_name'     => 'Россия',
     'all_country'      => 'России',

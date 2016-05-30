@@ -197,6 +197,7 @@ $(function(){
                 $('#eventPriceLabel').text('Ставка');
                 $('#eventChangeLabel').hide();
                 $('#eventFreeLabel').hide();
+                $('#jobType').show();
                 $('#eventType option').each(function(){
                     $(this).text( job_labels[ $(this).val() ] );
                 });
@@ -206,6 +207,7 @@ $(function(){
                 $('#eventPriceLabel').text('Цена');
                 $('#eventChangeLabel').show();
                 $('#eventFreeLabel').show();
+                $('#jobType').hide();
                 $('#eventType option').each(function(){
                     $(this).text( common_labels[ $(this).val() ] );
                 });

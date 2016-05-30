@@ -635,6 +635,9 @@ class Controller_Board extends Controller_System_Page
                     $ad->key = md5($user->id . $user->email . time());
                 }
 
+                /* AD Job type value */
+                $ad->type = in_array($ad->category_id, Model_BoardCategory::getJobIds()) ? Arr::get($_POST, 'type', 0) : 0;
+
                 /* Save Ads & redirect */
                 $ad->user_id = $user->id;
                 $ad->save();
@@ -750,7 +753,7 @@ class Controller_Board extends Controller_System_Page
             $this->styles[] = "media/libs/pure-release-0.6.0/forms.css";
             $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
             $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
-            $this->scripts[] = "assets/board/js/form.js";
+            $this->scripts[] = "assets/board/js/form.js?ver=1.1";
 
             $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
             $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";

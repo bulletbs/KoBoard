@@ -47,6 +47,10 @@
             <div class="hspacer_10"></div>
         </div>
 
+        <div id="jobType" style="display: none;">
+            <?= Form::label('type', 'Тип предложения')?>
+            <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>?>
+        </div>
         <?/*<?= Form::label('type', 'Тип объявления')?>
         <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>*/?>
     </fieldset>

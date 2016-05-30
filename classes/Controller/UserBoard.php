@@ -83,6 +83,10 @@ class Controller_UserBoard extends Controller_User
                 $ad->type = (int) Auth::instance()->logged_in('company');
                 $ad->company_id = $this->company->id;
             }
+            else{
+                $ad->type = in_array($ad->category_id, Model_BoardCategory::getJobIds()) ? Arr::get($_POST, 'type', 0) : 0;
+                $ad->company_id = 0;
+            }
 
             if(!$ad->loaded())
                 $ad->publish = 1;
@@ -191,7 +195,7 @@ class Controller_UserBoard extends Controller_User
         else {
             $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
             $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
-            $this->scripts[] = "assets/board/js/form.js";
+            $this->scripts[] = "assets/board/js/form.js?ver=1.1";
             $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
             $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
             $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";

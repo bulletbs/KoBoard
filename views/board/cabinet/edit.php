@@ -30,6 +30,11 @@
         <p id="textInputTip" style="display: none;"><b>Добавьте описание вашего товара/услуги,</b> укажите преимущества и важные детали.<br>В описании <b>не допускается указание контактных данных.</b><br>Описание должно соответствовать заголовку и предлагаемому товару/услуге.<br>Не допускаются заглавные буквы (кроме аббревиатур).</li></p>
         <div class="quiet">Осталось символов: <span id="textLeft"></span></div><br>
 
+
+        <div id="jobType" style="display: none;">
+            <?= Form::label('type', 'Тип предложения')?>
+            <?= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>
+        </div>
 <!--        --><?//= Form::label('type', 'Тип объявления')?>
 <!--        --><?//= Form::select('type', KoMS::translateArray(Model_BoardAd::$adType), $model->type, array('class'=>(isset($errors['type']) ? 'error-input': ''), 'id'=>'eventType')) ?>
 

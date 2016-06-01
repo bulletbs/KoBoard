@@ -1,6 +1,9 @@
 $(function(){
     var base_uri = '/board/';
 
+    var myMap = null;
+    var initMap = false;
+
     $(document).ajaxStart(function() { $('#loading_layer').show(); });
     $(document).ajaxStop(function() { $('#loading_layer').hide(); });
     $('#titleInput').limit('80','#titleLeft');
@@ -232,5 +235,62 @@ $(function(){
         if ($.fn.styler) {
             $('input, select').styler({});
         }
+    }
+
+    /* Показать / скрыть карту */
+    $('#toggleMap').click(function(e){
+        e.preventDefault();
+        if($('#region').val() && $('#city').val() && $('#addressInput').val()){
+            address = $(this).attr('rel') + ', '+ $("#region option:selected").text() +', '+ $("#city option:selected").text() +', '+  $('#addressInput').val();
+        }
+        else{
+            alert('Невозможно отобразить карту, Вы не указали адрес.');
+            return false;
+        }
+        if(!initMap){
+            initMap = true;
+            show_address(address);
+            $('#showAddress').show();
+            $(this).text('Обновить карту');
+        }else{
+            reshow_address(address);
+        }
+    });
+
+    function show_address(showAddr){
+        ymaps.geocode(showAddr, { results: 1 }).then(function (res) {
+            var firstGeoObject = res.geoObjects.get(0);
+            myMap = new ymaps.Map("showAddress", {
+                center: firstGeoObject.geometry.getCoordinates(),
+                zoom: 15,
+                behaviors:['default', 'scrollZoom']
+            });
+
+            // Метка на карте
+            myMap.balloon.open(
+                firstGeoObject.geometry.getCoordinates(), {
+                    contentHeader: 'Ваш адрес на карте',
+                    contentFooter: showAddr
+                }
+            );
+
+            // инструменты
+            myMap.options.set('scrollZoomSpeed', 2);
+            myMap.controls.add("zoomControl");
+            myMap.controls.add("mapTools");
+        });
+    }
+
+    function reshow_address(showAddr){
+        ymaps.geocode(showAddr, { results: 1 }).then(function (res) {
+            var firstGeoObject = res.geoObjects.get(0);
+            myMap.setCenter(firstGeoObject.geometry.getCoordinates());
+            myMap.balloon.open(
+                firstGeoObject.geometry.getCoordinates(), {
+                    contentHeader: 'Ваш адрес на карте',
+                    contentFooter: showAddr
+                }
+            );
+        });
     }
 });

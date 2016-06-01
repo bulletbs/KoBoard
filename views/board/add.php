@@ -1,5 +1,5 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
-<h1>Подать бесплатное объявление на Doreno</h1>
+<h1>Подать бесплатное объявление на <?php echo KoMS::config()->project['name'] ?></h1>
 <br />
 <p class="pure-alert pure-alert-warning">
     <b>Внимание!</b>
@@ -108,6 +108,10 @@
         <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>
         <?= Form::input('address', Arr::get($_POST,'address', $logged ? $user->profile->address : NULL) , array('class'=>'poshytip' . (isset($errors['address']) ? ' error-input': ''), 'id'=>'addressInput')) ?>
         <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
+        <a href="#" rel="<?php echo BoardConfig::instance()->country_name ?>" id="toggleMap" class="pure-button">Показать на карте</a>
+        <script language="javascript" src="http://api-maps.yandex.ru/2.0/?load=package.full&amp;lang=ru-RU"></script>
+        <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
+        <div class="showAddress" id="showAddress"></div>
 
         <?if(!Auth::instance()->logged_in('login') || Model_BoardAd::checkFrequentlyAdded()):?>
             <Br><?php echo Captcha::instance() ?>

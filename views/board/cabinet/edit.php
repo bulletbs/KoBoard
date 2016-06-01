@@ -111,7 +111,10 @@
 
         <?= Form::label('address', 'Адрес', array('class'=>'clear'))?>
         <?= Form::input('address', Arr::get($_POST,'address', $model->address), array('id'=>'addressInput', 'class'=>'poshytip')) ?>
+        <a href="#" rel="<?php echo BoardConfig::instance()->country_name ?>" id="toggleMap" class="pure-button">Показать на карте</a>
+        <script language="javascript" src="http://api-maps.yandex.ru/2.0/?load=package.full&amp;lang=ru-RU"></script>
         <p id="addressInputTip" style="display: none;">Тут можно указать название населенного пункта, если его нет в списке регионов.<br>А так же район, улицу, станцию метро, почтовый индекс</p>
+        <div class="showAddress" id="showAddress"></div>
 
         <?if(!$model->loaded() && Model_BoardAd::checkFrequentlyAdded()):?>
             <Br><?php echo Captcha::instance() ?>

@@ -130,14 +130,23 @@ $(function(){
             myMap = new ymaps.Map("showAddress", {
                 center: firstGeoObject.geometry.getCoordinates(),
                 zoom: 15,
-                type:"yandex#map",
+                //type:"yandex#map",
                 behaviors:['default', 'scrollZoom']
             });
+
+            // Метка на карте
+            myMap.balloon.open(
+                firstGeoObject.geometry.getCoordinates(), {
+                contentHeader: $('#baloonHeader').html(),
+                contentBody: $('#baloonContent').html(),
+                contentFooter: $('#baloonFooter').html()
+                }, {closeButton: false}
+            );
+
+            // инструменты
             myMap.options.set('scrollZoomSpeed', 2);
             myMap.controls.add("zoomControl");
             myMap.controls.add("mapTools");
-
-            myMap.geoObjects.add(firstGeoObject);
         });
     }
 

@@ -422,6 +422,13 @@ class Controller_Board extends Controller_System_Page
                 $this->scripts[] = 'assets/board/js/board_gallery.js';
             }
 
+            /* Company */
+            if($ad->company_id > 0){
+                $company = ORM::factory('CatalogCompany', $ad->company_id);
+                if($company->loaded())
+                    $this->template->content->set("company", $company);
+            }
+
             /* Other user ads */
             if(BoardConfig::instance()->user_ads_show && $ad->user_id>0){
                 $user_ads = Model_BoardAd::boardOrmFinder()

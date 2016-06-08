@@ -70,9 +70,15 @@
             </dl>
             <div class="line_nobg"></div><a name="contacts"></a>
             <dl class="description" itemprop="seller" itemscope itemtype="http://schema.org/Person">
+            <?if($ad->company_id && isset($company)):?>
+                <dt>Магазин</dt>
+                <dd><strong itemprop="name"><?php echo $company->name?></strong> <?php echo HTML::anchor($company->adsUri(), 'Показать все объявления магазина', array('target'=>'_blank', 'title'=>'Объявления магазина '.$company->name))?></dd>
+                <dt>Контактное лицо</dt>
+                <dd><strong><?php echo  $ad->name?></strong></dd>
+            <?else:?>
                 <dt>Автор</dt>
-                <dd><strong itemprop="name"><?php echo  $ad->name?></strong> <?if($ad->user_id>0):?><?endif?> <a target="_blank" title="Объявления пользователя <?php echo $ad->name ?>" href="/all.html?userfrom=<?php echo $ad->id?>"> Найти все объявления пользователя</a></dd>
-            </dl>
+                <dd><strong itemprop="name"><?php echo  $ad->name?></strong> <?if($ad->user_id>0):?><a target="_blank" title="Объявления пользователя <?php echo $ad->name ?>" href="/all.html?userfrom=<?php echo $ad->id?>"> Найти все объявления пользователя</a><?endif?></dd>
+            <?endif;?></dl>
             <div itemprop="availableAtOrFrom" itemscope itemtype="http://schema.org/Place">
                 <meta itemprop="name" content="<?php echo $region->name.', '.$city->name?>">
                 <dl itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">

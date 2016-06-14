@@ -394,7 +394,7 @@ class Controller_Board extends Controller_System_Page
         $ad = Model_BoardAd::boardOrmFinder()->and_where('id','=',$id)->limit(1)->execute();
         $ad = $ad[0];
 
-        if($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) == $alias){
+        if($ad instanceof ORM && $ad->loaded() && (empty($alias) || Text::transliterate($ad->title, true) == $alias)){
 //            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $ad->addtime){
 //                header('HTTP/1.1 304 Not Modified');
 //                die;

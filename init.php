@@ -11,7 +11,7 @@ if(!Route::cache()){
         'favorites',
 
     );
-    Route::set('board', $board_base_url . '(<action>(/<id>)(/p<page>))', array('action' => '('.implode('|', $_init_actions).')', 'page' => '[0-9]+'))
+    Route::set('board', $board_base_url . '<action>(/<id>)(/p<page>)', array('action' => '('.implode('|', $_init_actions).')', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',
             'action' => 'main',
@@ -64,7 +64,7 @@ if(!Route::cache()){
             'action' => 'categories',
         ));
 
-    Route::set('board_myads', 'my-ads(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove|refresh|refresh_all)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
+    Route::set('board_myads', 'my-ads(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove|refresh|refresh_all|import)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'userBoard',
             'action' => 'list',

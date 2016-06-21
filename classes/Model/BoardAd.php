@@ -400,6 +400,19 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Generate short title
+     * @param int $strlen
+     * @return string
+     */
+    public function getShortTitle($strlen = 40){
+        $title = $this->getTitle();
+        if(mb_strlen($title) > $strlen)
+            return mb_substr($title, 0, $strlen) . '...';
+        return $title;
+    }
+
+
+    /**
      * Format price by price_type
      * @param null $unit_template
      * @return mixed|string
@@ -445,7 +458,7 @@ class Model_BoardAd extends ORM{
      */
     public function getTitle(){
         if(is_null($this->_prepearedTitle)){
-            $this->_prepearedTitle = Text::mb_ucfirst($this->title);
+            $this->_prepearedTitle = Text::mb_ucfirst(mb_strtolower($this->title));
             $this->_prepearedTitle = preg_replace('~[!.? ]+$~', '', $this->_prepearedTitle);
         }
         return $this->_prepearedTitle;
@@ -585,6 +598,24 @@ class Model_BoardAd extends ORM{
         return $count;
     }
 
+    /**
+     * Gets last ads
+     * @param int $count
+     * @return int
+     */
+    public static function getLastAds($count = 20){
+        $ads = ORM::factory('BoardAd')
+            ->select('boardad.*')
+            ->join(array('ad_photos', 'adp'), 'INNER')
+            ->on('adp.ad_id', '=', 'boardad.id')
+            ->where('publish', '=', 1)
+            ->group_by('boardad.user_id')
+            ->order_by('addtime', 'DESC')
+            ->cached(Date::MINUTE*5)
+            ->limit($count)
+            ->find_all();
+        return $ads;
+    }
 
     /**
      * Check if this AD can be renewed

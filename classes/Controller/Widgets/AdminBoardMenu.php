@@ -18,6 +18,7 @@ class Controller_Widgets_AdminBoardMenu extends Controller_System_Widgets {
             'JB категории' => array('boardCategoriesJB'),
             'Перенос' => array('boardCategoryMove'),
             'Жалобы' => array('boardAbuses'),
+            'Рассылка' => array('boardSender'),
             'Модерация' => array('boardModerate'),
             'Стопслова' => array('boardModerateSw'),
         );

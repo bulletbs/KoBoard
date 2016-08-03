@@ -101,6 +101,8 @@ return array(
     'Delete all' => 'Удалить все',
     'Delete selected' => 'Удалить выбраные',
     'Move ads' => 'Перенести объявления',
+    'Backup categories' => 'Перенести во временную',
+    'Save relations' => 'Сохранить связи',
 
     'Ads moderating' => 'Модерирование объявлений',
     'All user ads' => 'Все объявления пользователя',

@@ -15,7 +15,7 @@ class Controller_Widgets_AdminBoardMenu extends Controller_System_Widgets {
             'Категории' => array('boardCategories'),
             'Фильтры' => array('boardFilters'),
             'Города' => array('boardCities'),
-            'JB категории' => array('boardCategoriesJB'),
+//            'JB категории' => array('boardCategoriesJB'),
             'Перенос' => array('boardCategoryMove'),
             'Жалобы' => array('boardAbuses'),
             'Рассылка' => array('boardSender'),

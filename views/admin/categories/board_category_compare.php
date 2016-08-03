@@ -4,12 +4,25 @@
 
 <?php echo Form::open('')?>
 <div class="pull-right">
+    <?php echo Form::button('backup', __('Backup categories'), array('class'=>'btn btn-warning', 'data-bb'=>'confirm'))?>
     <?php echo Form::button('move', __('Move ads'), array('class'=>'btn btn-danger', 'data-bb'=>'confirm'))?>
-    <?php echo Form::button('save', __('Save'), array('class'=>'btn btn-success'))?>
+    <?php echo Form::button('save', __('Save relations'), array('class'=>'btn btn-success'))?>
 </div>
 <div class="clearfix"></div>
 <div class="row">&nbsp;</div>
 
+<div class="well">
+    <b>Внимание!<br>Перед любыми действия в этом разделе, желательно сделать полный/частичный бекап базы данных (важно объявления + категории)</b><br>
+    <br>
+    Порядок действий:<br>
+    <ol style="margin-left: 20px">
+        <li>Нажимаем кнопку "Перенести во временную" - это перенесет текущие категории во временную таблицу и очистит текущие</li>
+        <li>Переходим в <a href="/admin/boardCategories">Категории</a> и создаем новые разделы и категории</li>
+        <li>Возращаемся сюда и проставляем связи старых категорий к новым, нажимаем "Сохранить связи"</li>
+        <li>Нажимаем "Перенести объявления" (операция может длится несколько минут)</li>
+        <li>Проверяем результат :)</li>
+    </ol>
+</div>
 <div class="well">
 <table class="table table-striped table-condensed">
     <thead>

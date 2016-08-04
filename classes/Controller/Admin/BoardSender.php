@@ -69,8 +69,9 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
      */
     public function action_send(){
         $config = Kohana::$config->load('users');
+        $table = ORM::factory(self::MAILER_MODEL)->table_name();
         $mails = DB::select('email', 'user_id')
-            ->from(ORM::factory(self::MAILER_MODEL)->table_name())
+            ->from($table)
             ->where('sended', '=', 0)
             ->limit(self::MAILER_LIMIT)
             ->execute();
@@ -80,8 +81,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
                 if($step >= self::MAILER_LIMIT)
                     break;
                 $this->_sendMailerLetter($mail['email'], $mail['user_id']);
-                $mail->sended = 1;
-                $mail->update();
+                DB::update($table)->set(array('sended'=>1))->where('user_id', '=', $mail['user_id'])->execute();
             }
         }
         Flash::success('Отправлено писем: '. self::MAILER_LIMIT);

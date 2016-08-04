@@ -10,7 +10,7 @@
 Некоторые из Ваших объявлений на сайте «<?php echo $site_name ?>» возможно устарели.<br>
 <?foreach($user_ads as $days=>$ads):?>
 <br>
-Объявления, которые не обновлялись <?php echo $days?> дней:<br />
+Объявления, которые не обновлялись более <?php echo $days?> дней:<br />
 <?foreach($ads as $_ad):?>
 - <?php echo HTML::anchor('http://'. $server_name .'/'. $_ad->getUri(), $_ad->title)?><br />
 <?endforeach?>

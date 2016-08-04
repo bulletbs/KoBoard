@@ -13,7 +13,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
     CONST MAILER_LETTER_TEMPLATE = 'board/mail/ad_refresh_reminder';
     CONST MAILER_LIMIT = 10000;
 
-    CONST MAILER_DAYS_AGO = 7;
+    CONST MAILER_DAYS_AGO = 30;
 
     public $skip_auto_content_apply = array(
         'create',
@@ -26,7 +26,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         $this->scripts[] = "media/libs/bootstrap/js/bbox_".I18n::$lang.".js";
 
         $letter = View::factory(self::MAILER_LETTER_TEMPLATE)->set(array(
-            'user_ads' => array(7=>ORM::factory('BoardAd')->limit(1)->find_all()),
+            'user_ads' => array(self::MAILER_DAYS_AGO=>ORM::factory('BoardAd')->limit(1)->find_all()),
             'site_name'=> KoMS::config()->project['name'],
             'server_name'=> $_SERVER['HTTP_HOST'],
             'unsubscribe_link' => Model_User::generateCryptoLink('unsubscribe', $this->current_user->id),
@@ -109,7 +109,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         $addtime = time() - Date::DAY * self::MAILER_DAYS_AGO;
         $ads = ORM::factory('BoardAd')->where('user_id','=',$user_id)->and_where('addtime','<=', $addtime)->find_all();
         $template = View::factory(self::MAILER_LETTER_TEMPLATE)->set(array(
-            'user_ads'=> array('7' => $ads),
+            'user_ads'=> array(self::MAILER_DAYS_AGO => $ads),
             'site_name'=> $this->config['project']['name'],
             'server_name'=> $_SERVER['HTTP_HOST'],
             'unsubscribe_link' => Model_User::generateCryptoLink('unsubscribe', $user_id),

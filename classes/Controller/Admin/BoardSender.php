@@ -19,6 +19,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         'create',
         'send',
         'sendtest',
+        'testgit',
     );
 
     public function action_index(){
@@ -117,10 +118,15 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         ));
 
         Email::instance()
+            ->reset()
             ->to($mail)
             ->from(KoMS::config()->robot_email)
             ->subject(KoMS::config()->project['name'] .': Ваше объявление давно не обновлялось')
             ->message($template->render(), true)->send();
 
+    }
+
+    public function action_testgit(){
+        echo 123;
     }
 }

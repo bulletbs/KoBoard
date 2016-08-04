@@ -68,6 +68,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
      * @throws Kohana_Exception
      */
     public function action_send(){
+        set_time_limit(600);
         $config = Kohana::$config->load('users');
         $table = ORM::factory(self::MAILER_MODEL)->table_name();
         $mails = DB::select('email', 'user_id')

@@ -606,10 +606,8 @@ class Model_BoardAd extends ORM{
     public static function getLastAds($count = 20){
         $ads = ORM::factory('BoardAd')
             ->select('boardad.*')
-            ->join(array('ad_photos', 'adp'), 'INNER')
-            ->on('adp.ad_id', '=', 'boardad.id')
             ->where('publish', '=', 1)
-            ->group_by('boardad.user_id')
+            ->and_where('photo_count', '>', 0)
             ->order_by('addtime', 'DESC')
             ->cached(Date::MINUTE*5)
             ->limit($count)

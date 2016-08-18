@@ -278,9 +278,8 @@ class Controller_Board extends Controller_System_Page
         }
 
         /* requesting Ads */
-        $counter = clone($ads);
-        $counter->select(DB::expr('count(*) cnt'));
-        $count = $counter->cached(Model_BoardAd::CACHE_TIME)->as_assoc()->execute();
+        $sql = str_replace('`ads`.*', 'COUNT(*) AS cnt', (string) $ads);
+        $count = DB::query(Database::SELECT, $sql)->cached(Model_BoardAd::CACHE_TIME)->as_assoc()->execute();
         $pagination = Pagination::factory(array(
             'total_items' => $count[0]['cnt'],
             'group' => 'board',

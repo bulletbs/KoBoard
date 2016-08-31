@@ -526,6 +526,15 @@ class Model_BoardAd extends ORM{
 //        }
     }
 
+    public static function reimport_ad(Array $data){
+        $new = ORM::factory('BoardAd')->values($data)->save();
+//        if($new->id != $data['id']){
+//            $new->id = $data['id'];
+//            $new->save();
+//        }
+        unset($new);
+    }
+
     /**
      * Smart article field getter
      * @param string $name

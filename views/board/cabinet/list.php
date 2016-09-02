@@ -18,7 +18,7 @@
                 <td class="list_title">
                     <h3><?php echo HTML::anchor($ad->getUri(), $ad->title, array('title'=> $ad->title))?></h3>
                     <div class="list_price"><?= $ad->getPrice( BoardConfig::instance()->priceTemplate($ad->price_unit) ) ?></div><br>
-                    <span class="quiet"><?php echo Model_BoardCategory::getField('name', $ad->category_id)?><br><b><?php echo Model_BoardCity::getField('name', $ad->city_id)?></b><br><?= Date::smart_date($ad->addtime)?> <?= date('G:i', $ad->addtime) ?> </span>
+                    <span class="quiet"><?php echo Model_BoardCategory::getField('name', $ad->category_id)?><br><b><?php echo Model_BoardCity::getField('name', $ad->city_id)?></b><br><?= Date::smart_date($ad->addtime)?> <?php echo date('G:i', $ad->addtime) ?> </span>
                 </td>
                 <td class="list_button">
                     <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i></a>

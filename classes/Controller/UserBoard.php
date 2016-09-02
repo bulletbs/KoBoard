@@ -15,6 +15,8 @@ class Controller_UserBoard extends Controller_User
         'refresh',
         'refresh_all',
         'multi',
+        'notice_remove',
+        'notice_clean',
     );
 
     public function before(){
@@ -137,7 +139,10 @@ class Controller_UserBoard extends Controller_User
                 if($this->company instanceof Model_CatalogCompany && $this->company->loaded())
                     Model_CatalogCompany::updateCompanyCategories($this->company->id);
 
-                Flash::success(__('Your ad successfully saved'));
+                if(!is_null($id))
+                    Flash::success(__('Your ad successfully saved'));
+                else
+                    Flash::info($this->getContentTemplate('board/published')->set('ad', $ad)->render());
                 $this->redirect(URL::site().Route::get('board_myads')->uri());
             }
             catch(ORM_Validation_Exception $e){
@@ -394,5 +399,32 @@ class Controller_UserBoard extends Controller_User
             $content = Form::select('filters['.$id.']', $options, $selected, $parameters);
         }
         return $content;
+    }
+
+    public function action_notices(){
+        $notices = ORM::factory('BoardNotice')->where('user_id', '=', $this->current_user->id)->find_all();
+        DB::update(ORM::factory('BoardNotice')->table_name())->set(array('received'=>1))->where('user_id','=',$this->current_user)->execute();
+        $this->user_content->set(array(
+            'notices' => $notices,
+        ));
+    }
+
+    public function action_notice_remove(){
+        $id = $this->request->param('id');
+        if(is_null($id))
+            throw new HTTP_Exception_404();
+        $notice = ORM::factory('BoardNotice', $id);
+        if(!$notice->loaded() || $notice->user_id != $this->current_user->id)
+            throw new HTTP_Exception_404();
+        $notice->delete();
+        Flash::success(__('Notice successfully removed'));
+        $this->redirect(Route::get('board_notices')->uri());
+    }
+
+    public function action_notice_clean(){
+        $table = ORM::factory('BoardNotice')->table_name();
+        DB::delete($table)->where('user_id', '=', $this->current_user->id)->execute();
+        Flash::success(__('Your notices cleaned'));
+        $this->redirect(Route::get('board_notices')->uri());
     }
 }

@@ -265,6 +265,18 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Loading AD thumb or empty image
+     * @return string
+     * @throws Kohana_Exception
+     */
+    public function getThumbUri(){
+        $thumb = ORM::factory('BoardAdphoto')->where('ad_id' ,'=', $this->id)->and_where('main' ,'=', 1)->find();
+        if($thumb->loaded())
+            return $thumb->getThumbUri();
+        return "/assets/board/css/images/noimage.png";
+    }
+
+    /**
      * @param null $id
      */
     public function setMainPhoto($id = NULL){

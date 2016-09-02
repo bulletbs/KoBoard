@@ -48,6 +48,14 @@ class Controller_Board extends Controller_System_Page
         $this->breadcrumbs = Breadcrumbs::factory();
         $this->scripts[] = "assets/board/js/jquery.highlight.js";
         $this->scripts[] = "assets/board/js/jquery.tooltip.js";
+
+        $this->add_meta_content(array('property'=>'og:title', 'content'=>KoMS::config()->view['title']));
+        $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
+        $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base('http')));
+        $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
+        $this->add_meta_content(array('property'=>'og:description', 'content'=>KoMS::config()->view['description']));
+        $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . "media/css/images/logo.png"));
+
         if(!$content = Cache::instance()->get( $this->getCacheName("BoardMainPage") )){
 //            $content = View::factory('board/map');
             $content = $this->getContentTemplate('board/map');
@@ -333,6 +341,13 @@ class Controller_Board extends Controller_System_Page
         $this->description = $this->_generateMetaDescription(str_replace('title', 'description', $title_type), $title_params);
         $title = $this->_generateMetaTitle(str_replace('title', 'h1', $title_type), $title_params);
         $subtitle = $this->_generateMetaTitle(str_replace('title', 'h2', $title_type), $title_params);
+
+        $this->add_meta_content(array('property'=>'og:title', 'content'=>$title));
+        $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
+        $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base('http')));
+        $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
+        $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
+        $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . "media/css/images/logo.png"));
 
         /*****************
          * scripts / styles / widgets
@@ -676,11 +691,14 @@ class Controller_Board extends Controller_System_Page
                 $ad->setMainPhoto();
 
                 /* Finalize ads saving */
-                Flash::success(__('Your ad successfully added'));
-                if(Auth::instance()->logged_in())
+                if(Auth::instance()->logged_in()){
+                    Flash::info($this->getContentTemplate('board/published')->set('ad', $ad)->render());
                     $this->go(URL::site().Route::get('board_myads')->uri());
-                else
+                }
+                else{
+                    Flash::success(__('Your ad successfully added'));
                     $this->template->content = View::factory('board/successful');
+                }
                 return true;
             }
             catch(ORM_Validation_Exception $e){
@@ -859,7 +877,8 @@ class Controller_Board extends Controller_System_Page
                 $ad->publish = 1;
                 try{
                     $ad->save();
-                    Flash::success(__('Your ad successfully published').'!');
+//                    Flash::success(__('Your ad successfully published').'!');
+                    Flash::info($this->getContentTemplate('board/published')->set('ad', $ad)->render());
                 }
                 catch(ORM_Validation_Exception $e){
                     $errors = $e->errors('validation', TRUE);

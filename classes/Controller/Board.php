@@ -1251,14 +1251,15 @@ class Controller_Board extends Controller_System_Page
     }
 
     public function action_pagemoved(){
-        $mess_id = Request::$current->param('id_mess');
-        if(!is_null($mess_id)){
-            $ad = ORM::factory('BoardAd', $mess_id);
-            if($ad->loaded()){
-                header("HTTP/1.1 301 Moved Permanently");
-                header("Location: ". $ad->getUri());
-                exit();
-            }
+        $id = Request::$current->param('id');
+        if(!is_null($id)){
+            $ad = ORM::factory('BoardAd', $id);
+            header("HTTP/1.1 301 Moved Permanently");
+            if($ad->loaded())
+                header("Location: ". URL::base() . $ad->getUri());
+            else
+                header("Location: /");
+            exit();
         }
         throw new HTTP_Exception_404('Эта страница устарела и перенесена');
     }

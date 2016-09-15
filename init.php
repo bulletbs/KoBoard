@@ -70,10 +70,22 @@ if(!Route::cache()){
             'action' => 'list',
         ));
 
+    Route::set('board_notices', 'notices(/<action>(/<id>)(/p<page>.html))', array('action' => '(notice_remove|notice_clean)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'userBoard',
+            'action' => 'notices',
+        ));
+
     Route::set('board_search_widget', $board_base_url . 'boardSearch/<action>(/<id>)')
         ->defaults(array(
             'directory' => 'widgets',
             'controller' => 'BoardSearch',
             'action' => 'cities',
+        ));
+
+    Route::set('board_old_ads', 'pagemoved/<id>', array('id' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'Board',
+            'action' => 'pagemoved',
         ));
 }

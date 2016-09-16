@@ -560,8 +560,18 @@ class Controller_Board extends Controller_System_Page
                 'breadcrumbs' => $breadcrumbs,
             ));
         }
-        else
+        else{
+            $category_alias = Request::current()->param('cat_alias');
+            $city_alias = Request::current()->param('city_alias');
+            if(!is_null($alias)){
+                $category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
+                if($category->loaded()){
+                    $this->redirect(URL::base() . $category->getUri($city_alias));
+                    die();
+                }
+            }
             throw HTTP_Exception::factory('404', __('Page not found'));
+        }
     }
 
     /**

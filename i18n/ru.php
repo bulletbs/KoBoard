@@ -114,6 +114,14 @@ return array(
     'Any' => 'Все',
     'Select one' => '...',
 
+/* BOARD NOTICES */
+    'Notices: :count' => 'Оповещения: :count',
+    'My notices' => 'Мои оповещения',
+    'Notice successfully removed' => 'Оповещение удалено',
+    'Your notices cleaned' => 'Оповещения очищены',
+    'Remove all' => 'Удалить все',
+    '' => '',
+
 /*  BOARD COMPANY & IMPORT */
     '' => '',
     '' => '',

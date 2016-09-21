@@ -293,14 +293,13 @@ h1.small_14{
 .col_type_selection{
     margin-top: 25px;
     position: relative;
-    width: 710px;
-    margin-right: 12px;
-    border: 1px solid #dadada;
-    border-radius: 5px;
+    width: 735px;
+    margin-right: 10px;
+    border-top: 1px solid #dadada;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     -khtml-border-radius: 5px;
-    padding: 10px;
+    padding: 5px 0 0;
     -webkit-border-top-left-radius: 0;
     -khtml-border-radius-topleft: 0;
     -moz-border-radius-topleft: 0;
@@ -336,13 +335,17 @@ h1.small_14{
 }
 
 table.tableccat tr:nth-child(2n) td {
-    background-color: #fffacc;
+
 }
 .tableccat table{
-    width: 705px;
+    width: 730px;
 }
 .tableccat_full table{
     width: 750px;
+}
+.tableccat_full_user table{
+    width: 750px;
+    border-bottom: 1px solid #eaeaea; 
 }
 .google_ad {
     width: 300px;
@@ -404,6 +407,7 @@ table.tableccat tr:nth-child(2n) td {
     }
     .detail-also-item h3 {
         font-size: 12px;
+        line-height: 1.4;
         text-align: center;
         height: 34px;
         overflow: hidden;
@@ -425,7 +429,8 @@ table.tableccat tr:nth-child(2n) td {
     }
 
 .tableccat .dashed{
-    padding: 5px 0;
+      padding: 5px 0;
+  /*  border-bottom: 1px solid #eaeaea; */
 }
     .tableccat table td{
          vertical-align: top;
@@ -480,24 +485,23 @@ table.tableccat tr:nth-child(2n) td {
     }
     .list_title{
         padding-left: 10px;
-        width: auto;
+        width: 448px;
     }
     .list_title h3{
         margin-bottom: 3px;
-        font-size: 16px;
+        font-size: 18px;
     }
     .list_title h3 a{
         text-decoration: none;
     }
 
     .list_price{
-           color: #777777;
-        font-family: "Verdana",Arial,Helvetica,sans-serif;
-      /*   padding-top: 40px; */
-      /*   width: 100px; */
-      /*   font-size: 14px; */
+           color: #414141;
+           font-family: "Verdana",Arial,Helvetica,sans-serif;
+           width: 90px; 
+           font-size: 14px;
            font-weight: bold;
-      /*   text-align: right; */
+           text-align: right;
     }
     .list_desk{
            font-family: "Verdana",Arial,Helvetica,sans-serif;
@@ -512,6 +516,7 @@ table.tableccat tr:nth-child(2n) td {
     .list_button{
         text-align: right;
         padding: 10px;
+        width: 160px;
     }
 #adList a.ico_favorite, #adList a.ico_out_favorite{
     display: block;
@@ -536,9 +541,9 @@ table.tableccat tr:nth-child(2n) td {
     font-size: 13px;
 }
     .message h1{
-        font-size: 36px;
+        font-size: 24px;
         font-weight: normal;
-        padding-bottom: 3px;
+        padding-bottom: 7px;
     }
     .message a.active{
         border: 1px dashed #9a9a9a;
@@ -599,6 +604,11 @@ table.tableccat tr:nth-child(2n) td {
     padding: 10px;
     margin: 10px auto;
 }
+    .message_actions h3{
+        color: #313538;
+        font-weight: normal;
+        font-size: 16px;
+    }
     .message_actions:after{
          content: '.';
          display: block;

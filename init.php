@@ -9,7 +9,6 @@ if(!Route::cache()){
         'add',
         'goto',
         'favorites',
-
     );
     Route::set('board', $board_base_url . '<action>(/<id>)(/p<page>)', array('action' => '('.implode('|', $_init_actions).')', 'page' => '[0-9]+'))
         ->defaults(array(
@@ -87,5 +86,11 @@ if(!Route::cache()){
         ->defaults(array(
             'controller' => 'Board',
             'action' => 'pagemoved',
+        ));
+
+    Route::set('board_tag', 'tags/<cat_alias>/<tagid>(/p<page>)', array('id' => '[0-9]+', 'page' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'Board',
+            'action' => 'tags',
         ));
 }

@@ -17,5 +17,10 @@ class Model_BoardSearch extends ORM{
         );
     }
 
-
+    public function getUri(){
+        return Route::get('board_tag')->uri(array(
+            'tagid' => $this->id,
+            'cat_alias' => $this->category_id ? Model_BoardCategory::getField('alias', $this->category_id) : 'all',
+        ));
+    }
 }

@@ -33,7 +33,7 @@ class Controller_Widgets_BoardTags extends Controller_System_Widgets {
             $category_id = Model_BoardCategory::getCategoryIdByAlias($category);
         else
             $category_id = 0;
-        $tags = ORM::factory('BoardSearch')->where('category_id', '=', $category_id)->cached(Date::DAY)->limit(15)->find_all()->as_array('id');
+        $tags = ORM::factory('BoardSearch')->where('category_id', '=', $category_id)->cached(Date::DAY)->order_by('cnt','DESC')->limit(15)->find_all()->as_array('id');
         return array_values($tags);
     }
 
@@ -42,7 +42,7 @@ class Controller_Widgets_BoardTags extends Controller_System_Widgets {
         $title = Request::current()->post('title');
         $category_id = Request::current()->post('category_id');
         $pcategory_id = Request::current()->post('pcategory_id');
-        $tags = ORM::factory('BoardSearch')->where('category_id', '=', $category_id)->or_where('category_id', '=', $pcategory_id)->cached(Date::DAY)->find_all()->as_array('id');
+        $tags = ORM::factory('BoardSearch')->select(DB::expr('DISTINCT `query` dstq'), DB::expr('SUM(cnt) scnt'))->where('category_id', '=', $category_id)->or_where('category_id', '=', $pcategory_id)->cached(Date::DAY)->group_by('dstq')->order_by('scnt', 'DESC')->find_all()->as_array('id');
         $title = mb_strtolower($title);
         foreach($tags as $tagid=>$tag){
             if(!mb_strstr($title, mb_strtolower($tag->query)))

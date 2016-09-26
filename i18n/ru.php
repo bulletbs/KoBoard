@@ -114,6 +114,10 @@ return array(
     'Any' => 'Все',
     'Select one' => '...',
 
+/* BOARD TAGS */
+    'Board tags' => 'Теги поиска',
+    'tag' => 'тег',
+
 /* BOARD NOTICES */
     'Notices: :count' => 'Оповещения: :count',
     'My notices' => 'Мои оповещения',

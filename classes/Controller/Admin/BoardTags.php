@@ -9,10 +9,23 @@ class Controller_Admin_BoardTags extends Controller_Admin_Crud{
 
     protected $_model_name = 'BoardSearch';
 
+    protected $_orderby_field = 'cnt';
+    protected $_orderby_direction= 'DESC';
+
+
     public $list_fields = array(
         'id',
         'query',
         'cnt',
+    );
+
+    protected $_sortable_fields = array(
+        'query'=>true,
+        'cnt'=>true,
+    );
+
+    protected $_multi_operations = array(
+        'delete_sel' => 'Delete selected',
     );
 
     /**
@@ -56,6 +69,45 @@ class Controller_Admin_BoardTags extends Controller_Admin_Crud{
     }
 
     /**
+     * Добавление множества тегов
+     * @throws HTTP_Exception_404
+     * @throws Kohana_Exception
+     */
+    public function action_add()
+    {
+        if(Request::current()->method() == Request::POST){
+            /* Process POST */
+            if(isset($_POST['cancel'])){
+                $this->go($this->_crud_uri . URL::query());
+            }
+            $tags = explode("\n", Arr::get($_POST, 'tags', array()));
+            $cnt = Arr::get($_POST, 'cnt', 0);
+            $category_id = Arr::get($_POST, 'category_id', 0);
+            if(count($tags)){
+                try{
+                    foreach($tags as $_tag)
+                        ORM::factory($this->_model_name)->values(array(
+                            'query' => $_tag,
+                            'cnt' => $cnt,
+                            'category_id' => $category_id,
+                        ))->save();
+                    Flash::success('Теги ('.implode(',', $tags).') успешно добавлены');
+                }
+                catch(ORM_Validation_Exception $e){
+                    Flash::error($e->getMessage());
+                }
+            }
+            $this->redirect( $this->_crud_uri . URL::query(array('category_id'=>$category_id)));
+        }
+        $category_options[0] = 'Без категории';
+        $category_options['Разделы'] = (array) ORM::factory('BoardCategory')->where('parent_id', '=', 0)->order_by('name', 'ASC')->find_all()->as_array('id', 'name');
+        $category_options += Model_BoardCategory::getTwoLevelArray();
+        $this->template->content = $this->getContentTemplate('admin/tags/add')->set(array(
+            'category_options' => $category_options,
+        ));
+    }
+
+    /**
      * While form render - load form JS file
      * @param $model
      * @param array $data
@@ -84,5 +136,10 @@ class Controller_Admin_BoardTags extends Controller_Admin_Crud{
      */
     protected function _saveModel($model){
             $model->values(Arr::extract($_POST, array('query', 'category_id', 'cnt')))->save();
+    }
+
+    protected function _multi_delete_sel($ids){
+        $rows = DB::delete(ORM::factory($this->_model_name)->table_name())->where('id','IN',$ids)->execute();
+        Flash::success('Теги успешно удалены ('.$rows.')');
     }
 }

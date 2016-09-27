@@ -403,8 +403,6 @@ class Controller_Board extends Controller_System_Page
         if(!$_tag->loaded())
             throw new HTTP_Exception_404();
         $_GET['query'] = $_tag->query;
-        $title = 'Объявления с тегом &laquo;'.$_tag->query.'&raquo;';
-        $subtitle = 'Объявления с тегом &laquo;'.$_tag->query.'&raquo;';
 
         /* Queries init */
         $sphinxql = new SphinxQL;
@@ -446,6 +444,7 @@ class Controller_Board extends Controller_System_Page
             $this->description = $category->getDescription() . (!empty($this->description) ? ' '.$this->description : '' );
         }
         $count = $cnt_query->execute();
+        $count = min(1000, $count[0]['cnt']);
 
         /* Init pagination */
         $route_params = array(
@@ -454,33 +453,37 @@ class Controller_Board extends Controller_System_Page
             'tagid' => $tagid,
         );
         $pagination = Pagination::factory(array(
-            'total_items' => $count[0]['cnt'],
+            'total_items' => $count,
             'group' => 'board',
         ))->route_params($route_params);
 
         /* Searching ads by tag */
         $ads = array();
         $photos = array();
-        $spinx_ads = $ads_query
-            ->offset($pagination->offset)
-            ->limit($pagination->items_per_page)
-            ->execute();
+        $ads_query->offset($pagination->offset)->limit($pagination->items_per_page);
+        $spinx_ads = $ads_query->execute();
         if($spinx_ads && count($spinx_ads)){
-            foreach($spinx_ads as $_ad) {
-                $ads[$_ad['id']] = NULL;
-            }
-            foreach(ORM::factory('BoardAd')->where('id', 'IN', array_keys($ads))->and_where('publish', '=', 1)->find_all() as $_ad)
-                $ads[$_ad->id] = $_ad;
+            foreach($spinx_ads as $_ad)
+                $ads[] = $_ad['id'];
+            $ads = ORM::factory('BoardAd')->where('id', 'IN', $ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $ads).")"))->find_all()->as_array('id');
             $photos = Model_BoardAdphoto::adsPhotoList(array_keys($ads));
         }
 
         /* Meta tags init */
-        $this->title = $title;
+        $title = $this->_generateMetaTitle('tags_h1', array('tag' => Text::mb_ucfirst($_tag->query)));
+        $this->title = $this->_generateMetaTitle('tags_title', array('tag' => Text::mb_ucfirst($_tag->query)));
+
+        $this->scripts[] = "assets/board/js/search.js";
+        $this->scripts[] = "assets/board/js/favorite.js";
+        $this->scripts[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.js";
+        $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
+        $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
+        $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+        $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
         $this->template->search_form = Widget::factory('BoardSearch')->render();
         $this->template->content = $this->getContentTemplate('board/search')->set(array(
             'title' => $title,
-            'subtitle' => $subtitle,
             'city' => 'all',
             'ads' => $ads,
             'photos' => $photos,
@@ -493,7 +496,7 @@ class Controller_Board extends Controller_System_Page
     /**
      * Объвяление
      */
-    public function action_ad(){
+    public function  action_ad(){
         $id = $this->request->param('id');
         $alias = $this->request->param('alias');
         $print = $this->request->param('print');
@@ -586,11 +589,10 @@ class Controller_Board extends Controller_System_Page
                 if($sim_count && $sim_count >= BoardConfig::instance()->similars_ads_limit / 2){
                     $sim_ads = array();
                     foreach($spinx_ads as $_ad)
-                        $sim_ads[$_ad['id']] = NULL;
+                        $sim_ads[] = $_ad['id'];
                     if($sim_count < BoardConfig::instance()->similars_ads_limit)
                         $sim_ads = array_slice($sim_ads, 0, BoardConfig::instance()->similars_ads_limit / 2);
-                    foreach(ORM::factory('BoardAd')->where('id', 'IN', array_keys($sim_ads))->and_where('publish', '=', 1)->find_all() as $_ad)
-                        $sim_ads[$_ad->id] = $_ad;
+                    $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $sim_ads).")"))->find_all()->as_array('id');
                     $this->template->content->set(array(
                         'sim_ads' => $sim_ads,
                         'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
@@ -605,6 +607,7 @@ class Controller_Board extends Controller_System_Page
             $ad->increaseViews();
 
             $ad_meta_params = array(
+                'ad_id' => $ad->id,
                 'ad_title' => $ad->getTitle(),
                 'ad_price' => html_entity_decode( $ad->getPrice( BoardConfig::instance()->priceTemplate($ad->price_unit) )),
                 'ad_descr' => $ad->getMetaDescription(),

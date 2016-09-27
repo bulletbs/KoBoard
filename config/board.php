@@ -38,6 +38,7 @@ return array(
     'region_category_h1'  => '<category> в <region_in>',
     'query_h1'            => '<query>',
     'user_search_h1'      => 'Объявления пользователя <username>',
+    'tags_h1'             => '<tag> в России',
 
     /* H2 settings */
     'region_h2'           => 'в <region_in>',
@@ -50,6 +51,7 @@ return array(
     'category_title'         => '<category> в <region_of> на доске объявлений <project><page>',
     'region_category_title'  => '<category> в <region_of> на доске объявлений <project><page>',
     'ad_title'               => '<ad_title> &#8212; <category> в <city_in> на доске объявлений <project><page>',
+    'tags_title'             => '<tag> в России',
 
     'add_title'              =>  'Подать бесплатное объявление на <project>',
     'region_map_title'       =>  'Карта реигонов и городов на <project>',

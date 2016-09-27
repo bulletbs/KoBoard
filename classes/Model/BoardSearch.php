@@ -7,6 +7,7 @@
 class Model_BoardSearch extends ORM{
 
     protected $_table_name = 'ad_search';
+    protected $_reload_on_wakeup   = FALSE;
 
     public function labels(){
         return array(

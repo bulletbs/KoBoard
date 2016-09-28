@@ -80,7 +80,7 @@ class Controller_Admin_BoardTags extends Controller_Admin_Crud{
             if(isset($_POST['cancel'])){
                 $this->go($this->_crud_uri . URL::query());
             }
-            $tags = explode("\n", Arr::get($_POST, 'tags', array()));
+            $tags = explode(PHP_EOL, Arr::get($_POST, 'tags', array()));
             $cnt = Arr::get($_POST, 'cnt', 0);
             $category_id = Arr::get($_POST, 'category_id', 0);
             if(count($tags)){

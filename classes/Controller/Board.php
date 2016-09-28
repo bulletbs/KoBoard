@@ -73,7 +73,6 @@ class Controller_Board extends Controller_System_Page
      * Категория
      */
     public function action_search(){
-        $title = '';
         $ads = Model_BoardAd::boardOrmFinder();
 
         /**********************
@@ -85,7 +84,6 @@ class Controller_Board extends Controller_System_Page
             if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
             $city = ORM::factory('BoardCity', $city)->fillNames();
-            $title = $this->board_cfg['h1_prefix'] . $city->name_in;
             $this->description = $city->name_in;
             $parents = $city->parents()->as_array('id');
             foreach($parents as $_parent)
@@ -100,7 +98,6 @@ class Controller_Board extends Controller_System_Page
             }
         }
         elseif($city_alias == 'all'){
-            $title = $this->board_cfg['h1_prefix'] . $this->board_cfg['all_country'];
         }
 
         /*************************
@@ -127,7 +124,6 @@ class Controller_Board extends Controller_System_Page
             else{
                 $ads->and_where('category_id','=',$category->id);
             }
-            $title = $this->board_cfg['h1_prefix'] . $category->name .' '. ($city instanceof ORM ? $city->name_of : $this->board_cfg['in_country']);
             $this->description = $category->getDescription() . (!empty($this->description) ? ' '.$this->description : '' );
         }
         else{
@@ -170,23 +166,20 @@ class Controller_Board extends Controller_System_Page
             $ads->and_where(DB::expr('MATCH(`title`'.(Arr::get($_GET, 'wdesc') > 0 ? ',description': '').')'), 'AGAINST', DB::expr("('".Arr::get($_GET, 'query')."' IN BOOLEAN MODE)"));
             /* Save search statistics */
             if(Request::current()->param('page') == NULL){
-                $search = ORM::factory('BoardSearch')
-                    ->where('category_id', '=', $category instanceof ORM ? $category->id : 0)
-                    ->and_where('query', '=', mb_strtolower($_query))
-                    ->find();
-                if(!$search->loaded())
-                    ORM::factory('BoardSearch')->values(array(
-                        'query' => mb_strtolower($_query),
-                        'category_id' => $category instanceof ORM ? $category->id : 0,
-                        'cnt' => 1,
-                    ))->save();
-
-                else{
-                    $search->cnt++;
-                    $search->update();
+                try{
+                    $search = Model_BoardSearch::findTag($_query, $category instanceof ORM ? $category->id : 0);
+                    if(!$search->loaded()){
+                            Model_BoardSearch::createTag($_query, $category instanceof ORM ? $category->id : 0);
+                    }
+                    else{
+                        $search->cnt++;
+                        $search->update();
+                    }
+                }
+                catch(ORM_Validation_Exception $e){
+                        $e->getMessage();
                 }
             }
-            $title = " ".$_query;
         }
 
         /*****************
@@ -212,7 +205,6 @@ class Controller_Board extends Controller_System_Page
             if($ad->loaded() && $ad->user_id){
                 $ads->and_where('user_id', '=', $ad->user_id);
                 $username = $ad->name;
-                $title = "Объявления пользователя ".$ad->name;
                 $this->template->content->set('search_by_user', true);
             }
         }
@@ -253,7 +245,6 @@ class Controller_Board extends Controller_System_Page
             if(isset($main_filter) && isset($filters_values[$main_filter['id']]) && !is_array($filters_values[$main_filter['id']])){
                 $main_filter['selected_name'] = $filters[$main_filter['id']]['options'][ $filters_values[$main_filter['id']] ];
                 $this->title = $main_filter['selected_name'] . (!empty($this->title) ? ' '.$this->title : '' );
-                $title = $main_filter['selected_name'] .' '. (isset($city) && $city ? $city->name : $this->board_cfg['in_country']);
                 $this->breadcrumbs->add($main_filter['selected_name'], false);
             }
             if(count($filters)){

@@ -352,6 +352,8 @@ class Controller_Board extends Controller_System_Page
         $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
         $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
         $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+        $this->scripts[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.js";
+        $this->styles[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.css";
         $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
         $this->add_meta_content(array(
@@ -1359,16 +1361,39 @@ class Controller_Board extends Controller_System_Page
 
     public function action_pagemoved(){
         $id = Request::$current->param('id');
+        $catid = Request::$current->param('cat_id');
         if(!is_null($id)){
             $ad = ORM::factory('BoardAd', $id);
             header("HTTP/1.1 301 Moved Permanently");
-            if($ad->loaded())
-                header("Location: ". URL::base() . $ad->getUri());
-            else
-                header("Location: /");
+            header("Location: ".($ad->loaded() ? URL::base() . $ad->getUri() : '/'));
+            exit();
+        }
+        elseif(!is_null($catid)){
+            $cat = ORM::factory('BoardCategory', $catid);
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: ".($cat->loaded() ? $cat->getUri('all') : '/'));
             exit();
         }
         throw new HTTP_Exception_404('Эта страница устарела и перенесена');
+    }
+
+    public function action_autocomplete(){
+        if(!Request::current()->is_ajax())
+            throw new HTTP_Exception_403();
+        $query = Arr::get($_GET, 'term', false);
+        if($query !== false){
+            $category_alias = Arr::get($_GET, 'category', false);
+            $category_id = ($category_alias ? Model_BoardCategory::getCategoryIdByAlias($category_alias) : 0);
+            $tags = DB::select()->from(ORM::factory('BoardSearch')->table_name())->where('query','LIKE', $query.'%')->and_where('category_id', '=', $category_id)->order_by('cnt','DESC')->limit(10)->execute();
+            $this->json['status'] = true;
+            foreach($tags as $_tag){
+                $this->json[] = array(
+                    'id' => 'tag_'.$_tag['id'],
+                    'label' => $_tag['query'],
+                    'value' => $_tag['query'],
+                );
+            }
+        }
     }
 
     /**

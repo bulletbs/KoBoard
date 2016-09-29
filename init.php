@@ -88,9 +88,20 @@ if(!Route::cache()){
             'action' => 'pagemoved',
         ));
 
+    Route::set('board_old_cats', 'pagemoved/c<cat_id>', array('cat_id' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'Board',
+            'action' => 'pagemoved',
+        ));
+
     Route::set('board_tag', 'tags/<cat_alias>/<tagid>(/p<page>)', array('id' => '[0-9]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'Board',
             'action' => 'tags',
+        ));
+    Route::set('board_autocomplete', 'autocomplete')
+        ->defaults(array(
+            'controller' => 'Board',
+            'action' => 'autocomplete',
         ));
 }

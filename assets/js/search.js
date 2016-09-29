@@ -1,5 +1,17 @@
 $(function(){
     var base_uri = '/';
+/**
+ * Подсказки в поиске
+ */
+$('#serchformQuery').autocomplete({
+    source: function( request, response ) {
+        $.getJSON( "/autocomplete", {
+            term: $('#serchformQuery').val(),
+            category: $('#categoryAlias').val()
+        }, response );
+    },
+    minLength: 3
+});
 
 /**
  * Города показать все или только крупные

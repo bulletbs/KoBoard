@@ -85,4 +85,5 @@ return array(
     'user_ads_limit'       => 5,
     'similars_ads_show'    => true,
     'similars_ads_limit'   => 8,
+    'title_in_search'      => false,
 );

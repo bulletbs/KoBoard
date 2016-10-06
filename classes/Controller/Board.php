@@ -644,8 +644,12 @@ class Controller_Board extends Controller_System_Page
             $breadcrumbs = clone $this->breadcrumbs;
             $breadcrumbs->setOption('addon_class', 'bread_crumbs_message');
 
-            $this->template->search_form = Widget::factory('BoardSearch')->render();
+            /* Other elements */
+            if(BoardConfig::instance()->title_in_search)
+                $_GET['query'] = $ad->getShortTitle();
             $region_counts = Model_BoardCity::regionCounter($region->id, $ad->category_id, 100);
+
+            $this->template->search_form = Widget::factory('BoardSearch')->render();
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,

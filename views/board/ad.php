@@ -182,6 +182,7 @@
         </div>
     </div>
     <div class="col_tools">
+        <?php echo Widget::factory('BoardTags', array('title'=>$ad->title.' '.$ad->description, 'pcategory_id'=>$ad->pcategory_id, 'category_id'=>$ad->category_id))?>
         <div class="alcenter">
             <?php echo Widget::factory('Banner240x400')?>
         </div>

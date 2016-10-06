@@ -640,6 +640,23 @@ table.tableccat tr:nth-child(2n) td {
     .message_actions .ya-share2{
         float: right;
     }
+.tags_block{
+    border: 1px solid #dadada;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px auto;
+}
+    .tags_block h3{
+        color: #314545;
+        font-weight: normal;
+        font-size: 18px;
+        border-bottom: 1px solid #dadada;
+        margin-bottom: 5px;
+    }
+    .tags_block a{
+        line-height: 20px;
+        font-size: 13px;
+    }
 .showAddress{
     display: none;
     height: 400px;

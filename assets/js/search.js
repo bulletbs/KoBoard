@@ -10,7 +10,7 @@ $('#serchformQuery').autocomplete({
             category: $('#categoryAlias').val()
         }, response );
     },
-    minLength: 3
+    minLength: 2
 });
 
 /**

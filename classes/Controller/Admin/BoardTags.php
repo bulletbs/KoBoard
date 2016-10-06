@@ -20,6 +20,7 @@ class Controller_Admin_BoardTags extends Controller_Admin_Crud{
     );
 
     protected $_sortable_fields = array(
+        'id'=>true,
         'query'=>true,
         'cnt'=>true,
     );

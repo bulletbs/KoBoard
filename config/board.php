@@ -86,4 +86,6 @@ return array(
     'similars_ads_show'    => true,
     'similars_ads_limit'   => 8,
     'title_in_search'      => false,
+    'ad_search_form'      => true,
+    'ad_last_modify'      => false,
 );

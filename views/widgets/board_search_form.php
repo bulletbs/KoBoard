@@ -7,11 +7,9 @@
     </div>
     <div id="regionLabel" class="selector">
         <?php echo Form::input(NULL, $region_name, array('placeholder'=>'Область', 'readonly'=>'readonly', 'id'=>'regionTopInput'))?>
-        <?php echo $city_list?>
     </div>
     <div id="categoryLabel" class="selector selector-last">
         <?php echo Form::input(NULL, $category_name, array('placeholder'=>'Категория', 'readonly'=>'readonly', 'id'=>'categoryTopInput'))?>
-        <?php echo $category_list?>
     </div>
     <?php echo Form::submit(NULL, 'Найти', array('id'=>'boardTopSubmit', 'class'=>'boardSubmit'))?>
     <div class="clear"></div>
@@ -20,30 +18,7 @@
     <div class="checkboxLabel advancedSearch"><a href="#" id="openAdvanced"><?php echo __('Advanced search')?></a></div>
 
     <div class="clear"></div>
-    <div id="filtersList" style="display: none;">
-        <?php echo $filters?>
-        <?if($priced_category):?>
-        <div class="filter">
-            <?= Form::input('price[from]', isset($price_filter['from']) ? $price_filter['from'] : NULL, array('id'=>'fromPriceFilter', 'placeholder'=>__( $is_job_category ? 'Salary' : 'Price').' '.__('From'), 'autocomplete'=>'off')) ?>
-            <?= Form::input('price[to]', isset($price_filter['to']) ? $price_filter['to'] : NULL, array('id'=>'toPriceFilter', 'placeholder'=>__($is_job_category ? 'Salary' : 'Price').' '.__('To'), 'autocomplete'=>'off')) ?>
-        </div>
-        <script type="text/javascript">
-            $(function(){
-                $('#fromPriceFilter').TipComplete({
-                    values : [<?php echo BoardConfig::instance()->priceHints() ?>],
-                    prefix: '<?php echo __('From')?>',
-                    suffix: '<?php echo BoardConfig::instance()->priceUnitName()?>',
-                });
-                $('#toPriceFilter').TipComplete({
-                    values : [<?php echo BoardConfig::instance()->priceHints() ?>],
-                    prefix: '<?php echo __('To')?>',
-                    suffix: '<?php echo BoardConfig::instance()->priceUnitName()?>',
-                });
-            });
-        </script>
-        <?endif?>
-        <div class="clear"></div>
-    </div>
+    <div id="filtersList" style="display: none;"></div>
     <?php echo Form::hidden(NULL, $category_alias, array('id'=>'categoryAlias'))?>
     <?php echo Form::hidden(NULL, $region_ailas, array('id'=>'regionAlias'))?>
     <div class="clear"></div>

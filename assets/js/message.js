@@ -59,7 +59,7 @@ $(function(){
     $('#toggleMap').click(function(e){
         e.preventDefault();
         if(!initMap){
-            show_address($(this).attr('rel'));
+            show_address($(this).data('address'));
             initMap = true;
         }
         $('#showAddress').toggle();

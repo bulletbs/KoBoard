@@ -228,12 +228,13 @@ class Controller_Board extends Controller_System_Page
                 'city_alias' => Request::$current->param('city_alias'),
                 'filter_alias' => '{{ALIAS}}',
             )));
-            $this->template->content->set('main_filter', $main_filter);
             if(NULL !== ($filter_alias = Request::$current->param('filter_alias'))){
                 if(!isset($main_filter['aliases'][$filter_alias]))
                     throw HTTP_Exception::factory('404', __('Page not found'));
                 $_GET['filters'][$main_filter['id']] = $main_filter['aliases'][$filter_alias];
+                $main_filter['value'] = $main_filter['aliases'][$filter_alias];
             }
+            $this->template->content->set('main_filter', $main_filter);
         }
 
         /*****************
@@ -354,6 +355,7 @@ class Controller_Board extends Controller_System_Page
         $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
         $this->scripts[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.js";
         $this->styles[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.css";
+        $this->scripts[] = "media/libs/jquery.lazyload/jquery.lazyload.min.js";
         $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
         $this->add_meta_content(array(
@@ -472,6 +474,9 @@ class Controller_Board extends Controller_System_Page
         $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
         $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
         $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+        $this->scripts[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.js";
+        $this->styles[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.css";
+        $this->scripts[] = "media/libs/jquery.lazyload/jquery.lazyload.min.js";
         $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
         $this->template->search_form = Widget::factory('BoardSearch')->render();
@@ -506,11 +511,13 @@ class Controller_Board extends Controller_System_Page
         $ad = $ad[0];
 
         if($ad instanceof ORM && $ad->loaded() && (empty($alias) || Text::transliterate($ad->title, true) == $alias)){
-//            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $ad->addtime){
-//                header('HTTP/1.1 304 Not Modified');
-//                die;
-//            }
-//            $this->add_page_header('Last-Modified: '.gmdate('D, d M Y H:i:s', $ad->addtime).' GMT');
+            if(BoardConfig::instance()->ad_last_modify){
+                if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $ad->addtime){
+                    header('HTTP/1.1 304 Not Modified');
+                    die;
+                }
+                $this->add_page_header('Last-Modified: '.gmdate('D, d M Y H:i:s', $ad->addtime).' GMT');
+            }
 
             /* Breadcrumbs & part parents */
             $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
@@ -637,6 +644,9 @@ class Controller_Board extends Controller_System_Page
                 $this->styles[] = "assets/board/js/jquery.tipcomplete/jquery.tipcomplete.css";
                 $this->styles[] = "assets/board/js/multiple-select/multiple-select.css";
                 $this->scripts[] = "assets/board/js/multiple-select/jquery.multiple.select.js";
+                $this->scripts[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.js";
+                $this->styles[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.css";
+                $this->scripts[] = "media/libs/jquery.lazyload/jquery.lazyload.min.js";
             }
 
             /* Bottom breadcrumbs */
@@ -649,7 +659,8 @@ class Controller_Board extends Controller_System_Page
                 $_GET['query'] = $ad->getShortTitle();
             $region_counts = Model_BoardCity::regionCounter($region->id, $ad->category_id, 100);
 
-            $this->template->search_form = Widget::factory('BoardSearch')->render();
+            if(BoardConfig::instance()->ad_search_form)
+                $this->template->search_form = Widget::factory('BoardSearch')->render();
             $this->template->content->set(array(
                 'ad' => $ad,
                 'photos' => $photos,

@@ -88,11 +88,11 @@
                     <?if(!empty($ad->address)):?>
                         <dt>Адрес</dt>
                         <dd>
-                        <span itemprop="streetAddress"><?php echo $ad->address?></span> &nbsp;&nbsp;<a href="#" rel="<?php echo BoardConfig::instance()->country_name.', '.$region->name.', '. $city->name .', '.$ad->address?>" id="toggleMap">Показать на карте</a>
+                        <span itemprop="streetAddress"><?php echo $ad->address?></span> &nbsp;&nbsp;<a href="#" data-address="<?php echo BoardConfig::instance()->country_name.', '.$region->name.', '. $city->name .', '.$ad->address?>" id="toggleMap">Показать на карте</a>
                         <div id="baloonHeader" class="hide"><?php echo $ad->getTitle() ?></div>
                         <div id="baloonContent" class="hide"><?php echo BoardConfig::instance()->country_name.', '.$region->name.', '. $city->name .', '.$ad->address?></div>
                         <div id="baloonFooter" class="hide"><b><?php echo __( $is_job_category ? 'Salary' : 'Price' )?>: <?php echo  $ad->getPrice($price_template) ?><small><?php echo $ad->getTrade()?></small></b></div>
-                        <script language="javascript" src="http://api-maps.yandex.ru/2.0/?load=package.full&amp;lang=ru-RU"></script>
+                        <script src="http://api-maps.yandex.ru/2.0/?load=package.full&amp;lang=ru-RU"></script>
                         </dd>
                     <?endif?>
                 </dl>

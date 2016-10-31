@@ -1,5 +1,5 @@
 <?php defined('SYSPATH') OR die('No direct script access.');?>
-
+<!--noindex-->
 <?if(count($filters)):?>
     <?foreach($filters as $filter_id=>$data):?>
     <div class="filter">
@@ -10,7 +10,7 @@
         <? elseif($data['type'] == 'childlist'): ?>
             <?= Form::select('filters['.$filter_id.']', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, Arr::merge(array('data-id'=>$filter_id, 'data-parent'=>$data['parent']), !isset($data['options']) || !count($data['options']) ? array('disabled'=>'disabled') : array()) ) ?>
         <? elseif($data['type'] == 'select'): ?>
-            <?= Form::select('filters['.$filter_id.'][]', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, array('id'=>'searchFilter'.$filter_id, 'data-id'=>$filter_id, 'multiple'=>'multiple', 'placeholder'=>$data['name'])) ?>
+            <?= Form::select('filters['.$filter_id.'][]', isset($data['options']) ? $data['options'] : array(), isset($data['value']) ? $data['value'] : NULL, array('id'=>'searchFilter'.$filter_id, 'data-id'=>$filter_id, 'multiple'=>'multiple', 'data-label'=>$data['name'])) ?>
             <script type="text/javascript">
             $(function() { $('#<?php echo 'searchFilter'.$filter_id?>').multipleSelect({
                 selectAllText: '<?php echo __('Any')?>',
@@ -50,3 +50,25 @@
     </div>
     <?endforeach;?>
 <?endif;?>
+<?if($priced_category):?>
+    <div class="filter">
+        <?= Form::input('price[from]', isset($price_filter['from']) ? $price_filter['from'] : NULL, array('id'=>'fromPriceFilter', 'placeholder'=>__( $is_job_category ? 'Salary' : 'Price').' '.__('From'), 'autocomplete'=>'off')) ?>
+        <?= Form::input('price[to]', isset($price_filter['to']) ? $price_filter['to'] : NULL, array('id'=>'toPriceFilter', 'placeholder'=>__($is_job_category ? 'Salary' : 'Price').' '.__('To'), 'autocomplete'=>'off')) ?>
+    </div>
+    <script type="text/javascript">
+        $(function(){
+            $('#fromPriceFilter').TipComplete({
+                values : [<?php echo BoardConfig::instance()->priceHints() ?>],
+                prefix: '<?php echo __('From')?>',
+                suffix: '<?php echo BoardConfig::instance()->priceUnitName()?>',
+            });
+            $('#toPriceFilter').TipComplete({
+                values : [<?php echo BoardConfig::instance()->priceHints() ?>],
+                prefix: '<?php echo __('To')?>',
+                suffix: '<?php echo BoardConfig::instance()->priceUnitName()?>',
+            });
+        });
+    </script>
+<?endif?>
+<div class="clear"></div>
+<!--/noindex-->

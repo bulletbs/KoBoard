@@ -1,14 +1,20 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
-    public $json = array();
+    public $json = array(
+        'status'=>true,
+    );
     public $skip_auto_content_apply = array(
+        'regions',
         'cities',
+        'parts',
+        'categories',
         'filters',
         'sub_filter',
     );
     const REGION_LIST_CACHE = 'searchRegionRendered';
     const CITY_LIST_CACHE = 'searchCitiesRendered_';
+    const PART_LIST_CACHE = 'searchPartsRendered';
     const CATEGORY_LIST_CACHE = 'searchCategoriesRendered';
     const FILTER_LIST_CACHE = 'searchFiltersRendered_';
 
@@ -40,16 +46,16 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
         $category_name = '';
         if($cat_alias){
             $category_id = Model_BoardCategory::getCategoryIdByAlias($cat_alias);
-            $filters = Model_BoardFilter::loadFiltersByCategory($category_id, TRUE);
-            Model_BoardFilter::loadSearchFilterValues($filters, Arr::get($_GET, 'filters', array()));
-            $filters_view = View::factory('widgets/_board_filters_search_list', array(
-                'filters' => $filters,
-            ))->render();
+//            $filters = Model_BoardFilter::loadFiltersByCategory($category_id, TRUE);
+//            Model_BoardFilter::loadSearchFilterValues($filters, Arr::get($_GET, 'filters', array()));
+//            $filters_view = View::factory('widgets/_board_filters_search_list', array(
+//                'filters' => $filters,
+//            ))->render();
             if($category_id)
                 $category_name = Model_BoardCategory::getField('name', $category_id);
         }
-        if(!$price_filter = Arr::get($_GET, 'price'))
-            $price_filter = array('from'=>NULL, 'to'=>NULL);
+//        if(!$price_filter = Arr::get($_GET, 'price'))
+//            $price_filter = array('from'=>NULL, 'to'=>NULL);
 
         /* REGION NAME */
         $region_name = '';
@@ -64,17 +70,48 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
 
             'region_name' =>  $region_name,
             'region_ailas' => $city_alias,
-            'city_list' => $this->_regionListRender(),
+//            'city_list' => $this->_regionListRender(),
 
             'category_name' => $category_name,
             'category_alias' => $cat_alias,
-            'category_list' => $this->_categoryListRender(),
-            'filters' => isset($filters_view) ? $filters_view : '',
+//            'category_list' => $this->_categoryListRender(),
+//            'filters' => isset($filters_view) ? $filters_view : '',
 
-            'price_filter' => $price_filter,
+//            'price_filter' => $price_filter,
             'is_job_category' => isset($category_id) && in_array($category_id, Model_BoardCategory::getJobIds()),
             'priced_category' => !(isset($category_id) && in_array($category_id, Model_BoardCategory::getNopriceIds())),
         ));
+    }
+
+    /**
+     * Get regions list
+     */
+    public function action_parts(){
+        if(!$this->request->is_ajax())
+            return NULL;
+        $this->json['content'] = $this->_partListRender();
+        echo json_encode($this->json);
+    }
+
+    /**
+     * Get regions list
+     */
+    public function action_categories(){
+        $part = (int) Request::current()->post('part_id');
+        if(!$this->request->is_ajax())
+            return NULL;
+        $this->json['content'] = $this->_categoryListRender($part);
+        echo json_encode($this->json);
+    }
+
+    /**
+     * Get regions list
+     */
+    public function action_regions(){
+        if(!$this->request->is_ajax())
+            return NULL;
+        $this->json['content'] = $this->_regionListRender();
+        echo json_encode($this->json);
     }
 
     /**
@@ -82,19 +119,9 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
      */
     public function action_cities(){
         $region = (int) Request::current()->post('region_id');
-        if(!$this->request->is_ajax() || !$region)
-            return NULL;
-
-        $region = ORM::factory('BoardCity', $region);
-        if($region->loaded() && NULL === ($this->json['content'] = Cache::instance()->get(self::CITY_LIST_CACHE . $region->id))){
-            $cities = DB::select('id', 'alias', 'parent_id', 'name')->from(ORM::factory('BoardCity')->table_name())->where('lvl','=',2)->where('parent_id','=',$region->id)->order_by('name')->as_assoc()->execute();
-            $template = View::factory('widgets/_board_cities_search_list')->set(array(
-                'cities' => $cities,
-                'region' => $region,
-            ));
-            $this->json['content'] = $template->render();
-            Cache::instance()->set(self::CITY_LIST_CACHE . $region->id, $this->json['content'], Date::DAY*365);
-        }
+//        if(!$this->request->is_ajax() || !$region)
+//            return NULL;
+        $this->json['content'] = $this->_citiesListRender($region);
         echo json_encode($this->json);
     }
 
@@ -105,20 +132,28 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
      * @throws View_Exception
      */
     public function action_filters(){
-        $category = (int) Request::current()->post('category_id');
-        if(!$this->request->is_ajax() || !$category)
+        if(!$this->request->is_ajax())
             return NULL;
-
+        $category = (int) Model_BoardCategory::getCategoryIdByAlias(Request::current()->post('category'));
+        $query = Request::current()->post('query');
+        $mainfilter = (int) Request::current()->post('mainfilter');
         $category = ORM::factory('BoardCategory', $category);
-        if($category->loaded() && NULL === ($this->json['content'] = Cache::instance()->get(self::FILTER_LIST_CACHE. $category->id))){
+        $filters = array();
+        parse_str($query, $post);
+        if($category->loaded()){
+            if($mainfilter){
+                $main_filter = Model_BoardFilter::loadMainFilter($category->id);
+                $post['filters'][$main_filter['id']] = $mainfilter;
+            }
             $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
-            $template = View::factory('widgets/_board_filters_list')->set(array(
-                'filters' => $filters,
-                'category' => $category,
-            ));
-            $this->json['content'] = $template->render();
-            Cache::instance()->set(self::FILTER_LIST_CACHE . $category->id, $this->json['content'], Date::HOUR*24);
+            Model_BoardFilter::loadSearchFilterValues($filters, Arr::get($post, 'filters', array()));
         }
+        $template = View::factory('widgets/_board_filters_search_list')->set(array(
+            'filters' => $filters,
+            'priced_category' => !(isset($category->id) && in_array($category->id, Model_BoardCategory::getNopriceIds())),
+            'price_filter' => Arr::get($post, 'price', array()),
+        ));
+        $this->json['content'] = $template->render();
         echo json_encode($this->json);
     }
 
@@ -160,7 +195,22 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
                 'all_uri'  => URL::base() . Route::get('board_city')->uri(),
             ));
             $content = $template->render();
-            Cache::instance()->set(self::REGION_LIST_CACHE, $content, Date::HOUR*24);
+            Cache::instance()->set(self::REGION_LIST_CACHE, $content, Date::YEAR);
+        }
+        return $content;
+    }
+
+    protected function _citiesListRender($region){
+        if(NULL === ($content = Cache::instance()->get(self::CITY_LIST_CACHE.$region))){
+            $region = DB::select('id', 'alias', 'name')->from(ORM::factory('BoardCity')->table_name())->where('id','=',$region)->and_where('lvl','=',1)->order_by('name')->as_assoc()->execute();
+            $region = $region[0];
+            $cities = DB::select('id', 'alias', 'parent_id', 'name')->from(ORM::factory('BoardCity')->table_name())->where('lvl','=',2)->where('parent_id','=',$region['id'])->order_by('name')->as_assoc()->execute();
+            $template = View::factory('widgets/_board_cities_search_list')->set(array(
+                'cities' => $cities,
+                'region' => $region,
+            ));
+            $content = $template->render();
+            Cache::instance()->set(self::CITY_LIST_CACHE . $region['id'], $content, Date::YEAR);
         }
         return $content;
     }
@@ -169,7 +219,57 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
      * Categories lists renderer
      * @return mixed|string
      */
-    protected function _categoryListRender(){
+    protected function _partListRender(){
+//        if(NULL === ($content = Cache::instance()->get(self::PART_LIST_CACHE))){
+            $result = DB::select('id', 'alias', 'name')->from(ORM::factory('BoardCategory')->table_name())->where('lvl','=',1)->order_by('name')->as_assoc()->execute();
+            $parts = array();
+            foreach($result as $part){
+                $part['link'] = URL::base() . Route::get('board_cat')->uri(array(
+                    'cat_alias' => $part['alias'],
+                ));
+                $parts[] = $part;
+            }
+            $template = View::factory('widgets/_board_part_search_list')->set(array(
+                'parts'  => $parts,
+                'all_uri'  => Route::get('board_cat')->uri(),
+            ));
+            $content = $template->render();
+//            Cache::instance()->set(self::PART_LIST_CACHE, $content, Date::YEAR);
+//        }
+        return $content;
+    }
+
+    /**
+     * Categories lists renderer
+     * @return mixed|string
+     */
+    protected function _categoryListRender($part_id){
+        if(NULL === ($content = Cache::instance()->get(self::CATEGORY_LIST_CACHE.$part_id))){
+            $part = DB::select('id', 'alias', 'name')->from(ORM::factory('BoardCategory')->table_name())->where('id','=',$part_id)->and_where('lvl','=',1)->order_by('name')->as_assoc()->execute();
+            $part = $part[0];
+            $part['link'] = URL::base() . Route::get('board_cat')->uri(array(
+                    'cat_alias' => $part['alias'],
+                ));
+            $result = DB::select('id', 'alias', 'parent_id', 'name')->from(ORM::factory('BoardCategory')->table_name())->where('lvl','=',2)->and_where('parent_id','=',$part_id)->order_by('name')->as_assoc()->execute();
+            $subcats = array();
+            foreach($result as $res)
+                $subcats[] = $res;
+            $template = View::factory('widgets/_board_category_search_list')->set(array(
+                'part'  => $part,
+                'subcats'  => $subcats,
+                'all_uri'  => Route::get('board_cat')->uri(),
+            ));
+            $content = $template->render();
+            Cache::instance()->set(self::CATEGORY_LIST_CACHE.$part_id, $content, Date::YEAR);
+        }
+        return $content;
+    }
+
+    /**
+     * Categories lists renderer
+     * @return mixed|string
+     */
+    protected function _full_categoryListRender(){
         if(NULL === ($content = Cache::instance()->get(self::CATEGORY_LIST_CACHE))){
             $result = DB::select('id', 'alias', 'name')->from(ORM::factory('BoardCategory')->table_name())->where('lvl','=',1)->order_by('name')->as_assoc()->execute();
             $categories = array();

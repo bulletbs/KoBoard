@@ -14,6 +14,13 @@ $('#serchformQuery').autocomplete({
 });
 
 /**
+* Подгрузка картинок
+*/
+$(".list_img img").lazyload({
+    threshold : 300
+});
+
+/**
  * Города показать все или только крупные
  */
     $('#showAllCity').click(function(e){
@@ -36,9 +43,19 @@ $('#serchformQuery').autocomplete({
  * Regions selector
  */
     $('#regionLabel input').on('click', function(){
-        $('.selectorWrapper:visible').hide(0);
-        $('#regionsList').show(50);
-        addMouseUpEvent('#regionsList');
+        if(!$('#regionsList').length){
+            $.ajax({
+                type: "POST",
+                url: base_uri+ 'boardSearch/regions',
+                dataType: 'json',
+                success: function(data){
+                    $('#regionLabel').append(data.content);
+                    showList('regionsList');
+                }
+            });
+        }
+        else
+            showList('regionsList');
     });
     $(document).on('click', '#regionLabel li', function(){
         if($(this).data('action') == 'go'){
@@ -55,17 +72,20 @@ $('#serchformQuery').autocomplete({
         else{
             $('#regionsList').slideUp(50);
             var regionId = $(this).data('id');
-            $.ajax({
-                type: "POST",
-                url: base_uri+ 'boardSearch/cities',
-                data: {'region_id':$(this).data('id')},
-                dataType: 'json',
-                success: function(data){
-                    $('#regionsList').after(data.content);
-                    $('#regionsCities_'+ regionId).slideDown(50);
-                    addMouseUpEvent('#regionsCities_'+ regionId);
-                }
-            });
+            if(!$('#regionsCities_'+ regionId).length){
+                $.ajax({
+                    type: "POST",
+                    url: base_uri+ 'boardSearch/cities',
+                    data: {'region_id':$(this).data('id')},
+                    dataType: 'json',
+                    success: function(data){
+                        $('#regionsList').after(data.content);
+                        showList('regionsCities_' + regionId);
+                    }
+                });
+            }
+            else
+                showList('regionsCities_'+ regionId);
         }
     });
 
@@ -73,11 +93,21 @@ $('#serchformQuery').autocomplete({
  * Category selector
  */
     $('#categoryLabel input').on('click', function(){
-        $('.selectorWrapper:visible').hide(0);
-        $('#categoriesList').show(50);;
-        addMouseUpEvent('#categoriesList');
+        if(!$('#categoriesList').length){
+            $.ajax({
+                type: "POST",
+                url: base_uri+ 'boardSearch/parts',
+                dataType: 'json',
+                success: function(data){
+                    $('#categoryLabel').append(data.content);
+                    showList('categoriesList');
+                }
+            });
+        }
+        else
+            showList('categoriesList');
     });
-    $('#categoryLabel li').on('click', function(){
+    $(document).on('click', '#categoryLabel li', function(){
         if($(this).data('action') == 'go'){
             $('#categoryAlias').val( $(this).data('alias') );
             $('#categoryTopInput').val( $(this).text() );
@@ -92,42 +122,23 @@ $('#serchformQuery').autocomplete({
         }
         else{
             $('#categoriesList').slideUp(50);
-            $('#categoriesSubcats_'+ $(this).data('id')).slideDown(50);
-            addMouseUpEvent('#categoriesSubcats_'+ $(this).data('id'));
+            var partId = $(this).data('id');
+            if(!$('#categoriesSubcats_'+ partId).length){
+                $.ajax({
+                    type: "POST",
+                    url: base_uri+ 'boardSearch/categories',
+                    data: {'part_id':partId},
+                    dataType: 'json',
+                    success: function(data){
+                        $('#categoriesList').after(data.content);
+                        showList('categoriesSubcats_'+ partId);
+                    }
+                });
+            }
+            else
+                showList('categoriesSubcats_'+ partId);
         }
     });
-
-$('#boardTopForm').submit(function(e){
-    e.preventDefault();
-    $(this).unbind('submit');
-    disableEmptyFilters();
-    $(this).attr('action', generateFormUri()).submit();
-});
-
-/**
- * Переключение main-фильтра
- */
-    $('#filtersList select[data-main="1"]').change(function(){
-        if(typeof subcat_options != 'undefined' && typeof subcat_options[$(this).val()] != 'undefined'){
-            var alias = subcat_options[$(this).val()];
-            var uri = basecat_uri.replace('{{ALIAS}}', alias);
-        }
-        else{
-            var uri = basecat_uri.replace('/{{ALIAS}}', '');
-            $("#filtersList select[data-parent="+$(this).data('id')+"]").val(null);
-        }
-        disableEmptyFilters();
-        $('#boardTopForm').unbind('submit');
-        $('#boardTopForm').attr('action', uri).submit();
-    });
-
-/**
- * Open advanced search (filters panel)
- */
-$('#openAdvanced').on('click', function(e){
-    e.preventDefault();
-    $('#filtersList').toggle(200);
-});
 
 /**
  * Click out of list of close button event handler
@@ -145,6 +156,53 @@ $('#openAdvanced').on('click', function(e){
     }
 
 /**
+ * Show list layer
+ * @param index
+ */
+    function showList(index){
+        $('.selectorWrapper:visible').hide(0);
+        $('#'+index).slideDown(50);
+        addMouseUpEvent('#'+index);
+    }
+/**
+ * Submit form
+ */
+    $('#boardTopForm').submit(function(e){
+        e.preventDefault();
+        $(this).unbind('submit');
+        disableEmptyFilters();
+        generateFormInputs();
+        $(this).attr('action', generateFormUri()).submit();
+    });
+
+/**
+ *  Disable empty fields
+ */
+    function disableEmptyFilters(){
+        $('#filtersList input[type=text], #filtersList select').each(function(){
+            if( !$(this).val() || $(this).data('main'))
+                $(this).attr('disabled', 'disabled');
+        });
+        if(!$('#serchformQuery').val())
+            $('#serchformQuery').attr('disabled', 'disabled');
+    }
+
+/**
+ * Generate hidden inputs by GET query when filter list invisible
+ */
+    function generateFormInputs(){
+        if($('#filtersList div.filter').length || window.location.href.indexOf('?')<=0)
+            return;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(var key in hashes)
+        {
+            var hash = hashes[key].split('=');
+            var input = $('<input>').attr('type', 'hidden').attr('name', decodeURI(hash[0])).val(hash[1]);
+            $('#filtersList').append(input);
+        }
+    }
+
+/**
  * Form action generator
  * @returns {string}
  */
@@ -156,11 +214,48 @@ $('#openAdvanced').on('click', function(e){
         uri += region ? region : 'all';
         if(category)
             uri += '/'+category;
-        if(mainfilter && typeof subcat_options != undefined && subcat_options[mainfilter])
-            uri += '/'+subcat_options[mainfilter];
+        if(typeof subcat_selected != 'undefined' && subcat_options[subcat_selected])
+            uri += '/'+subcat_options[subcat_selected];
         uri += '.html';
+    alert
+        if(!$('#filtersList div.filter').length && window.location.href.indexOf('?')>0)
+            uri += '?'+window.location.href.slice(window.location.href.indexOf('?') + 1);
         return uri;
     }
+
+/**
+ * Переключение main-фильтра
+ */
+    $(document).on('change', '#filtersList select[data-main="1"]', function(){
+        if(typeof subcat_options != 'undefined' && typeof subcat_options[$(this).val()] != 'undefined'){
+            var alias = subcat_options[$(this).val()];
+            var uri = decodeURI(basecat_uri).replace('{{ALIAS}}', alias);
+        }
+        else{
+            var uri = decodeURI(basecat_uri).replace('/{{ALIAS}}', '');
+            $("#filtersList select[data-parent="+$(this).data('id')+"]").val(null);
+        }
+        disableEmptyFilters();
+        $('#boardTopForm').unbind('submit');
+        $('#boardTopForm').attr('action', uri).submit();
+    });
+
+/**
+ * Open advanced search (filters panel)
+ */
+$('#openAdvanced').on('click', function(e){
+    e.preventDefault();
+    if($('#filtersList:visible').length){
+        $('#filtersList').toggle(200);
+    }
+    else{
+        if(!$('#filtersList div.filter').length){
+            loadCategoryFilters();
+        }
+        else
+            $('#filtersList').toggle(200);
+    }
+});
 
 /**
  * Category filters loading
@@ -169,10 +264,15 @@ $('#openAdvanced').on('click', function(e){
         $.ajax({
             type: "POST",
             url: base_uri+ 'boardSearch/filters',
-            data: {'region_id':$(this).data('id')},
+            data: {
+                query: window.location.href.indexOf('?')>0 ? window.location.href.slice(window.location.href.indexOf('?') + 1) : null,
+                category: $('#categoryAlias').val(),
+                mainfilter: typeof subcat_selected != 'undefined' ? subcat_selected : null
+            },
             dataType: 'json',
             success: function(data){
                 $('#filtersList').html(data.content);
+                $('#filtersList').slideDown(50);
             }
         });
     }
@@ -203,17 +303,5 @@ $('#openAdvanced').on('click', function(e){
                     $('#filtersList select[data-id='+ id +']').attr("disabled", "disabled").html('');
             }
         })
-    }
-
-    /**
-     *  Disable empty fields
-     */
-    function disableEmptyFilters(){
-        $('#filtersList input[type=text], #filtersList select').each(function(){
-            if( !$(this).val() || $(this).data('main'))
-                $(this).attr('disabled', 'disabled');
-        });
-        if(!$('#serchformQuery').val())
-            $('#serchformQuery').attr('disabled', 'disabled');
     }
 });

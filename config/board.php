@@ -11,6 +11,7 @@ return array(
     'all_country'      => 'России',
     'in_country'       => 'в России',
     'h1_prefix'       => 'Все объявления в ',
+    'breadcrumbs_prefix'       => 'Все объявления ',
     'show_ads_on_main'       => true,
 
     'price_units'       => array(

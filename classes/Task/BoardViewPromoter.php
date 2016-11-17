@@ -20,13 +20,22 @@ class Task_BoardViewPromoter extends Minion_Task
         );
 
         /**
+         * Clear views 1st day of month
+         */
+        if(date('j') == 1){
+            DB::update($table)->set(array(
+                'views'=>0,
+            ))->execute();
+        }
+
+        /**
          * Load views and clean cache
          */
         $limit = 1;
         $updated = 0;
         $ids = DB::select('id')->from($table)->where('addtime','BETWEEN', array($year_prev[0], $year_now[1]))->and_where('publish', '=', '1')->execute();
         foreach($ids as $row){
-            DB::update($table)->set(array('views'=>DB::expr('views+' . mt_rand(3, 15))))->where('id','=',$row['id'])->execute();
+            DB::update($table)->set(array('views'=>DB::expr('views+' . mt_rand(1, 3))))->where('id','=',$row['id'])->execute();
             $updated++;
 //            $limit--;
 //            if(!$limit)

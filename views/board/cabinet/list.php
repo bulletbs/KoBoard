@@ -30,7 +30,7 @@
                     <?endif?>
                     <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'remove', 'id'=>$ad->id))?>" class='pure-button pure-button-error' title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i></a>
                     <br/><br/>
-                    <span class="quiet">Просмотров: <?php echo $ad->views ?></span>
+                    <span class="quiet">Просмотров за <?php echo Date::currentMonth()?>: <?php echo $ad->views ?></span>
                 </td>
             </tr>
         </table>

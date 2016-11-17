@@ -86,10 +86,11 @@ class Controller_Board extends Controller_System_Page
             $city = ORM::factory('BoardCity', $city)->fillNames();
             $this->description = $city->name_in;
             $parents = $city->parents()->as_array('id');
-            foreach($parents as $_parent)
-                    $this->breadcrumbs->add($_parent->name, $_parent->getUri());
-            if(BoardConfig::instance()->breadcrumbs_region_title)
-                $this->breadcrumbs->add($city->name, $city->getUri());
+//            foreach($parents as $_parent)
+//                    $this->breadcrumbs->add($_parent->name, $_parent->getUri());
+//            if(BoardConfig::instance()->breadcrumbs_region_title)
+//                $this->breadcrumbs->add($city->name, $city->getUri());
+            $this->breadcrumbs = Breadcrumbs::factory()->add(BoardConfig::instance()->breadcrumbs_prefix.$city->name_of, $city->getUri());
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
             }
@@ -150,8 +151,7 @@ class Controller_Board extends Controller_System_Page
         if(!$city instanceof ORM || !$city->parent_id){
             $city_id = $city instanceof ORM ? $city->id : NULL;
             $category_id = $category instanceof ORM ? $category->id : NULL;
-            $limit = $city instanceof ORM ? 100 : 500;
-            $ads_count = Model_BoardCity::regionCounter($city_id, $category_id, $limit);
+            $ads_count = Model_BoardCity::regionCounter($city_id, $category_id, 0.1);
             $this->template->content->set(array(
                 'city_counter'=> $ads_count['all'],
                 'big_city_counter'=> $ads_count['big'],
@@ -163,21 +163,25 @@ class Controller_Board extends Controller_System_Page
          */
         $_query = Arr::get($_GET, 'query');
         if(!empty($_query) && mb_strlen($_query) >= 3){
-            $ads->and_where(DB::expr('MATCH(`title`'.(Arr::get($_GET, 'wdesc') > 0 ? ',description': '').')'), 'AGAINST', DB::expr("('".Arr::get($_GET, 'query')."' IN BOOLEAN MODE)"));
-            /* Save search statistics */
-            if(Request::current()->param('page') == NULL){
-                try{
-                    $search = Model_BoardSearch::findTag($_query, $category instanceof ORM ? $category->id : 0);
-                    if(!$search->loaded()){
+            $_query = Text::stripSQL(urldecode($_query));
+            $_GET['query'] = $_query;
+            if(!empty($_query)){
+                $ads->and_where(DB::expr('MATCH(`title`'.(Arr::get($_GET, 'wdesc') > 0 ? ',description': '').')'), 'AGAINST', DB::expr("('".Arr::get($_GET, 'query')."' IN BOOLEAN MODE)"));
+                /* Save search statistics */
+                if(Request::current()->param('page') == NULL){
+                    try{
+                        $search = Model_BoardSearch::findTag($_query, $category instanceof ORM ? $category->id : 0);
+                        if(!$search->loaded()){
                             Model_BoardSearch::createTag($_query, $category instanceof ORM ? $category->id : 0);
+                        }
+                        else{
+                            $search->cnt++;
+                            $search->update();
+                        }
                     }
-                    else{
-                        $search->cnt++;
-                        $search->update();
-                    }
-                }
-                catch(ORM_Validation_Exception $e){
+                    catch(ORM_Validation_Exception $e){
                         $e->getMessage();
+                    }
                 }
             }
         }
@@ -343,6 +347,12 @@ class Controller_Board extends Controller_System_Page
         $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
         $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
         $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . "media/css/images/logo.png"));
+        if($count[0]['cnt'] == 0){
+            $this->replace_meta_content('name', array(
+                'name'=>'robots',
+                'content'=>'noindex,nofollow',
+            ));
+        }
 
         /*****************
          * scripts / styles / widgets
@@ -358,10 +368,10 @@ class Controller_Board extends Controller_System_Page
         $this->scripts[] = "media/libs/jquery.lazyload/jquery.lazyload.min.js";
         $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
-        $this->add_meta_content(array(
-            'name'=>'revisit-after',
-            'content'=>'1 days',
-        ));
+//        $this->add_meta_content(array(
+//            'name'=>'revisit-after',
+//            'content'=>'1 days',
+//        ));
 //        $this->add_meta_content(array(
 //            'tag' => 'link',
 //            'rel' => 'canonical',
@@ -521,10 +531,11 @@ class Controller_Board extends Controller_System_Page
 
             /* Breadcrumbs & part parents */
             $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
-            foreach($city_parents as $_parent)
-                $this->breadcrumbs->add($_parent->name, $_parent->getUri());
+//            foreach($city_parents as $_parent)
+//                $this->breadcrumbs->add($_parent->name, $_parent->getUri());
             $city = $city_parents[$ad->city_id];
             $region = isset($city_parents[$city->parent_id]) ? $city_parents[$city->parent_id] : $city;
+            $this->breadcrumbs = Breadcrumbs::factory()->add(BoardConfig::instance()->breadcrumbs_prefix.$city->name_of, $city->getUri());
 
             $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
             foreach($category_parents as $_parent)

@@ -50,6 +50,7 @@ class Controller_Admin_BoardTags extends Controller_Admin_Crud{
         'query'=>array(
             'label' => 'По тегу',
             'type' => 'text',
+            'oper'=>'like',
         ),
         'category_id'=>array(
             'label' => 'Категория',

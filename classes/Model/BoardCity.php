@@ -251,13 +251,13 @@ class Model_BoardCity extends ORM_MPTT{
      *      'all' => ... all cities pairs city_id=>count,
      *      'big' => ... only big cities pairs city_id=>count (> $big_limit)
      * )
-     * @param int|null $region_id
-     * @param int|null $category_id
-     * @param int $big_limit
+     * @param int|null $region_id - region ID
+     * @param int|null $category_id - category ID
+     * @param int $big_limit_percent - percent of total amount for big region
      * @return array
      * @throws Kohana_Exception
      */
-    public static function regionCounter($region_id=NULL, $category_id=NULL, $big_limit = 100){
+    public static function regionCounter($region_id=NULL, $category_id=NULL, $big_limit_percent=20){
         $regions = array(
             'big' => array(),
             'all' => array(),
@@ -269,11 +269,12 @@ class Model_BoardCity extends ORM_MPTT{
         if($category_id)
             $sql->and_where((Model_BoardCategory::getField('parent_id', $category_id) ? '' : 'p') . 'category_id', '=', $category_id);
         $_ads_count = $sql->group_by('cit_id')->order_by('cnt', 'DESC')->cached(Date::HOUR)->execute()->as_array('cit_id', 'cnt');
+        $_total_count = array_sum($_ads_count);
         $_childs = ORM::factory('BoardCity')->where('parent_id', '=', $region_id ? $region_id : 0)->order_by('name', 'ASC')->cached(Date::MONTH)->find_all()->as_array('id','name');
         foreach($_childs as $_city_id=>$_city){
             if(isset($_ads_count[ $_city_id ])){
                 $regions['all'][$_city_id] = $_ads_count[ $_city_id ];
-                if($_ads_count[ $_city_id ] > $big_limit)
+                if($_ads_count[ $_city_id ]/$_total_count > $big_limit_percent/100)
                     $regions['big'][$_city_id] = $_ads_count[ $_city_id ];
             }
         }

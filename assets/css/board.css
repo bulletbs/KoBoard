@@ -1,4 +1,4 @@
-/* MAINPAGE */
+    /* MAINPAGE */
 .map{
     margin: 0 auto;
     display: block;
@@ -542,6 +542,7 @@ table.tableccat tr:nth-child(2n) td {
 }
     .message h1{
         font-size: 24px;
+        line-height: 35px;
         font-weight: normal;
         padding-bottom: 7px;
     }
@@ -901,8 +902,16 @@ table.tableccat tr:nth-child(2n) td {
     .board_search_form .selectorWrapper li {
         list-style: none;
         margin: 0;
-        padding: 5px 5px;
+        padding: 5px 5px 5px 20px;
         cursor: pointer;
+        position: relative;
+    }
+    .board_search_form .selectorWrapper li span {
+        font-weight: bold;
+        font-size: 1.3em;
+        position: absolute;
+        color: #5a5a5a;
+        left: 0;
     }
     .board_search_form .selector:hover .selectorWrapper ul > li:hover {
         background: #333;
@@ -1016,4 +1025,34 @@ table.tableccat tr:nth-child(2n) td {
     .profile_legend .pure-button{
         width: 35px;
         margin: 0 10px 5px 0;
+    }
+
+/*  FAVORITES */
+
+.h1_favorite{
+    display: block;
+    float: left;
+    background: url("images/ico_favorite.png") center center no-repeat;
+    width: 41px;
+    height: 34px;
+    margin-right: 5px;
+}
+    .h1_favorite_out{
+        background: url("images/ico_out_favorite.png") center center no-repeat;
+    }
+    .favorite_tooltip{
+        position: fixed;
+        visibility: hidden;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 15px !important;
+        margin: 5px auto;
+    }
+    .favorite_tooltip .tip-arrow{
+        display: none;
+    }
+    .favorite_tooltip .tip-inner{
+        font-weight: bold !important;
+        text-align: center;
     }

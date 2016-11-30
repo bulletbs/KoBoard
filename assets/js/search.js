@@ -1,5 +1,7 @@
 $(function(){
     var base_uri = '/';
+    $(document).ajaxStart(function() { $('#loading_layer').show(); });
+    $(document).ajaxStop(function() { $('#loading_layer').hide(); });
 /**
  * Подсказки в поиске
  */
@@ -19,6 +21,23 @@ $('#serchformQuery').autocomplete({
 $(".list_img img").lazyload({
     threshold : 300
 });
+
+/**
+ * Ссылка на регион из заголовка
+ */
+if($('#region-link').length){
+    $('#region-link').css({
+        cursor: 'pointer',
+        color: $('#openAdvanced').css('color'),
+    });
+    $('#region-link').hover(
+        function(){$(this).css({'text-decoration':'underline'})} ,
+        function(){$(this).css({'text-decoration':'none'})}
+    );
+    $('#region-link').on('click', function(){
+        $('#regionLabel input').trigger('click');
+    });
+}
 
 /**
  * Города показать все или только крупные
@@ -207,6 +226,7 @@ $(".list_img img").lazyload({
  * @returns {string}
  */
     function generateFormUri(){
+        $('#loading_layer').show();
         var uri = '/';
         var region = $('#regionAlias').val();
         var category = $('#categoryAlias').val();

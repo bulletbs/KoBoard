@@ -788,12 +788,14 @@ class Model_BoardAd extends ORM{
      * Request module parts links array for sitemap generation
      * @return array
      */
-    public function sitemapAds(){
+    public function sitemapAds($config){
         $amount = Model_BoardAd::boardOrmCounter()->execute();
         $amount = $amount[0]['cnt'];
         $step = 10000;
         $path = 'media/upload/sitemap/';
 
+        $priority = isset($config['priority']) ? $config['priority'] : 0.5;
+        $frequency = isset($config['frequency']) ? $config['frequency'] : 'daily';
         $sitemaps = array();
         for($i=0; $i*$step < $amount; $i++){
             $sitemap = new Sitemap();
@@ -807,8 +809,8 @@ class Model_BoardAd extends ORM{
                 $url->set_loc(URL::base('http').$_link->getUri())
                     ->set_last_mod($_link->addtime)
                     ->set_last_mod(time())
-                    ->set_change_frequency('hourly')
-                    ->set_priority('0.7');
+                    ->set_change_frequency($frequency)
+                    ->set_priority($priority);
                 $sitemap->add($url);
             }
             $response = $sitemap->render();

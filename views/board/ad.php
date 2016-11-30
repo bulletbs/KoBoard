@@ -14,6 +14,7 @@
             });
         </script>
         <?php endif?>
+        <a href="" class="h1_favorite" id="go_favorite_2" data-item="<?php echo $ad->id?>" title="Удалить из избранного"></a>
         <h1 itemprop="name" class="big_36"><?php echo $ad->getTitle()?></h1>
         <div class="clear"></div>
         <div><b><?php echo __('Added')?>:</b> <?php echo Date::smart_date($ad->addtime) ?> в <?= date('G:i', $ad->addtime) ?>&nbsp; | &nbsp;<b><?php echo __('Views')?>:</b> <?php echo $ad->views ?>&nbsp; | &nbsp;<b>ID:</b> <?php echo $ad->id ?>&nbsp; | &nbsp;<a href="#advertisement">Текст объявления</a>&nbsp; | &nbsp;<a href="#characteristics">Характеристики</a>&nbsp; | &nbsp;<a href="#contacts">Контакты</a>&nbsp; | &nbsp;<a href="#price">Цена</a></div>

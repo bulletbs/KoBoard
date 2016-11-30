@@ -11,9 +11,10 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
 {
     CONST MAILER_MODEL = 'BoardMailer';
     CONST MAILER_LETTER_TEMPLATE = 'board/mail/ad_refresh_reminder';
-    CONST MAILER_LIMIT = 10000;
 
     CONST MAILER_DAYS_AGO = 30;
+
+    public $mailer_limit = 5000;
 
     public $skip_auto_content_apply = array(
         'create',
@@ -21,6 +22,13 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         'sendtest',
         'testgit',
     );
+
+    public function before()
+    {
+        parent::before();
+        if(BoardConfig::instance()->mailer_queue_step)
+            $this->mailer_limit = BoardConfig::instance()->mailer_queue_step;
+    }
 
     public function action_index(){
         $this->scripts[] = "media/libs/bootstrap/js/bootbox.min.js";
@@ -37,7 +45,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         $this->template->content->set(array(
             'total' => $total,
             'last' => $last,
-            'stepcount' => self::MAILER_LIMIT,
+            'stepcount' => $this->mailer_limit,
             'admin_email' => $this->config['contact_email'],
             'letter' => $letter,
         ));
@@ -75,18 +83,18 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         $mails = DB::select('email', 'user_id')
             ->from($table)
             ->where('sended', '=', 0)
-            ->limit(self::MAILER_LIMIT)
+            ->limit($this->mailer_limit)
             ->execute();
 
         if(count($mails)){
             foreach($mails as $step=>$mail){
-                if($step >= self::MAILER_LIMIT)
+                if($step >= $this->mailer_limit)
                     break;
                 $this->_sendMailerLetter($mail['email'], $mail['user_id']);
                 DB::update($table)->set(array('sended'=>1))->where('user_id', '=', $mail['user_id'])->execute();
             }
         }
-        Flash::success('Отправлено писем: '. self::MAILER_LIMIT);
+        Flash::success('Отправлено писем: '. $this->mailer_limit);
         $this->go('/admin/boardSender');
     }
 
@@ -124,9 +132,5 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
             ->subject(KoMS::config()->project['name'] .': Ваше объявление давно не обновлялось')
             ->message($template->render(), true)->send();
 
-    }
-
-    public function action_testgit(){
-        echo 123;
     }
 }

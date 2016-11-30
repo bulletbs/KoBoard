@@ -89,4 +89,7 @@ return array(
     'title_in_search'      => false,
     'ad_search_form'      => true,
     'ad_last_modify'      => false,
+
+    /* Mailer settings */
+    'mailer_queue_step' => 3000,
 );

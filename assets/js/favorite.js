@@ -1,25 +1,32 @@
 $(function(){
-    $(document).ajaxStart(function() { $('#loading_layer').show(); });
-    $(document).ajaxStop(function() { $('#loading_layer').hide(); });
+    //$(document).ajaxStart(function() { $('#loading_layer').show(); });
+    //$(document).ajaxStop(function() { $('#loading_layer').hide(); });
 
     var base_uri = '/board/';
 
     /**************************
      * Message item Section
      */
-    $('.message_actions').on('click', '#go_favorite', function(e){
-        e.preventDefault();
-        var oper = $(this).hasClass('delfav') ? 'del' : 'add';
-        makeFavorite($(this).data('item'), oper);
-        if(oper == 'del'){
-            $(this).text('В избранное');
-            $(this).removeClass('delfav');
-        }
-        else{
-            $(this).text('Удалить из избранного');
-            $(this).addClass('delfav');
-        }
-    });
+    if($('.message').length){
+        $('.message').on('click', '#go_favorite,#go_favorite_2', function(e){
+            e.preventDefault();
+        var oper = $('#go_favorite').hasClass('delfav') ? 'del' : 'add';
+            makeFavorite($(this).data('item'), oper);
+            if(oper == 'del'){
+                $('#go_favorite').text('В избранное');
+                $('#go_favorite').removeClass('delfav');
+                $('#go_favorite_2').removeClass('h1_favorite_out');
+            }
+            else{
+                $('#go_favorite').text('Удалить из избранного');
+                $('#go_favorite').addClass('delfav');
+                $('#go_favorite_2').addClass('h1_favorite_out');
+            }
+            toastr.success('Объявление №'+$(this).data('item')+' ' + ($('#go_favorite').hasClass('delfav') ? 'добавлено в избранное' : 'удалено из избранного'), 'Избранное', {timeOut: 3000});
+        });
+        if($('#go_favorite').hasClass('delfav'))
+            $('#go_favorite_2').addClass('h1_favorite_out');
+    }
 
     /**************************
      * AD List Section
@@ -35,6 +42,7 @@ $(function(){
         makeFavorite($(this).data('item'), oper);
         $(this).attr('class', oper == 'del' ? 'ico_favorite' : 'ico_out_favorite');
         $(this).attr('title', oper == 'del' ? 'В избранное':'Удалить из избранного');
+        toastr.success('Объявление №'+$(this).data('item')+' ' + (oper != 'del' ? 'добавлено в избранное' : 'удалено из избранного'), 'Избранное', {timeOut: 3000});
     });
 
     /* After load favorite icons checker */

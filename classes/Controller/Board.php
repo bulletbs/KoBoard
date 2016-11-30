@@ -151,7 +151,7 @@ class Controller_Board extends Controller_System_Page
         if(!$city instanceof ORM || !$city->parent_id){
             $city_id = $city instanceof ORM ? $city->id : NULL;
             $category_id = $category instanceof ORM ? $category->id : NULL;
-            $ads_count = Model_BoardCity::regionCounter($city_id, $category_id, 0.1);
+            $ads_count = Model_BoardCity::regionCounter($city_id, $category_id, 0.5);
             $this->template->content->set(array(
                 'city_counter'=> $ads_count['all'],
                 'big_city_counter'=> $ads_count['big'],
@@ -162,7 +162,7 @@ class Controller_Board extends Controller_System_Page
          * Поиск по тексту
          */
         $_query = Arr::get($_GET, 'query');
-        if(!empty($_query) && mb_strlen($_query) >= 3){
+        if(!empty($_query) && mb_strlen($_query) >= 5){
             $_query = Text::stripSQL(urldecode($_query));
             $_GET['query'] = $_query;
             if(!empty($_query)){
@@ -184,6 +184,10 @@ class Controller_Board extends Controller_System_Page
                     }
                 }
             }
+        }
+        elseif(!empty($_query) && mb_strlen($_query) < 5){
+            unset($_GET['query']);
+            unset($_query);
         }
 
         /*****************
@@ -341,7 +345,7 @@ class Controller_Board extends Controller_System_Page
         $title = $this->_generateMetaTitle(str_replace('title', 'h1', $title_type), $title_params);
         $subtitle = $this->_generateMetaTitle(str_replace('title', 'h2', $title_type), $title_params);
 
-        $this->add_meta_content(array('property'=>'og:title', 'content'=>$title));
+        $this->add_meta_content(array('property'=>'og:title', 'content'=>strip_tags($title)));
         $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
         $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base('http')));
         $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
@@ -366,6 +370,9 @@ class Controller_Board extends Controller_System_Page
         $this->scripts[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.js";
         $this->styles[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.css";
         $this->scripts[] = "media/libs/jquery.lazyload/jquery.lazyload.min.js";
+        $this->styles[] = "media/libs/toastr/build/toastr.css";
+        $this->scripts[] = "media/libs/toastr/build/toastr.min.js";
+
         $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 
 //        $this->add_meta_content(array(
@@ -658,6 +665,8 @@ class Controller_Board extends Controller_System_Page
                 $this->scripts[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.js";
                 $this->styles[] = "media/libs/jquery-ui-1.12.1.custom/jquery-ui.min.css";
                 $this->scripts[] = "media/libs/jquery.lazyload/jquery.lazyload.min.js";
+                $this->styles[] = "media/libs/toastr/build/toastr.css";
+                $this->scripts[] = "media/libs/toastr/build/toastr.min.js";
             }
 
             /* Bottom breadcrumbs */

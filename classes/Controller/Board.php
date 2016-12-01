@@ -611,10 +611,11 @@ class Controller_Board extends Controller_System_Page
                     if($sim_count < BoardConfig::instance()->similars_ads_limit)
                         $sim_ads = array_slice($sim_ads, 0, BoardConfig::instance()->similars_ads_limit / 2);
                     $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $sim_ads).")"))->find_all()->as_array('id');
-                    $this->template->content->set(array(
-                        'sim_ads' => $sim_ads,
-                        'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
-                    ));
+                    if(count($sim_ads))
+                        $this->template->content->set(array(
+                            'sim_ads' => $sim_ads,
+                            'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
+                        ));
                 }
             }
 

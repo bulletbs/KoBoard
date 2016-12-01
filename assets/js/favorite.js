@@ -22,7 +22,7 @@ $(function(){
                 $('#go_favorite').addClass('delfav');
                 $('#go_favorite_2').addClass('h1_favorite_out');
             }
-            toastr.success('Объявление №'+$(this).data('item')+' ' + ($('#go_favorite').hasClass('delfav') ? 'добавлено в избранное' : 'удалено из избранного'), 'Избранное', {timeOut: 3000});
+            toastr.success('Объявление №'+$(this).data('item')+' ' + ($('#go_favorite').hasClass('delfav') ? 'добавлено в избранное' : 'удалено из избранного'), '<a href="/favorites">Перейти в избранное</a>', {timeOut: 3000});
         });
         if($('#go_favorite').hasClass('delfav'))
             $('#go_favorite_2').addClass('h1_favorite_out');
@@ -42,7 +42,7 @@ $(function(){
         makeFavorite($(this).data('item'), oper);
         $(this).attr('class', oper == 'del' ? 'ico_favorite' : 'ico_out_favorite');
         $(this).attr('title', oper == 'del' ? 'В избранное':'Удалить из избранного');
-        toastr.success('Объявление №'+$(this).data('item')+' ' + (oper != 'del' ? 'добавлено в избранное' : 'удалено из избранного'), 'Избранное', {timeOut: 3000});
+        toastr.success('Объявление №'+$(this).data('item')+' ' + (oper != 'del' ? 'добавлено в избранное' : 'удалено из избранного'), '<a href="/favorites">Перейти в избранное</a>', {timeOut: 3000});
     });
 
     /* After load favorite icons checker */

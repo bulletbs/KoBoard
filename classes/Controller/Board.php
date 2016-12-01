@@ -1135,6 +1135,8 @@ class Controller_Board extends Controller_System_Page
             $this->mobile_scripts[] = "assets/board/js/favorite.js";
         else
             $this->scripts[] = "assets/board/js/favorite.js";
+        $this->styles[] = "media/libs/toastr/build/toastr.css";
+        $this->scripts[] = "media/libs/toastr/build/toastr.min.js";
         $this->template->content->set(array(
             'ads' => $ads,
             'photos' => $photos,

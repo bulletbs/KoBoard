@@ -608,14 +608,15 @@ class Controller_Board extends Controller_System_Page
                     $sim_ads = array();
                     foreach($spinx_ads as $_ad)
                         $sim_ads[] = $_ad['id'];
-                    if($sim_count < BoardConfig::instance()->similars_ads_limit)
-                        $sim_ads = array_slice($sim_ads, 0, BoardConfig::instance()->similars_ads_limit / 2);
                     $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $sim_ads).")"))->find_all()->as_array('id');
-                    if(count($sim_ads))
+                    if(count($sim_ads) && count($sim_ads)>=BoardConfig::instance()->similars_ads_limit / 2){
+                        if(count($sim_ads)< BoardConfig::instance()->similars_ads_limit)
+                            $sim_ads = array_slice($sim_ads, 0, BoardConfig::instance()->similars_ads_limit / 2);
                         $this->template->content->set(array(
                             'sim_ads' => $sim_ads,
                             'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
                         ));
+                    }
                 }
             }
 

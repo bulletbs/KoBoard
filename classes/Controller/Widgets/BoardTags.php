@@ -33,7 +33,7 @@ class Controller_Widgets_BoardTags extends Controller_System_Widgets {
             $category_id = Model_BoardCategory::getCategoryIdByAlias($category);
         else
             $category_id = 0;
-        $tags = ORM::factory('BoardSearch')->where('category_id', '=', $category_id)->cached(Date::DAY)->order_by('cnt','DESC')->limit(15)->find_all()->as_array('id');
+        $tags = ORM::factory('BoardSearch')->where('category_id', '=', $category_id)->and_where('cnt','>', 10)->cached(Date::DAY)->order_by('cnt','DESC')->limit(15)->find_all()->as_array('id');
         return array_values($tags);
     }
 

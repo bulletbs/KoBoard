@@ -165,7 +165,7 @@ class Controller_Board extends Controller_System_Page
         if(!empty($_query) && mb_strlen($_query) >= 5){
             $_query = Text::stripSQL(urldecode($_query));
             $_GET['query'] = $_query;
-            if(!empty($_query)){
+            if(!empty($_query) && mb_strlen($_query) >= 5){
                 $ads->and_where(DB::expr('MATCH(`title`'.(Arr::get($_GET, 'wdesc') > 0 ? ',description': '').')'), 'AGAINST', DB::expr("('".Arr::get($_GET, 'query')."' IN BOOLEAN MODE)"));
                 /* Save search statistics */
                 if(Request::current()->param('page') == NULL){
@@ -185,7 +185,7 @@ class Controller_Board extends Controller_System_Page
                 }
             }
         }
-        elseif(!empty($_query) && mb_strlen($_query) < 5){
+        if(mb_strlen($_query) < 5){
             unset($_GET['query']);
             unset($_query);
         }

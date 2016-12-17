@@ -802,11 +802,11 @@ class Model_BoardAd extends ORM{
             $sitemap->gzip = TRUE;
             $url = new Sitemap_URL;
             $file = DOCROOT . $path . "board_ads_".($i+1).".xml.gz";
-            $sitemap_link = URL::base('http'). $path ."board_ads_".($i+1).".xml.gz";
+            $sitemap_link = URL::base(KoMS::protocol()). $path ."board_ads_".($i+1).".xml.gz";
 
             $links = Model_BoardAd::boardOrmFinder()->offset($i*$step)->limit($step)->execute();
             foreach($links as $_link){
-                $url->set_loc(URL::base('http').$_link->getUri())
+                $url->set_loc(URL::base(KoMS::protocol()).$_link->getUri())
                     ->set_last_mod($_link->addtime)
                     ->set_change_frequency($frequency)
                     ->set_priority($priority);

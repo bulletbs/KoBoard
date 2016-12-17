@@ -52,10 +52,10 @@ class Controller_Board extends Controller_System_Page
 
         $this->add_meta_content(array('property'=>'og:title', 'content'=>KoMS::config()->view['title']));
         $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
-        $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base('http')));
+        $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial())));
         $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
         $this->add_meta_content(array('property'=>'og:description', 'content'=>KoMS::config()->view['description']));
-        $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . "media/css/images/logo.png"));
+        $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
 
         if(!$content = Cache::instance()->get( $this->getCacheName("BoardMainPage") )){
 //            $content = View::factory('board/map');
@@ -347,10 +347,10 @@ class Controller_Board extends Controller_System_Page
 
         $this->add_meta_content(array('property'=>'og:title', 'content'=>strip_tags($title)));
         $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
-        $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base('http')));
+        $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial())));
         $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
         $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
-        $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . "media/css/images/logo.png"));
+        $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
         if($count[0]['cnt'] == 0){
             $this->replace_meta_content('name', array(
                 'name'=>'robots',
@@ -643,10 +643,10 @@ class Controller_Board extends Controller_System_Page
             $this->keywords = $this->_generateMetaKeywords('ad_keywords', $ad_meta_params);
             $this->add_meta_content(array('property'=>'og:title', 'content'=>$ad->getTitle()));
             $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
-            $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base('http').$ad->getUri()));
+            $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial()).$ad->getUri()));
             $this->add_meta_content(array('property'=>'og:site_name', 'content'=>$this->config['project']['host']));
             $this->add_meta_content(array('property'=>'og:description', 'content'=>$ad->getMetaDescription()));
-            $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base('http') . (count($photos) ? $photos[0]->getPhotoUri() : "media/css/images/logo.png")));
+            $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . (count($photos) ? $photos[0]->getPhotoUri() : "media/css/images/logo.png")));
 
             if($this->is_mobile){
                 $this->mobile_scripts[] = 'assets/board/js/message.js';
@@ -1266,7 +1266,7 @@ class Controller_Board extends Controller_System_Page
                                 'email'=> Arr::get($_POST, 'email'),
                                 'text'=> strip_tags(Arr::get($_POST, 'text')),
                                 'site_name'=> $this->config['project']['name'],
-                                'server_name'=> URL::base('http'),
+                                'server_name'=> URL::base(KoMS::protocol()),
                             ))->render()
                             , true)
                         ->send();
@@ -1354,10 +1354,10 @@ class Controller_Board extends Controller_System_Page
                         $message = View::factory('board/mail/user_message_notify', array(
                             'name' => $dialog->opponent_name,
                             'title'=> $dialog->subject,
-                            'dialog_link'=> URL::base('http') . Model_User::generateCryptoLink('messaging', $dialog->opponent_id, array('dialog_id' => $dialog->id)),
+                            'dialog_link'=> URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('messaging', $dialog->opponent_id, array('dialog_id' => $dialog->id)),
                             'site_name'=> $this->config['project']['name'],
-                            'server_name'=> URL::base('http'),
-                            'unsubscribe_link'=> URL::base('http') . Model_User::generateCryptoLink('unsubscribe', $dialog->opponent_id),
+                            'server_name'=> URL::base(KoMS::protocol()),
+                            'unsubscribe_link'=> URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('unsubscribe', $dialog->opponent_id),
                         ))->render();
 //                        file_put_contents(DOCROOT. '/debug_mail.txt', PHP_EOL.PHP_EOL. $message, FILE_APPEND);
                         Email::instance()

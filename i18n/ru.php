@@ -99,6 +99,7 @@ return array(
     'All abuses (:count) was successfully deleted' => 'Все жалобы (:count) были успешно удалены',
     'Delete with ad' => 'Удалить вместе с объявлением',
     'Delete all' => 'Удалить все',
+    'Delete all with ads' => 'Удалить все c объявлениями',
     'Delete selected' => 'Удалить выбраные',
     'Move ads' => 'Перенести объявления',
     'Backup categories' => 'Перенести во временную',

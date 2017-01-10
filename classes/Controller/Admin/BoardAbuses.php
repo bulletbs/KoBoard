@@ -14,6 +14,7 @@ class Controller_Admin_BoardAbuses extends Controller_System_Admin
         'delete',
         'multi',
         'delall',
+        'delwads',
     );
 
     public $skip_auto_content_apply = array(
@@ -91,6 +92,20 @@ class Controller_Admin_BoardAbuses extends Controller_System_Admin
      * Delete all abuses
      */
     public function action_delall(){
+        $count = DB::delete( ORM::factory('BoardAbuse')->table_name() )->execute();
+        Flash::success(__('All abuses (:count) was successfully deleted', array(':count'=>count($count) )));
+        $this->redirect('admin/boardAbuses' . URL::query());
+    }
+
+    /**
+     * Delete all abuses
+     */
+    public function action_delwads(){
+        $ids = DB::select( 'ad_id' )->from(ORM::factory('BoardAbuse')->table_name())->execute()->as_array();
+        $ids = array_map(function($n){return $n['ad_id'];}, $ids);
+        $ads = ORM::factory('BoardAd')->where('id','IN',$ids)->find_all();
+        foreach($ads as $_ad)
+            $_ad->delete();
         $count = DB::delete( ORM::factory('BoardAbuse')->table_name() )->execute();
         Flash::success(__('All abuses (:count) was successfully deleted', array(':count'=>count($count) )));
         $this->redirect('admin/boardAbuses' . URL::query());

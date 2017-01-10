@@ -11,8 +11,9 @@
 
 <?if(count($abuses)):?>
     <div class="pull-right">
-        <?php echo HTML::anchor('admin/boardAbuses/delall', __('Delete all'), array('class'=>'btn btn-primary', 'data-bb'=>'confirm'))?>
-        <?php echo Form::button('delete_all', __('Delete selected'), array('class'=>'btn btn-danger', 'data-bb'=>'confirm'))?>
+        <?php echo HTML::anchor('admin/boardAbuses/delwads', __('Delete all with ads'), array('class'=>'btn btn-danger', 'data-bb'=>'confirm'))?>
+        <?php echo HTML::anchor('admin/boardAbuses/delall', __('Delete all'), array('class'=>'btn btn-danger', 'data-bb'=>'confirm'))?>
+        <?php echo Form::button('delete_all', __('Delete selected'), array('class'=>'btn btn-warning', 'data-bb'=>'confirm'))?>
     </div>
     <div class="clearfix"></div>
     <div class="row">&nbsp;</div>

@@ -71,9 +71,12 @@ return array(
     'ad_keywords'               => '<pcategory>, <category>',
 
     /* Breadcrumbs */
-    'breadcrumbs_ad_title' => true,
-    'breadcrumbs_category_title' => true,
-    'breadcrumbs_region_title' => true,
+    'breadcrumbs_ad_title' => true, // выводить заголовок объявления в крошках (объявление)
+    'breadcrumbs_category_title' => true, // выводить заголовок категории в крошках (поиск)
+    'breadcrumbs_region_title' => true, // выводить заголовок региона в кошках (поиск)
+
+    'breadcrumbs_ad_region_all' => true, // выводить все вложности регионов в крошках (объявление)
+    'breadcrumbs_search_region_all' =>true, // выводить все вложности регионов в крошках (поиск)
 
     /* Images settings */
     'image_max_width'     => 800,

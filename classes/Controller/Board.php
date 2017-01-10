@@ -85,12 +85,19 @@ class Controller_Board extends Controller_System_Page
                 throw HTTP_Exception::factory('404', __('Page not found'));
             $city = ORM::factory('BoardCity', $city)->fillNames();
             $this->description = $city->name_in;
-            $parents = $city->parents()->as_array('id');
-//            foreach($parents as $_parent)
-//                    $this->breadcrumbs->add($_parent->name, $_parent->getUri());
-//            if(BoardConfig::instance()->breadcrumbs_region_title)
-//                $this->breadcrumbs->add($city->name, $city->getUri());
-            $this->breadcrumbs = Breadcrumbs::factory()->add(BoardConfig::instance()->breadcrumbs_prefix.$city->name_of, $city->getUri());
+
+            /* Region breadcrumbs */
+            if(BoardConfig::instance()->breadcrumbs_search_region_all){
+                $parents = $city->parents()->as_array('id');
+                foreach($parents as $_parent)
+                        $this->breadcrumbs->add($_parent->name, $_parent->getUri());
+                if(BoardConfig::instance()->breadcrumbs_region_title)
+                    $this->breadcrumbs->add($city->name, $city->getUri());
+            }
+            else{
+                $this->breadcrumbs = Breadcrumbs::factory()->add(BoardConfig::instance()->breadcrumbs_prefix.$city->name_of, $city->getUri());
+            }
+
             if(!$city->parent_id){
                 $ads->and_where('pcity_id','=',$city->id);
             }
@@ -538,11 +545,15 @@ class Controller_Board extends Controller_System_Page
 
             /* Breadcrumbs & part parents */
             $city_parents = ORM::factory('BoardCity', $ad->city_id)->parents(true, true)->as_array('id');
-//            foreach($city_parents as $_parent)
-//                $this->breadcrumbs->add($_parent->name, $_parent->getUri());
             $city = $city_parents[$ad->city_id];
             $region = isset($city_parents[$city->parent_id]) ? $city_parents[$city->parent_id] : $city;
-            $this->breadcrumbs = Breadcrumbs::factory()->add(BoardConfig::instance()->breadcrumbs_prefix.$city->name_of, $city->getUri());
+            if(BoardConfig::instance()->breadcrumbs_ad_region_all){
+                foreach($city_parents as $_parent)
+                    $this->breadcrumbs->add($_parent->name, $_parent->getUri());
+            }
+            else{
+                $this->breadcrumbs = Breadcrumbs::factory()->add(BoardConfig::instance()->breadcrumbs_prefix.$city->name_of, $city->getUri());
+            }
 
             $category_parents = ORM::factory('BoardCategory', $ad->category->id)->parents(true, true)->as_array('id');
             foreach($category_parents as $_parent)

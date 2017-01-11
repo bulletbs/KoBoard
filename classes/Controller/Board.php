@@ -358,12 +358,12 @@ class Controller_Board extends Controller_System_Page
         $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
         $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
         $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
-        if($count[0]['cnt'] == 0){
-            $this->replace_meta_content('name', array(
-                'name'=>'robots',
-                'content'=>'noindex,nofollow',
-            ));
-        }
+//        if($count[0]['cnt'] == 0){
+//            $this->replace_meta_content('name', array(
+//                'name'=>'robots',
+//                'content'=>'noindex,nofollow',
+//            ));
+//        }
 
         /*****************
          * scripts / styles / widgets
@@ -713,7 +713,7 @@ class Controller_Board extends Controller_System_Page
             if(!is_null($alias)){
                 $category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
                 if($category->loaded()){
-                    $this->redirect(URL::base() . $category->getUri($city_alias));
+                    $this->redirect(URL::base() . $category->getUri($city_alias), 301);
                     die();
                 }
             }

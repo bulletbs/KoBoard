@@ -47,6 +47,14 @@ return array(
     'region_category_h2'  => '<category> в <region_in>',
     'query_h2'            => 'по запросу <query>',
 
+    /* NOT FOUND title */
+    'region_empty'           => 'В <region_in> не найдено объявлений.<br> Вы можете стать первым кто подаст сюда объявление.',
+    'category_empty'         => 'В категории <category> не найдено объявлений.<br> Вы можете стать первым кто подаст сюда объявление.',
+    'region_category_empty'  => 'В категории <category> <region_of> не найдено объявлений.<br> Вы можете стать первым кто подаст сюда объявление.',
+    'query_empty'            => 'По запросу <query> в <category> <region_of> объявления не найдены ',
+    'user_search_empty'         => 'Объявления пользователя <username> не найдены',
+    'tags_empty'                => 'Объявлений с тегом <tag> не найдено',
+
     /* TITLE settings */
     'region_title'           => 'Доска объявлений <region_of> &#8212; Объявления на сайте <project><page>',
     'category_title'         => '<category> в <region_of> на доске объявлений <project><page>',
@@ -66,6 +74,7 @@ return array(
     'region_category_description'  => 'Все объявления в категории <category>, <region>. Подайте бесплатные объявления о покупке и продаже в категорию <category>, <region> на доске объявлений <project>',
     'ad_description'               => '<ad_title>. <ad_descr>. Цена <ad_price> - <category> на доске объявлений <project>',
     'user_search_description'      => 'Все объявления, которые подал пользователь <username> на сайте бесплатных объявлений <project>',
+    'tags_description'             => 'Все объявления, с тегом <tag> на сайте бесплатных объявлений <project>',
 
     /* KEYWORDS settings */
     'ad_keywords'               => '<pcategory>, <category>',

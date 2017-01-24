@@ -222,6 +222,9 @@ class Controller_Board extends Controller_System_Page
                 $username = $ad->name;
                 $this->template->content->set('search_by_user', true);
             }
+            else{
+                throw new HTTP_Exception_404();
+            }
         }
 
         /*****************
@@ -351,6 +354,7 @@ class Controller_Board extends Controller_System_Page
         $this->description = $this->_generateMetaDescription(str_replace('title', 'description', $title_type), $title_params);
         $title = $this->_generateMetaTitle(str_replace('title', 'h1', $title_type), $title_params);
         $subtitle = $this->_generateMetaTitle(str_replace('title', 'h2', $title_type), $title_params);
+        $nothing_found_text = $this->_generateMetaTitle(str_replace('title', 'empty', $title_type), $title_params);
 
         $this->add_meta_content(array('property'=>'og:title', 'content'=>strip_tags($title)));
         $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
@@ -358,12 +362,12 @@ class Controller_Board extends Controller_System_Page
         $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
         $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
         $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
-//        if($count[0]['cnt'] == 0){
+        if($count[0]['cnt'] == 0){
 //            $this->replace_meta_content('name', array(
 //                'name'=>'robots',
 //                'content'=>'noindex,nofollow',
 //            ));
-//        }
+        }
 
         /*****************
          * scripts / styles / widgets
@@ -402,6 +406,7 @@ class Controller_Board extends Controller_System_Page
             'subtitle' => $subtitle,
             'city' => $city,
             'category' => $category,
+            'nothing_found_text' => $nothing_found_text,
             'childs_categories' => $childs_categories,
             'childs_categories_col' => $childs_categories_col,
             'ads' => $ads,
@@ -491,6 +496,7 @@ class Controller_Board extends Controller_System_Page
         /* Meta tags init */
         $title = $this->_generateMetaTitle('tags_h1', array('tag' => Text::mb_ucfirst($_tag->query)));
         $this->title = $this->_generateMetaTitle('tags_title', array('tag' => Text::mb_ucfirst($_tag->query)));
+        $this->description = $this->_generateMetaTitle('tags_description', array('tag' => Text::mb_ucfirst($_tag->query)));
 
         $this->scripts[] = "assets/board/js/search.js";
         $this->scripts[] = "assets/board/js/favorite.js";

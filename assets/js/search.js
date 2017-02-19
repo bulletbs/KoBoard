@@ -216,6 +216,9 @@ if($('#region-link').length){
         for(var key in hashes)
         {
             var hash = hashes[key].split('=');
+            // exclude search query field
+            if(hash[0] == 'query')
+                continue;
             var input = $('<input>').attr('type', 'hidden').attr('name', decodeURI(hash[0])).val(hash[1]);
             $('#filtersList').append(input);
         }
@@ -237,9 +240,9 @@ if($('#region-link').length){
         if(typeof subcat_selected != 'undefined' && subcat_options[subcat_selected])
             uri += '/'+subcat_options[subcat_selected];
         uri += '.html';
-    alert
+
         if(!$('#filtersList div.filter').length && window.location.href.indexOf('?')>0)
-            uri += '?'+window.location.href.slice(window.location.href.indexOf('?') + 1);
+            uri += '?'+ decodeURI(window.location.href.slice(window.location.href.indexOf('?') + 1));
         return uri;
     }
 
@@ -323,5 +326,21 @@ $('#openAdvanced').on('click', function(e){
                     $('#filtersList select[data-id='+ id +']').attr("disabled", "disabled").html('');
             }
         })
+    }
+
+    /**
+     * Parsing query parameters
+     * @returns {{}}
+     */
+    function parseQueryString () {
+        var parsedParameters = {},
+            uriParameters = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        if (uriParameters[0] != window.location.href) {
+            for (var i = 0; i < uriParameters.length; i++) {
+                var parameter = uriParameters[i].split('=');
+                parsedParameters[parameter[0]] = decodeURIComponent(parameter[1]);
+            }
+        }
+        return parsedParameters;
     }
 });

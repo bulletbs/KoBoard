@@ -164,7 +164,7 @@ class Model_BoardAd extends ORM{
      * @param $file
      * @return bool
      */
-    public function addPhoto( $file ){
+    public function addPhoto( $file, $auto_increace = true ){
         if(!$this->loaded() || !Image::isImage($file))
             return false;
         $photo = ORM::factory('BoardAdphoto')->values(array(
@@ -174,7 +174,8 @@ class Model_BoardAd extends ORM{
         $photo->savePhoto($file);
         $photo->saveThumb($file);
         $photo->update();
-        $this->increasePhotos();
+        if($auto_increace)
+            $this->increasePhotos();
     }
 
     /**
@@ -221,10 +222,12 @@ class Model_BoardAd extends ORM{
          * Setting parents
          */
         if($this->changed('city_id')){
-            $this->pcity_id = ORM::factory('BoardCity', $this->city_id)->parent_id;
+            $this->pcity_id = Model_BoardCity::getField('parent_id', $this->city_id);
+//            $this->pcity_id = ORM::factory('BoardCity', $this->city_id)->parent_id;
         }
         if($this->changed('category_id')){
-            $this->pcategory_id = ORM::factory('BoardCategory', $this->category_id)->parent_id;
+            $this->pcategory_id = Model_BoardCategory::getField('parent_id', $this->category_id);
+//            $this->pcategory_id = ORM::factory('BoardCategory', $this->category_id)->parent_id;
         }
         return parent::save($validation);
     }
@@ -601,6 +604,14 @@ class Model_BoardAd extends ORM{
         }
     }
 
+    public function countPhotos(){
+        $photos = $this->photos->count_all();
+        DB::update($this->table_name())
+            ->set(array( 'photo_count' => $photos ))
+            ->where('id', '=', $this->id)
+            ->execute();
+    }
+
     /**
      * Count ads that need to be moderated
      * @return int
@@ -807,7 +818,7 @@ class Model_BoardAd extends ORM{
             $links = Model_BoardAd::boardOrmFinder()->offset($i*$step)->limit($step)->execute();
             foreach($links as $_link){
                 $url->set_loc(URL::base(KoMS::protocol()).$_link->getUri())
-                    ->set_last_mod($_link->addtime)
+                    ->set_last_mod(isset($config['lastmod_now']) && $config['lastmod_now'] ? time() : $_link->addtime)
                     ->set_change_frequency($frequency)
                     ->set_priority($priority);
                 $sitemap->add($url);

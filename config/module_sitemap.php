@@ -50,6 +50,7 @@ return array(
                 'partable' => 10000,    // links per file
                 'priority' => '0.4',
                 'frequency' => 'daily',
+                'lastmod_now' => false,
             ),
         ),
     ),

@@ -10,10 +10,10 @@ return array
             'source'        => 'route',
             'key'           => 'page',
         ),
-        'view'              => 'board/pagination',
+        'view'              => 'board/pagination_avito',
         'auto_hide'         => TRUE,
         'first_page_in_url' => FALSE,
-        'count_out' => 3,
+        'count_out' => 1,
         'count_in' => 3,
     ),
 );

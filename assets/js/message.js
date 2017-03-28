@@ -157,4 +157,10 @@ $(function(){
             myMap.geoObjects.add(firstGeoObject);
         });
     }
+
+
+    /**
+     * Подгрузка картинок
+     */
+    $(".detail-also-item-img img").lazyload({});
 });

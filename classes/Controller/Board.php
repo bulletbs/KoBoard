@@ -945,6 +945,7 @@ class Controller_Board extends Controller_System_Page
             $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
             $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
             $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";
+            $this->scripts[] = "media/libs/jquery.lazyload/jquery.lazyload.min.js";
         }
 
         $this->template->content->bind('errors', $errors);

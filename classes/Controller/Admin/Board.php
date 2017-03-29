@@ -26,6 +26,7 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         'import',
         'test',
         'multi',
+        'delall',
         'clearphotos',
         'clearads',
         'similar',
@@ -132,6 +133,28 @@ class Controller_Admin_Board extends Controller_Admin_Crud
         ));
     }
 
+    /**
+     * Удалить все объявления из выборки
+     * @throws Kohana_Exception
+     */
+    public function action_delall(){
+        /* Допускаем только удаление всех объявлений одного пользователя */
+        if(isset($_GET['user_id'])){
+            $items = ORM::factory($this->_model_name);
+            $this->_applyQueryFilters($items);
+            $cnt = $items->count_all();
+            if($cnt){
+                $items = ORM::factory($this->_model_name);
+                $this->_applyQueryFilters($items);
+                foreach($items->find_all() as $item){
+                    $item->delete();
+                    unset($item);
+                }
+                Flash::success(__('All items (:count) was successfully deleted', array(':count'=>$cnt)));
+            }
+        }
+        $this->redirect( Request::$current->referrer() );
+    }
 
 
     /**

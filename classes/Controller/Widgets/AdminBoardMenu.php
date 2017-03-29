@@ -22,6 +22,7 @@ class Controller_Widgets_AdminBoardMenu extends Controller_System_Widgets {
             'Рассылка' => array('boardSender'),
             'Модерация' => array('boardModerate'),
             'Стопслова' => array('boardModerateSw'),
+            'Дубликаты' => array('boardDuplicates'),
         );
 
         // Вывод в шаблон

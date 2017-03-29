@@ -6,7 +6,8 @@
 <?php echo Form::open(URL::site( $crud_uri.'/multi'))?>
 <?if(count($items)):?>
     <div class="pull-right">
-        <?if(count($items)):?><?php echo Form::button('del_selected', __('Delete selected'), array('class'=>'btn btn-danger', 'data-bb'=>'confirm'))?><?endif?>
+        <?if(count($items)):?><?php echo HTML::anchor($crud_uri.'/delall/'.URL::query(), __('Delete all'), array('class'=>'btn btn-danger', 'data-bb'=>'confirm'))?><?endif?>
+        <?if(count($items)):?><?php echo Form::button('del_selected', __('Delete selected'), array('class'=>'btn btn-warning', 'data-bb'=>'confirm'))?><?endif?>
     </div>
     <div class="clearfix"></div>
     <div class="row">&nbsp;</div>

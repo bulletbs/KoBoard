@@ -1594,6 +1594,7 @@ class Controller_Board extends Controller_System_Page
      */
     protected function _generateMetaDescription($config_index, Array $parameters= array()){
         $parameters['project'] = $this->config['project']['name'];
+        $parameters['page'] = isset($parameters['page']) && $parameters['page']>1 ? ' - страница '.$parameters['page'] : NULL;
         $template = NULL;
         if(isset($this->board_cfg[$config_index]))
             $template = $this->board_cfg[$config_index];

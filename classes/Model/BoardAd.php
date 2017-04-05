@@ -3,7 +3,7 @@
 class Model_BoardAd extends ORM{
 
     const CACHE_TIME = 3700;
-    const REFRESH_TIME = Date::WEEK;
+    const REFRESH_TIME = Date::DAY;
 
     protected $_table_name = 'ads';
 

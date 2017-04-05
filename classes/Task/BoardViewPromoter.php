@@ -22,11 +22,11 @@ class Task_BoardViewPromoter extends Minion_Task
         /**
          * Clear views 1st day of month
          */
-        if(date('j') == 1){
-            DB::update($table)->set(array(
-                'views'=>0,
-            ))->execute();
-        }
+//        if(date('j') == 1){
+//            DB::update($table)->set(array(
+//                'views'=>0,
+//            ))->execute();
+//        }
 
         /**
          * Load views and clean cache

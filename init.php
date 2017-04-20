@@ -15,6 +15,11 @@ if(!Route::cache()){
             'controller' => 'board',
             'action' => 'main',
         ));
+    Route::set('board_myads', 'my-ads(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove|refresh|refresh_all|import)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'userBoard',
+            'action' => 'list',
+        ));
 
     Route::set('board_ad_confirm', $board_base_url . 'confirm/<id>-<key>', array( 'id' => '[0-9]+', 'key' => '[0-9a-f]+'))
         ->defaults(array(
@@ -61,12 +66,6 @@ if(!Route::cache()){
         ->defaults(array(
             'controller' => 'board',
             'action' => 'categories',
-        ));
-
-    Route::set('board_myads', 'my-ads(/<action>(/<id>)(/p<page>.html))', array('action' => '(list|edit|enable|remove|refresh|refresh_all|import)', 'id' => '[0-9]+', 'page' => '[0-9]+'))
-        ->defaults(array(
-            'controller' => 'userBoard',
-            'action' => 'list',
         ));
 
     Route::set('board_notices', 'notices(/<action>(/<id>)(/p<page>.html))', array('action' => '(notice_remove|notice_clean)', 'id' => '[0-9]+', 'page' => '[0-9]+'))

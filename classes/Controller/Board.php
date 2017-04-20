@@ -124,8 +124,7 @@ class Controller_Board extends Controller_System_Page
                 $this->breadcrumbs->add($_parent->name, $_parent->getUri($city_alias));
             if(BoardConfig::instance()->breadcrumbs_category_title)
                 $this->breadcrumbs->add($category->name, $category->getUri($city_alias));
-            $childs_categories = ORM::factory('BoardCategory')->where('parent_id','=',$category->id)->order_by('name', 'ASC')->find_all()->as_array();
-            $childs_categories_col = 4;
+            $childs_categories = ORM::factory('BoardCategory')->where('parent_id','=',$category->id)->order_by('name', 'ASC')->find_all()->as_array('id');
             if(!$category->parent_id){
                 $ads->and_where('pcategory_id','=',$category->id);
             }
@@ -135,7 +134,7 @@ class Controller_Board extends Controller_System_Page
             $this->description = $category->getDescription() . (!empty($this->description) ? ' '.$this->description : '' );
         }
         else{
-            $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array();
+            $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array('id');
             $childs_categories_col = 4;
         }
 
@@ -146,6 +145,7 @@ class Controller_Board extends Controller_System_Page
             $category_id = $category instanceof ORM ? $category->id : NULL;
             $city_id = $city instanceof ORM ? $city->id : NULL;
             $counter = Model_BoardCategory::categoryCounter($category_id, $city_id);
+            $counter = array_intersect_key($counter, $childs_categories);
             $this->template->content->set(array(
                 'category_counter'=> $counter,
             ));

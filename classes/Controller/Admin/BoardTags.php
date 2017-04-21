@@ -117,7 +117,8 @@ class Controller_Admin_BoardTags extends Controller_Admin_Crud{
      */
     protected function _processForm($model, $data = array()){
         /* Parent_id field intialize */
-        $this->_form_fields['category_id']['data']['options'] = ORM::factory('BoardCategory')->getFullDepthArray();
+        $this->_form_fields['category_id']['data']['options'][0] = 'Без категории';
+        $this->_form_fields['category_id']['data']['options'] += ORM::factory('BoardCategory')->getFullDepthArray();
         if(!$model->loaded() && $category_id = Arr::get($this->request->query(),'category_id'))
             $this->_form_fields['category_id']['data']['selected'] = $category_id;
         else

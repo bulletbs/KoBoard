@@ -12,7 +12,7 @@
 <br />
 ---------------------<br />
 Перейдите по следующей ссылке, для подтверждения публикации:<br />
-<a href="http://<?php echo $server_name ?>/<?php echo $activation_link ?>">http://<?php echo $server_name ?>/<?php echo $activation_link ?></a><br />
+<a href="<?php echo URL::base(KoMS::protocol()) . $activation_link ?>"><?php echo URL::base(KoMS::protocol()) . $activation_link ?></a><br />
 ---------------------<br />
 <?if(!is_null($password)):?>
 Для управления своими объявлениями используйте следующие данные:<br />

@@ -121,8 +121,8 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
         $template = View::factory(self::MAILER_LETTER_TEMPLATE)->set(array(
             'user_ads'=> array(self::MAILER_DAYS_AGO => $ads),
             'site_name'=> $this->config['project']['name'],
-            'server_name'=> $_SERVER['HTTP_HOST'],
-            'unsubscribe_link' => Model_User::generateCryptoLink('unsubscribe', $user_id),
+            'server_name'=> URL::base(KoMS::protocol()),
+            'unsubscribe_link' => URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('unsubscribe', $user_id),
         ));
 
         Email::instance()

@@ -52,6 +52,7 @@ class Task_BoardAdsCleaner extends Minion_Task
         }
 
         /* Sending reminds */
+        $server_name = $cfg['project']['protocol'].'://'.$cfg['project']['host'].'/';
         foreach($user_ads as $user_id=>$ads){
 //            $ad->publish = 0;
 //            $ad->update();
@@ -65,7 +66,7 @@ class Task_BoardAdsCleaner extends Minion_Task
                     ->message(View::factory('board/mail/ad_refresh_reminder', array(
                         'user_ads'=>$ads,
                         'site_name'=> $cfg['project']['name'],
-                        'server_name'=> $cfg['project']['host'],
+                        'server_name'=> $server_name,
                         'unsubscribe_link' => Model_User::generateCryptoLink('unsubscribe', $user_id),
                     ))->render()
                         , true)

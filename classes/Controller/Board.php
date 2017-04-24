@@ -568,7 +568,7 @@ class Controller_Board extends Controller_System_Page
                 $this->breadcrumbs->add($ad->getTitle(), FALSE);
 
             /* Photos */
-            $photos = $ad->photos->find_all();
+            $photos = $ad->photos->order_by('id', 'ASC')->find_all();
             if(count($photos) > 1){
                 $this->styles[] = "media/libs/bxSlider/jquery.bxslider.css";
                 $this->scripts[] = 'media/libs/bxSlider/jquery.bxslider.min.js';

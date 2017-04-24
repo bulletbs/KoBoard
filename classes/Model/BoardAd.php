@@ -284,7 +284,7 @@ class Model_BoardAd extends ORM{
      */
     public function setMainPhoto($id = NULL){
         $photo_table = ORM::factory('BoardAdphoto')->table_name();
-        $main = ORM::factory('BoardAdphoto')->where('ad_id' ,'=', $this->id)->and_where('main' ,'=', 1)->find();
+        $main = ORM::factory('BoardAdphoto')->where('ad_id' ,'=', $this->id)->and_where('main' ,'=', 1)->order_by('id', 'ASC')->find();
         $exists = $main->loaded();
         if($id){
             DB::update($photo_table)->set(array('main'=>0))->where('ad_id' ,'=', $this->id)->execute();

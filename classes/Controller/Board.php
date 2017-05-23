@@ -80,7 +80,7 @@ class Controller_Board extends Controller_System_Page
          */
         $city = NULL;
         $city_alias = $this->request->param('city_alias');
-        if($city_alias && $city_alias!= 'all'){
+        if($city_alias && $city_alias!= BoardConfig::instance()->country_alias){
             if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
             $city = ORM::factory('BoardCity', $city)->fillNames();
@@ -105,7 +105,7 @@ class Controller_Board extends Controller_System_Page
                 $ads->and_where('city_id','=',$city->id);
             }
         }
-        elseif($city_alias == 'all'){
+        elseif($city_alias == BoardConfig::instance()->country_alias){
         }
 
         /*************************
@@ -454,9 +454,9 @@ class Controller_Board extends Controller_System_Page
             $category = ORM::factory('BoardCategory', Model_BoardCategory::getCategoryIdByAlias($cat_alias));
             $parents = $category->parents()->as_array('id');
             foreach($parents as $_parent)
-                $this->breadcrumbs->add($_parent->name, $_parent->getUri('all'));
+                $this->breadcrumbs->add($_parent->name, $_parent->getUri(BoardConfig::instance()->country_alias));
             if(BoardConfig::instance()->breadcrumbs_category_title)
-                $this->breadcrumbs->add($category->name, $category->getUri('all'));
+                $this->breadcrumbs->add($category->name, $category->getUri(BoardConfig::instance()->country_alias));
             if(!$category->parent_id){
                 $ads_query->where('pcategory_id', $category->id);
                 $cnt_query->where('pcategory_id', $category->id);
@@ -512,7 +512,7 @@ class Controller_Board extends Controller_System_Page
         $this->template->search_form = Widget::factory('BoardSearch')->render();
         $this->template->content = $this->getContentTemplate('board/search')->set(array(
             'title' => $title,
-            'city' => 'all',
+            'city' => BoardConfig::instance()->country_alias,
             'ads' => $ads,
             'photos' => $photos,
             'board_config' => $this->board_cfg,
@@ -1428,7 +1428,7 @@ class Controller_Board extends Controller_System_Page
         elseif(!is_null($catid)){
             $cat = ORM::factory('BoardCategory', $catid);
             header("HTTP/1.1 301 Moved Permanently");
-            header("Location: ".($cat->loaded() ? $cat->getUri('all') : '/'));
+            header("Location: ".($cat->loaded() ? $cat->getUri(BoardConfig::instance()->country_alias) : '/'));
             exit();
         }
         throw new HTTP_Exception_404('Эта страница устарела и перенесена');

@@ -101,34 +101,34 @@ class Model_BoardAdphoto extends ORM{
     }
 
     public function getPhotoUri(){
+        $base = KoMS::config()->project['protocol'] == 'https' ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
         if(is_file($this->getPath() . $this->getName()))
-            return Kohana::$base_url. $this->getPath() . $this->getName();
+            return $base . $this->getPath() . $this->getName();
         return NULL;
     }
 
     public function getThumbUri(){
+        $base = KoMS::config()->project['protocol'] == 'https' ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
         if(is_file($this->getPath() . $this->getName('thumb')))
-            return Kohana::$base_url. $this->getPath() . $this->getName('thumb');
+            return $base . $this->getPath() . $this->getName('thumb');
         return NULL;
     }
 
     public function getPhotoTag($alt = '', Array $attributes = array()){
-        $photo = $this->getPhotoUri();
-        if($photo)
-            return HTML::image($photo, Arr::merge(array(
-                'alt'=>$alt,
-                'title'=>$alt,
-            ), $attributes));
+        $attributes['src'] = $this->getPhotoUri();
+        $attributes['alt'] = $alt;
+        $attributes['title'] = $alt;
+        if($attributes['src'])
+            return "<img ".HTML::attributes($attributes).">";
         return NULL;
     }
 
     public function getThumbTag($alt='', Array $attributes = array()){
-        $photo = $this->getThumbUri();
-        if($photo)
-            return HTML::image($photo, Arr::merge(array(
-                'alt'=>$alt,
-                'title'=>$alt,
-            ), $attributes));
+        $attributes['src'] = $this->getThumbUri();
+        $attributes['alt'] = $alt;
+        $attributes['title'] = $alt;
+        if($attributes['src'])
+            return "<img ".HTML::attributes($attributes).">";
         return NULL;
     }
 

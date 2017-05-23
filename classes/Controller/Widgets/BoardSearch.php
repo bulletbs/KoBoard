@@ -223,6 +223,7 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
 //        if(NULL === ($content = Cache::instance()->get(self::PART_LIST_CACHE))){
             $result = DB::select('id', 'alias', 'name')->from(ORM::factory('BoardCategory')->table_name())->where('lvl','=',1)->order_by('name')->as_assoc()->execute();
             $parts = array();
+
             foreach($result as $part){
                 $part['link'] = URL::base() . Route::get('board_cat')->uri(array(
                     'cat_alias' => $part['alias'],
@@ -231,7 +232,7 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             }
             $template = View::factory('widgets/_board_part_search_list')->set(array(
                 'parts'  => $parts,
-                'all_uri'  => Route::get('board_cat')->uri(),
+//                'all_uri'  => Route::get('board_cat')->uri(),
             ));
             $content = $template->render();
 //            Cache::instance()->set(self::PART_LIST_CACHE, $content, Date::YEAR);
@@ -257,7 +258,7 @@ class Controller_Widgets_BoardSearch extends Controller_System_Widgets {
             $template = View::factory('widgets/_board_category_search_list')->set(array(
                 'part'  => $part,
                 'subcats'  => $subcats,
-                'all_uri'  => Route::get('board_cat')->uri(),
+//                'all_uri'  => Route::get('board_cat')->uri(),
             ));
             $content = $template->render();
             Cache::instance()->set(self::CATEGORY_LIST_CACHE.$part_id, $content, Date::YEAR);

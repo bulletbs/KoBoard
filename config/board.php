@@ -8,6 +8,7 @@ return array(
 
     /* Country settings */
     'country_name'     => 'Россия',
+    'country_alias'     => 'all',
     'all_country'      => 'России',
     'in_country'       => 'в России',
     'h1_prefix'       => 'Все объявления в ',

@@ -44,7 +44,10 @@ class Model_BoardAdphoto extends ORM{
         $image->image_set_max_edges( BoardConfig::instance()->image_max_width );
         $this->width = $image->width;
         $this->height = $image->height;
-        $mark = Image::factory(MODPATH.'board/data/watermark.png');
+        if(file_exists(APPPATH.'data/watermark.png'))
+            $mark = Image::factory(APPPATH.'data/watermark.png');
+        else
+            $mark = Image::factory(MODPATH.'board/data/watermark.png');
         $image->smart_watermark($mark, Image::WATERMARK_BOTTOM_LEFT, 50);
         $image->save($this->getPhoto(true), self::IMAGES_QUALITY);
         chmod($this->getPhoto(true), 0666);
@@ -101,14 +104,16 @@ class Model_BoardAdphoto extends ORM{
     }
 
     public function getPhotoUri(){
-        $base = KoMS::config()->project['protocol'] == 'https' ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
+//        $base = KoMS::config()->project['protocol'] == 'https' ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
+        $base = $_SERVER['SERVER_PORT'] == 443 ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
         if(is_file($this->getPath() . $this->getName()))
             return $base . $this->getPath() . $this->getName();
         return NULL;
     }
 
     public function getThumbUri(){
-        $base = KoMS::config()->project['protocol'] == 'https' ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
+//        $base = KoMS::config()->project['protocol'] == 'https' ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
+        $base = $_SERVER['SERVER_PORT'] == 443 ? '//'.$_SERVER['HTTP_HOST'].'/' : Kohana::$base_url;
         if(is_file($this->getPath() . $this->getName('thumb')))
             return $base . $this->getPath() . $this->getName('thumb');
         return NULL;
@@ -117,7 +122,7 @@ class Model_BoardAdphoto extends ORM{
     public function getPhotoTag($alt = '', Array $attributes = array()){
         $attributes['src'] = $this->getPhotoUri();
         $attributes['alt'] = $alt;
-        $attributes['title'] = $alt;
+//        $attributes['title'] = $alt;
         if($attributes['src'])
             return "<img ".HTML::attributes($attributes).">";
         return NULL;
@@ -126,7 +131,7 @@ class Model_BoardAdphoto extends ORM{
     public function getThumbTag($alt='', Array $attributes = array()){
         $attributes['src'] = $this->getThumbUri();
         $attributes['alt'] = $alt;
-        $attributes['title'] = $alt;
+//        $attributes['title'] = $alt;
         if($attributes['src'])
             return "<img ".HTML::attributes($attributes).">";
         return NULL;

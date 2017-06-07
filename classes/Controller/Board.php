@@ -663,7 +663,7 @@ class Controller_Board extends Controller_System_Page
             $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial()).$ad->getUri()));
             $this->add_meta_content(array('property'=>'og:site_name', 'content'=>$this->config['project']['host']));
             $this->add_meta_content(array('property'=>'og:description', 'content'=>$ad->getMetaDescription()));
-            $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . (count($photos) ? $photos[0]->getPhotoUri() : "media/css/images/logo.png")));
+            $this->add_meta_content(array('property'=>'og:image', 'content'=> count($photos) ? $photos[0]->getPhotoUri() : URL::base(Request::initial())."media/css/images/logo.png"));
 
             if($this->is_mobile){
                 $this->mobile_scripts[] = 'assets/board/js/message.js';
@@ -712,6 +712,9 @@ class Controller_Board extends Controller_System_Page
                 'is_noprice_category' => in_array($ad->category_id, Model_BoardCategory::getNopriceIds()),
                 'breadcrumbs' => $breadcrumbs,
             ));
+        }
+        elseif($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) != $alias){
+            $this->redirect(URL::base() . $ad->getUri(), 301);
         }
         else{
 //            $category_alias = Request::current()->param('cat_alias');

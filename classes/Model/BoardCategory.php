@@ -315,7 +315,7 @@ class Model_BoardCategory extends ORM_MPTT{
         $categories = $this->getCategoriesList();
 
         foreach($categories as $category){
-            $links[] = $category->getUri();
+            $links[] = URL::base(KoMS::protocol()).$category->getUri();
         }
         return $links;
     }

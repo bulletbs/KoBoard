@@ -270,6 +270,8 @@ class Model_BoardCity extends ORM_MPTT{
             $sql->and_where((Model_BoardCategory::getField('parent_id', $category_id) ? '' : 'p') . 'category_id', '=', $category_id);
         $_ads_count = $sql->group_by('cit_id')->order_by('cnt', 'DESC')->cached(Date::HOUR)->execute()->as_array('cit_id', 'cnt');
         $_total_count = array_sum($_ads_count);
+        if(max($_ads_count) / $_total_count >= 0.5)
+            $_total_count -= max($_ads_count);
         $_childs = ORM::factory('BoardCity')->where('parent_id', '=', $region_id ? $region_id : 0)->order_by('name', 'ASC')->cached(Date::MONTH)->find_all()->as_array('id','name');
         foreach($_childs as $_city_id=>$_city){
             if(isset($_ads_count[ $_city_id ])){

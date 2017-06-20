@@ -10,17 +10,17 @@ $(function(){
     if($('.message').length){
         $('.message').on('click', '#go_favorite,#go_favorite_2', function(e){
             e.preventDefault();
-        var oper = $('#go_favorite').hasClass('delfav') ? 'del' : 'add';
+        var oper = $(this).hasClass('delfav') ? 'del' : 'add';
             makeFavorite($(this).data('item'), oper);
             if(oper == 'del'){
                 $('#go_favorite').text('В избранное');
                 $('#go_favorite').removeClass('delfav');
-                $('#go_favorite_2').removeClass('h1_favorite_out');
+                $('#go_favorite_2').removeClass('h1_favorite_out').removeClass('delfav');
             }
             else{
                 $('#go_favorite').text('Удалить из избранного');
                 $('#go_favorite').addClass('delfav');
-                $('#go_favorite_2').addClass('h1_favorite_out');
+                $('#go_favorite_2').addClass('h1_favorite_out').addClass('delfav');
             }
             toastr.success('Объявление №'+$(this).data('item')+' ' + ($('#go_favorite').hasClass('delfav') ? 'добавлено в избранное' : 'удалено из избранного'), '<a href="/favorites">Перейти в избранное</a>', {timeOut: 3000});
         });

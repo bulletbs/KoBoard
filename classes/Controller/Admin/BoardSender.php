@@ -36,9 +36,9 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
 
         $letter = View::factory(self::MAILER_LETTER_TEMPLATE)->set(array(
             'user_ads' => array(self::MAILER_DAYS_AGO=>ORM::factory('BoardAd')->limit(1)->find_all()),
-            'site_name'=> KoMS::config()->project['name'],
-            'server_name'=> $_SERVER['HTTP_HOST'],
-            'unsubscribe_link' => Model_User::generateCryptoLink('unsubscribe', $this->current_user->id),
+            'site_name'=> $this->config['project']['name'],
+            'server_name'=> URL::base(KoMS::protocol()),
+            'unsubscribe_link' => URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('unsubscribe', $user_id),
         ));
         $total = ORM::factory(self::MAILER_MODEL)->count_all();
         $last = ORM::factory(self::MAILER_MODEL)->where('sended', '=', 0)->count_all();

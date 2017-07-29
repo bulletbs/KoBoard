@@ -119,9 +119,7 @@
 
     <?if(!$model->loaded() && Model_BoardAd::checkFrequentlyAdded()):?>
         <div class="uk-form-row">
-            <Br><?php echo Captcha::instance() ?>
-            <?php echo Form::label('captcha', __('Enter captcha code'), array('class'=>'uk-form-label')) ?>
-            <?php echo Form::input('captcha', NULL, array('id' => 'captcha-key'))?>
+            <?php echo Captcha::instance(); ?>
         </div>
     <?endif?>
     <div class="uk-margin">

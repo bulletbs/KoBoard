@@ -13,9 +13,7 @@
     </div>
     <?if(!Auth::instance()->logged_in()):?>
     <div class="uk-form-row">
-        <?php echo Captcha::instance() ?>
-        <?= Form::label('captcha', __('Enter captcha code'), array('class'=>'uk-form-label')) ?>
-        <div class="uk-form-controls"><?php echo Form::input('captcha', NULL, array('id' => 'captcha-key'))?></div>
+        <?php echo Captcha::instance(); ?>
     </div>
     <?endif?>
     <?=Form::hidden('update', 1);  ?>

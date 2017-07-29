@@ -117,9 +117,7 @@
     <div class="showAddress" id="showAddress"></div>
 
     <?if(!$model->loaded() && Model_BoardAd::checkFrequentlyAdded()):?>
-        <Br><?php echo Captcha::instance() ?>
-        <?= Form::label('captcha', __('Enter captcha code')) ?>
-        <?php echo Form::input('captcha', NULL, array('class'=>isset($errors['_external']['captcha']) ? 'error-input': '', 'id' => 'captcha-key'))?>
+        <?php echo Captcha::instance(); ?>
     <?endif?>
     <br><br>
     <?=Form::submit('update', __('Save ad'), array('class' => 'pure-button pure-button-primary left'));  ?>

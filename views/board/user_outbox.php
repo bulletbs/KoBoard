@@ -13,12 +13,9 @@
         <?php echo  Form::label('text', __('Message text'))?>
         <?php echo  Form::textarea('text', Arr::get($_POST, 'text'), array('class'=>isset($errors['title']) ? 'error-input': '', 'id'=>'mailto-text'))?>
 
-        <?if(!Auth::instance()->logged_in()):?>
-            <Br><?php echo Captcha::instance() ?>
-            <?= Form::label('captcha', __('Enter captcha code')) ?>
-            <?php echo Form::input('captcha', NULL, array('id' => 'captcha-key'))?>
-        <?endif?>
-    <?=Form::submit('update', __('Send message'), array('class' => 'pure-button pure-button-primary'));  ?>
-    <?=Form::submit('cancel', __('Cancel'), array('class' => 'pure-button pure-button-error', 'id'=>'cancel_mailto'));  ?>
-</fieldset>
+        <?php echo Captcha::instance(); ?>
+
+        <?=Form::submit('update', __('Send message'), array('class' => 'pure-button pure-button-primary'));  ?>
+        <?=Form::submit('cancel', __('Cancel'), array('class' => 'pure-button pure-button-error', 'id'=>'cancel_mailto'));  ?>
+    </fieldset>
 <?=Form::close()?>

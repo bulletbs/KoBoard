@@ -26,10 +26,8 @@
         <div class="showroom"><?php echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center', 'alt'=>$ad->getTitle(), 'title'=>$ad->getTitle(), 'itemprop'=>'image')) ?></div>
         <div class="line_nobg"></div>
         <?php elseif (count($photos) > 1): ?>
-            <div id="showroom" class="showroom">
-                <div class="clear"></div>
-            </div>
-            <div id="showstack" class="showstack"><?php foreach ($photos as $photo_id=>$photo): ?> <?php echo $photo->getPhotoTag($ad->getTitle(). ' - фотография #'.($photo_id+1), array('itemprop'=>'image')) ?> <?php endforeach ?></div>
+            <div id="showroom" class="showroom"><?php echo HTML::image($photos[0]->getPhotoUri(), array('class' => 'center', 'alt'=>$ad->getTitle(), 'title'=>$ad->getTitle(), 'itemprop'=>'image')) ?></div>
+            <div id="showstack" class="showstack"></div>
             <div class="board_gallery">
                 <ul id="thumbs" class="thumbs">
                     <?php foreach ($photos as $photo_id=>$photo): ?>

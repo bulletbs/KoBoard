@@ -403,6 +403,15 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Create full URL with host
+     * @return string
+     * @throws Kohana_Exception
+     */
+    public function getUrl(){
+        return URL::base(KoMS::protocol()) . $this->getUri();
+    }
+
+    /**
      * Generate short description for AD brief
      * @param int $strlen
      * @return string

@@ -31,13 +31,10 @@ $(function(){
                         url: base_uri + "send_message/"+ this_id,
                         method: 'post',
                         dataType: "json",
-                        data: {
-                            email: $(this).find('#mailto-email').val(),
-                            text: $(this).find('#mailto-text').val(),
-                            captcha: $(this).find('#captcha-key') ? $(this).find('#captcha-key').val() : null
-                        },
+                        data: $(this).serialize(),
                         success:function(data){
                             $('#mailto').html(data.content);
+                            $('html, body').animate({scrollTop: $("#mailto").offset().top}, 500);
                         }
                     });
                 });

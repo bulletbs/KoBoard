@@ -87,6 +87,11 @@ class Controller_Admin_Board extends Controller_Admin_Crud
             'type'=>'text',
             'oper'=>'like',
         ),
+        'description' => array(
+            'label' => 'Описание',
+            'type'=>'text',
+            'oper'=>'like',
+        ),
         '1' => array(
             'type'=>'nl',
         ),

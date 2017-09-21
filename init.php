@@ -32,40 +32,18 @@ if(!Route::cache()){
             'controller' => 'board',
             'action' => 'ad',
         ));
+
+    Route::set('board_ad_old', $board_base_url . '<city_alias>/<cat_alias>/<alias>-<id>', array( 'city_alias' => '([\w\-_]+)', 'cat_alias' => '[\d\w\-_]+', 'id' => '[0-9]+', 'alias' => '[\d\w\-_]+'))
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'adold',
+        ));
     Route::set('board_ad_print', $board_base_url . '<city_alias>/<cat_alias>/print-<id>-<alias>.html', array( 'city_alias' => '([\w\-_]+)', 'cat_alias' => '[\d\w\-_]+', 'id' => '[0-9]+', 'alias' => '[\d\w\-_]+'))
         ->defaults(array(
             'controller' => 'board',
             'action' => 'ad',
             'print' => true,
         ));
-
-/* Subdomain search routing */
-//    Route::set('board_city', $board_base_url . '(/p<page>.html)', array('city_alias' => '[\w\-_]+', 'page' => '[0-9]+'))
-//        ->defaults(array(
-//            'controller' => 'board',
-//            'action' => 'search',
-//            'city_alias' => 'russia',
-//            'subdomain_param' => 'city_alias',
-//        ))->subdomains(array('*'), true)
-//    ;
-//    Route::set('board_cat', $board_base_url . '<cat_alias>(/p<page>).html', array('cat_alias' => '[\d\w\-_]+', 'page' => '[0-9]+'))
-//        ->defaults(array(
-//            'controller' => 'board',
-//            'action' => 'search',
-//            'city_alias' => 'russia',
-//            'subdomain_param' => 'city_alias',
-//        ))->subdomains(array('*'))
-//    ;
-//    Route::set('board_subcat', $board_base_url . '<cat_alias>(/<filter_alias>)(/p<page>).html', array('cat_alias' => '[\d\w\-_]+', 'subcat_alias' => '[\d\w\-_]+', 'page' => '[0-9]+'))
-//        ->defaults(array(
-//            'controller' => 'board',
-//            'action' => 'search',
-//            'city_alias' => 'russia',
-//            'subdomain_param' => 'city_alias',
-//        ))->subdomains(array('*'))
-//    ;
-
-/* One domain search routing */
     Route::set('board_city', $board_base_url . '<city_alias>(/p<page>).html', array('city_alias' => '[\w\-_]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',
@@ -94,6 +72,12 @@ if(!Route::cache()){
         ->defaults(array(
             'controller' => 'board',
             'action' => 'categories',
+        ));
+
+    Route::set('board_userads', 'userslist/<user>(/p<page>)', array('id' => '[0-9]+', 'page' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'Board',
+            'action' => 'search',
         ));
 
     Route::set('board_notices', 'notices(/<action>(/<id>)(/p<page>.html))', array('action' => '(notice_remove|notice_clean)', 'id' => '[0-9]+', 'page' => '[0-9]+'))

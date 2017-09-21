@@ -17,6 +17,7 @@ class Controller_Board extends Controller_System_Page
         'show_phone',
         'goto',
         'pagemoved',
+	    'adold',
     );
 
     public $skip_auto_content_apply = array(
@@ -58,13 +59,25 @@ class Controller_Board extends Controller_System_Page
         $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
 
         if(!$content = Cache::instance()->get( $this->getCacheName("BoardMainPage") )){
-//            $content = View::factory('board/map');
-            $content = $this->getContentTemplate('board/map');
+            if(BoardConfig::instance()->show_ads_on_main){
+                $last_ads = Model_BoardAd::getLastAds(20);
+                $ads_ids = array();
+                foreach ($last_ads as $_ad)
+                    $ads_ids[] = $_ad->id;
+                $last_ads_photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
+                $content = $this->getContentTemplate('board/main_ads');
+                $content->set(array(
+                    'last_ads' => $last_ads,
+                    'last_ads_photos' => $last_ads_photos,
+                ));
+            }
+            else
+                $content = $this->getContentTemplate('board/main_map');
             $content->set('site_name', $this->config['project']['name']);
             $content->set('ads_count', Model_BoardAd::countActiveAds());
 
             $content = $content->render();
-            Cache::instance()->set($this->getCacheName("BoardMainPage"), $content, Date::DAY);
+            Cache::instance()->set($this->getCacheName("BoardMainPage"), $content, Date::MINUTE*10);
         }
         $this->template->content = $content;
     }
@@ -212,7 +225,9 @@ class Controller_Board extends Controller_System_Page
         }
 
         /*****************
-         * Фильтр по пользователю
+         * @deprecated
+         * !! Устаревшее !!
+         * Фильтр по пользователю (из объявления)
          */
         $this->template->content->set('search_by_user', false);
         if(Arr::get($_GET, 'userfrom') > 0){
@@ -225,6 +240,22 @@ class Controller_Board extends Controller_System_Page
             else{
                 throw new HTTP_Exception_404();
             }
+        }
+
+	    /*****************
+	     * Фильтр по пользователю
+	     */
+	    $userads = Request::current()->param('user');
+        if(!is_null($userads)){
+	        $userads = ORM::factory('User', (int) $userads);
+			if($userads->loaded()){
+				$ads->and_where('user_id', '=', $userads);
+				$username = $userads->profile->name;
+				$this->template->content->set('search_by_user', true);
+			}
+			else{
+				throw new HTTP_Exception_404();
+			}
         }
 
         /*****************
@@ -296,6 +327,12 @@ class Controller_Board extends Controller_System_Page
             }
         }
 
+        /* Check if no parameters - than 404 */
+        if($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && !isset($_GET['query']) && !isset($_GET['userfrom'])){
+//            die('abc');
+            throw new HTTP_Exception_404();
+        }
+
         /* Init Ads pagination */
         $sql = str_replace('`ads`.*', 'COUNT(*) AS cnt', (string) $ads);
         $count = DB::query(Database::SELECT, $sql)->cached(Model_BoardAd::CACHE_TIME)->as_assoc()->execute();
@@ -304,6 +341,9 @@ class Controller_Board extends Controller_System_Page
             'city_alias' => $city_alias,
             'cat_alias' => $category_alias,
         );
+        if(isset($userads) && $userads instanceof Model_User && $userads->loaded()){
+        	$route_params['user'] = $userads->id;
+        }
         $pagination = Pagination::factory(array(
             'total_items' => $count[0]['cnt'],
             'group' => 'board',
@@ -356,17 +396,28 @@ class Controller_Board extends Controller_System_Page
         $subtitle = $this->_generateMetaTitle(str_replace('title', 'h2', $title_type), $title_params);
         $nothing_found_text = $this->_generateMetaTitle(str_replace('title', 'empty', $title_type), $title_params);
 
-        $this->add_meta_content(array('property'=>'og:title', 'content'=>strip_tags($title)));
+        $this->add_meta_content(array('property'=>'og:title', 'content'=>$this->title));
         $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
         $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial())));
         $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
         $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
         $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
+
+        // empty search results
         if($count[0]['cnt'] == 0){
             $this->replace_meta_content('name', array(
                 'name'=>'robots',
                 'content'=>'noindex,nofollow',
             ));
+        }
+
+        // Canonical link on pages more than 1
+        if(Request::current()->param('page') > 1){
+        	$this->add_meta_content(array(
+        		'tag' => 'link',
+        		'rel' => 'canonical',
+        		'href' => URL::base(KoMS::protocol()).substr($pagination->url(), 1),
+	        ));
         }
 
         /*****************
@@ -521,6 +572,20 @@ class Controller_Board extends Controller_System_Page
         ));
     }
 
+	/**
+	 * Объвяление
+	 */
+	public function action_adold(){
+		$id = $this->request->param('id');
+		$ad = Model_BoardAd::boardOrmFinder()->and_where('id','=',$id)->limit(1)->execute();
+		$ad = $ad[0];
+		if($ad instanceof ORM && $ad->loaded() && (empty($alias) || Text::transliterate($ad->title, true) == $alias)){
+            $this->redirect(URL::base() . $ad->getUri(), 301);
+		}
+		else
+			throw new HTTP_Exception_404();
+	}
+
     /**
      * Объвяление
      */
@@ -567,6 +632,12 @@ class Controller_Board extends Controller_System_Page
             if(BoardConfig::instance()->breadcrumbs_ad_title)
                 $this->breadcrumbs->add($ad->getTitle(), FALSE);
 
+            /* Check city and category alias */
+            if(Request::current()->param('city_alias') != $city->alias)
+            	throw new HTTP_Exception_404();
+            if(Request::current()->param('cat_alias') != $ad->category->alias)
+            	throw new HTTP_Exception_404();
+
             /* Photos */
             $photos = $ad->photos->order_by('id', 'ASC')->find_all();
             if(count($photos) > 1){
@@ -608,16 +679,21 @@ class Controller_Board extends Controller_System_Page
                 $query = $sphinxql->new_query()
                     ->add_index($this->board_cfg['sphinx_index'])
                     ->add_field('id')
-                    ->add_field('photo_count>0', 'photos')
-                    ->search('"'.$ad->getTitle().'"/1')
+                    ->add_field('(pcity_id='.$ad->pcity_id.')+(city_id='.$ad->city_id.')', 'regional')
+//                    ->add_field('photo_count>0', 'photos')
+//                    ->search('"'.$ad->getTitle().'"/1')
+                    ->search('@title "'.$ad->getTitle().'"/1')
                     ->where('category_id', (string) $ad->category_id)
+//                    ->where('pcity_id', (string) $ad->pcity_id)
                     ->where('id', (string) $ad->id, '!=')
                     ->where('user_id', (string) $ad->user_id, '!=')
-                    ->order('photos', 'DESC')
+//                    ->order('photos', 'DESC')
+                    ->order('regional', 'DESC')
                     ->order('weight()', 'DESC')
                     ->order('addtime', 'DESC')
                     ->limit(BoardConfig::instance()->similars_ads_limit)
-                    ->option('ranker', 'matchany')
+//                    ->option('ranker', 'matchany')
+//                    ->option('ranker', 'bm25')
                 ;
                 $spinx_ads = $query->execute();
                 $sim_count = count($spinx_ads);
@@ -655,10 +731,11 @@ class Controller_Board extends Controller_System_Page
                 'city_in' => $city->name_in,
                 'region' => $region->name,
             );
+            $title = $this->_generateMetaTitle('ad_h1', $ad_meta_params);
             $this->title = $this->_generateMetaTitle('ad_title', $ad_meta_params);
             $this->description = $this->_generateMetaDescription('ad_description', $ad_meta_params);
             $this->keywords = $this->_generateMetaKeywords('ad_keywords', $ad_meta_params);
-            $this->add_meta_content(array('property'=>'og:title', 'content'=>$ad->getTitle()));
+            $this->add_meta_content(array('property'=>'og:title', 'content'=>htmlspecialchars($ad->getTitle())));
             $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
             $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial()).$ad->getUri()));
             $this->add_meta_content(array('property'=>'og:site_name', 'content'=>$this->config['project']['host']));
@@ -701,6 +778,7 @@ class Controller_Board extends Controller_System_Page
             if(BoardConfig::instance()->ad_search_form)
                 $this->template->search_form = Widget::factory('BoardSearch')->render();
             $this->template->content->set(array(
+                'title' => $title,
                 'ad' => $ad,
                 'photos' => $photos,
                 'filters' => $filters,
@@ -714,18 +792,20 @@ class Controller_Board extends Controller_System_Page
             ));
         }
         elseif($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) != $alias){
-            $this->redirect(URL::base() . $ad->getUri(), 301);
+//            $this->redirect(URL::base() . $ad->getUri(), 301);
+	        throw new HTTP_Exception_404();
         }
         else{
-//            $category_alias = Request::current()->param('cat_alias');
-//            $city_alias = Request::current()->param('city_alias');
-//            if(!is_null($alias)){
-//                $category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
-//                if($category->loaded()){
+            $category_alias = Request::current()->param('cat_alias');
+            $city_alias = Request::current()->param('city_alias');
+            if(!is_null($alias)){
+                $category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
+                if($category->loaded()){
 //                    $this->redirect(URL::base() . $category->getUri($city_alias), 301);
 //                    die();
-//                }
-//            }
+	                throw new HTTP_Exception_404();
+                }
+            }
             throw HTTP_Exception::factory('404', __('Page not found'));
         }
     }
@@ -766,9 +846,8 @@ class Controller_Board extends Controller_System_Page
                 ));
                 if(!$this->logged_in || Model_BoardAd::checkFrequentlyAdded()){
                     $validation
-                        ->rules('captcha', array(
-                            array('not_empty'),
-                            array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
+                        ->rules('g-recaptcha-response', array(
+                            array('Captcha::check', array(':value', ':validation', ':field'))
                         ))
                         ->rules('email', array(
                             array(array('Model_User', 'checkBannedDomain'), array(':validation', ':value')),
@@ -1273,9 +1352,8 @@ class Controller_Board extends Controller_System_Page
                     ))
                 ;
                 if(!$this->logged_in)
-                    $validation->rules('captcha', array(
-                        array('not_empty'),
-                        array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
+                    $validation->rules('g-recaptcha-response', array(
+                        array('Captcha::check', array(':value', ':validation', ':field'))
                     ));
                 if($validation->check()){
                     Email::instance()
@@ -1326,14 +1404,12 @@ class Controller_Board extends Controller_System_Page
                     ->labels(array(
                         'email' => __('Your e-mail'),
                         'text' => __('Message text'),
-                        'captcha' => __('Enter captcha code'),
                     ))
                 ;
+                $validation->rules('g-recaptcha-response', array(
+                    array('Captcha::check', array(':value', ':validation', ':field'))
+                ));
                 if(!$this->logged_in){
-                    $validation->rules('captcha', array(
-                        array('not_empty'),
-                        array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
-                    ));
                     $validation->rules('email', array(
                         array('not_empty'),
                         array('email'),
@@ -1389,8 +1465,9 @@ class Controller_Board extends Controller_System_Page
                             ->send();
                     }
                     Flash::success(__("Your message successfully sended"));
-                    $this->json['content'] = $this->getContentTemplate('board/user_outbox_done');
-                    if(Auth::instance()->logged_in('login'))
+                    if(!Auth::instance()->logged_in('login'))
+                        $this->json['content'] = $this->getContentTemplate('board/user_outbox_done')->render();
+                    else
                         $this->json['content'] .= View::factory('inbox/goto_dialog')->set(array(
                             'dialog_link' => Route::get('messaging')->uri(array(
                                 'action' => 'dialog',
@@ -1579,7 +1656,7 @@ class Controller_Board extends Controller_System_Page
         if(isset($this->board_cfg[$config_index]))
             $template = $this->board_cfg[$config_index];
         foreach($parameters as $_param=>$_val){
-            $template = str_replace('<'.$_param.'>', $_val, $template);
+            $template = $this->_replaceMetaParam($_param, $_val, $template);
         }
         return $template;
     }
@@ -1602,7 +1679,7 @@ class Controller_Board extends Controller_System_Page
         if(isset($this->board_cfg[$config_index]))
             $template = $this->board_cfg[$config_index];
         foreach($parameters as $_param=>$_val){
-            $template = str_replace('<'.$_param.'>', $_val, $template);
+            $template = $this->_replaceMetaParam($_param, $_val, $template);
         }
         return $template;
     }
@@ -1622,9 +1699,29 @@ class Controller_Board extends Controller_System_Page
         $template = NULL;
         if(isset($this->board_cfg[$config_index]))
             $template = $this->board_cfg[$config_index];
-        foreach($parameters as $_param=>$_val){
-            $template = str_replace('<'.$_param.'>', $_val, $template);
+        foreach($parameters as $_param=>$_val)
+            $template = $this->_replaceMetaParam($_param, $_val, $template);
+        return $template;
+    }
+
+    /**
+     * Replace parameter to value in template
+     * @param $key
+     * @param $value
+     * @param $template
+     * @return mixed
+     */
+    protected function _replaceMetaParam($key, $value, $template){
+
+        if(mb_strstr($template, '<'.$key.':')){
+            preg_match_all('~<'.$key.':(\d+)>~', $template, $matches);
+            foreach($matches as $_match_id=>$_match){
+                if($_match_id == 0)
+                    continue;
+                $template = str_replace('<'.$key.':'.$_match[0].'>', mb_substr($value, 0, $_match[0]), $template);
+            }
         }
+        $template = str_replace('<'.$key.'>', $value, $template);
         return $template;
     }
 }

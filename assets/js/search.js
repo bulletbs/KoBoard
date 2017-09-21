@@ -235,7 +235,7 @@ if($('#region-link').length){
         var category = $('#categoryAlias').val();
         var mainfilter = $('#filtersList select[data-main="1"]').val();
         uri += region ? region : 'all';
-        if(category)
+        if(category && category !== 'all')
             uri += '/'+category;
         if(typeof subcat_selected != 'undefined' && subcat_options[subcat_selected])
             uri += '/'+subcat_options[subcat_selected];

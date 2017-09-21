@@ -176,6 +176,7 @@ class Model_BoardAd extends ORM{
         $photo->update();
         if($auto_increace)
             $this->increasePhotos();
+        return true;
     }
 
     /**
@@ -837,5 +838,12 @@ class Model_BoardAd extends ORM{
             $sitemaps[] = $sitemap_link;
         }
         return $sitemaps;
+    }
+
+	/**
+	 * @return string
+	 */
+    public function userUri(){
+    	return Route::get('board_userads')->uri(array('user'=>$this->user_id));
     }
 }

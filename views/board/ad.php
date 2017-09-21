@@ -173,7 +173,7 @@
             <div class="clear"></div>
             <br>
             <div class="alcenter">
-                <h2>Показать <a target="_blank" title="Показать все объявления пользователя <?php echo $ad->name ?>" href="/all.html?userfrom=<?php echo $ad->id?>">все объявления пользователя</a></h2>
+                <h2>Показать <?php echo HTML::anchor($ad->userUri(), "все объявления пользователя", array('title'=>"Показать все объявления пользователя ".$ad->name))?></h2>
             </div>
             <br>
             <div class="clear"></div>

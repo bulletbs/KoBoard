@@ -35,6 +35,7 @@ return array(
     'price_hints'       => '100,1000,5000,10000,20000,100000,1000000,10000000',
 
     /* H1 settings */
+    'ad_h1'             => '<ad_title> в <city_in>',
     'region_h1'           => 'Доска объявлений <region_of>',
     'category_h1'         => '<category> в России',
     'region_category_h1'  => '<category> в <region_in>',

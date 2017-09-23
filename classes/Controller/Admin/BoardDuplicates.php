@@ -10,6 +10,7 @@ class Controller_Admin_BoardDuplicates extends Controller_System_Admin{
 
     public $skip_auto_content_apply = array(
         'index',
+        'title',
         'email',
         'text',
         'top100',
@@ -49,9 +50,19 @@ class Controller_Admin_BoardDuplicates extends Controller_System_Admin{
      * List items
      */
     public function action_index(){
-        $this->template->content = $this->_setIndexTemplate();
+	    $this->template->content = View::factory('admin/duplicates/index', array(
+		    'type' => '',
+		    'route' => Route::get('admin'),
+		    'route_params' => array(
+			    'controller' => $this->request->controller(),
+		    ),
+	    ));
     }
 
+    public function action_title(){
+        $this->_setType('title');
+        $this->template->content = $this->_setIndexTemplate();
+    }
     public function action_email(){
         $this->_setType('email');
         $this->template->content = $this->_setIndexTemplate();
@@ -120,28 +131,58 @@ class Controller_Admin_BoardDuplicates extends Controller_System_Admin{
      * @throws Kohana_Exception
      */
     public function action_auto(){
-        $this->_setType($_GET['type']);
-        $variant = $this->_generateAutoSql()->execute();
-        $_GET['value'] = $variant[0]['subtext'];
-        $this->_setTopValue(false);
-        $list = $this->_generateTopSql()
-            ->having('cnt','>','1')
-            ->limit(1000)
-            ->offset(0)
-            ->execute();
-        foreach($list as $row){
-            $_GET['subvalue'] = $row['val'];
-            $this->_setTopValue(false);
-            $items = $this->_generateDeleteSql()->as_object(self::MODELNAME)->execute()->as_array('id');
-            $deleted = 0;
-            foreach($items as $item){
-                $item->delete();
-                unset($item);
-                $deleted++;
-            }
-            Flash::success('Удалено '.$deleted.' дубликатов c '. ($this->_select_type=='title'?'заголовком ':'текстом') .' &#171;'.$this->_top100_value.'&#187; от пользователя ID='.$row['val']);
-            unset($items);
-        }
+	    $this->_setType($_GET['type']);
+	    $deleted = 0;
+
+	    /* TEXT type */
+	    if($this->_select_type == 'text'){
+		    $query = DB::select(array(DB::expr('DISTINCT('.$this->_distinct_value.')'), 'subtext'), array(DB::expr('count(ads.id)'),'cnt'))
+               ->from('ads')
+               ->group_by('subtext')
+               ->having('cnt','>',1)
+               ->order_by('cnt','DESC')
+               ->limit(10);
+		    ;
+		    $list = $query->execute();
+		    foreach ($list as $row){
+			    $_GET['value'] = $row['subtext'];
+			    $this->_setTopValue(false);
+			    $query = $this->_generateDeleteTextSql()->as_object(self::MODELNAME);
+			    $items = $query ->execute()->as_array('id');
+			    foreach ($items as $item){
+			    	$item->delete();
+				    unset($item);
+				    $deleted++;
+			    }
+			    Flash::success('Удалено '.$deleted.' дубликатов c текстом &#171;'.$this->_top100_value.'&#187;');
+			    unset($items);
+			    $deleted = 0;
+		    }
+	    }
+
+	    /* OTHER types */
+	    else{
+		    $variant = $this->_generateAutoSql()->execute();
+		    $_GET['value'] = $variant[0]['subtext'];
+		    $this->_setTopValue(false);
+		    $list = $this->_generateTopSql()
+		                 ->having('cnt','>','1')
+		                 ->limit(1000)
+		                 ->offset(0)
+		                 ->execute();
+		    foreach($list as $row){
+			    $_GET['subvalue'] = $row['val'];
+			    $this->_setTopValue(false);
+			    $items = $this->_generateDeleteSql()->as_object(self::MODELNAME)->execute()->as_array('id');
+			    foreach($items as $item){
+				    $item->delete();
+				    unset($item);
+				    $deleted++;
+			    }
+			    Flash::success('Удалено '.$deleted.' дубликатов c '. ($this->_select_type=='title'?'заголовком ':'текстом') .' &#171;'.$this->_top100_value.'&#187; от пользователя ID='.$row['val']);
+			    unset($items);
+		    }
+	    }
         $this->template->content = View::factory('admin/duplicates/auto', array(
             'type' => $this->_select_type,
             'route' => Route::get('admin'),
@@ -205,7 +246,7 @@ class Controller_Admin_BoardDuplicates extends Controller_System_Admin{
         $items = $this->_generateIndexSql()->execute();
 //        $items = array(0=>array('subtext'=>'sddlk sd;gnk sd;lfngsd f;gkndg lknsd;fgknsd;flnsd;fln','cnt'=>'122'));
 
-        return View::factory('admin/duplicates/index', array(
+        return View::factory('admin/duplicates/list', array(
             'type' => $this->_select_type,
             'pagination' => clone($this->_pagination),
             'items' => $items,
@@ -309,6 +350,22 @@ class Controller_Admin_BoardDuplicates extends Controller_System_Admin{
         $query->order_by('addtime','DESC')
             ->limit(10000)
             ->offset($all ? 0 : 1);
+        return $query;
+    }
+
+
+    /**
+     * Создание запроса TOP100
+     * @param bool $all
+     * @return Database_Query_Builder_Select
+     */
+    protected function _generateDeleteTextSql($all = false){
+        $query = DB::select('*')
+            ->from('ads')
+            ->where(DB::expr($this->_top100_where), '=', $this->_top100_value);
+        $query->order_by('addtime','DESC')
+            ->limit(10000)
+            ->offset(1);
         return $query;
     }
 

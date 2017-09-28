@@ -846,4 +846,53 @@ class Model_BoardAd extends ORM{
     public function userUri(){
     	return Route::get('board_userads')->uri(array('user'=>$this->user_id));
     }
+
+    public static function similarQuery($query, Array $params = array()){
+    	$ad = ORM::factory('BoardAd');
+	    $query = DB::select($ad->table_name().'.*')->from( $ad->table_name() )
+          ->as_object(get_class($ad))
+          ->select(
+              array(DB::expr('MATCH(`title`) AGAINST ("'.$query.'" IN BOOLEAN MODE)'), 'match')
+          )
+          ->where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$query."' IN BOOLEAN MODE)"))
+          ->order_by('match', 'DESC')
+          ->order_by('addtime', 'DESC')
+          ->limit(BoardConfig::instance()->similars_ads_limit)
+	    ;
+	    if(isset($params['category_id']))
+		    $query->and_where('category_id', '=', (string) $params['category_id']);
+	    if(isset($params['pcategory_id']))
+		    $query->and_where('pcategory_id', '=', (string) $params['pcategory_id']);
+	    if(isset($params['city_id']))
+			$query->and_where('city_id', '=', (string) $params['city_id']);
+	    if(isset($params['pcity_id']))
+			$query->and_where('pcity_id', '=', (string) $params['pcity_id']);
+	    if(isset($params['user_id']))
+			$query->and_where('user_id', '!=', (string) $params['user_id']);
+	    return $query;
+    }
+
+    public static function similarSphinxQuery($ad){
+	    $sphinxql = new SphinxQL;
+        $query = $sphinxql->new_query()
+            ->add_index(BoardConfig::instance()->sphinx_index)
+            ->add_field('id')
+            ->add_field('(pcity_id='.$ad->pcity_id.')+(city_id='.$ad->city_id.')', 'regional')
+//                    ->add_field('photo_count>0', 'photos')
+//                    ->search('"'.$ad->getTitle().'"/1')
+            ->search('@title "'.$ad->getTitle().'"/1')
+            ->where('category_id', (string) $ad->category_id)
+//                    ->where('pcity_id', (string) $ad->pcity_id)
+            ->where('id', (string) $ad->id, '!=')
+            ->where('user_id', (string) $ad->user_id, '!=')
+//                    ->order('photos', 'DESC')
+            ->order('regional', 'DESC')
+            ->order('weight()', 'DESC')
+            ->order('addtime', 'DESC')
+            ->limit(BoardConfig::instance()->similars_ads_limit)
+//                    ->option('ranker', 'matchany')
+//                    ->option('ranker', 'bm25')
+        ;
+        return $query;
+    }
 }

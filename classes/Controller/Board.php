@@ -675,41 +675,45 @@ class Controller_Board extends Controller_System_Page
 
             /* Similar ads */
             if(BoardConfig::instance()->similars_ads_show){
-                $sphinxql = new SphinxQL;
-                $query = $sphinxql->new_query()
-                    ->add_index($this->board_cfg['sphinx_index'])
-                    ->add_field('id')
-                    ->add_field('(pcity_id='.$ad->pcity_id.')+(city_id='.$ad->city_id.')', 'regional')
-//                    ->add_field('photo_count>0', 'photos')
-//                    ->search('"'.$ad->getTitle().'"/1')
-                    ->search('@title "'.$ad->getTitle().'"/1')
-                    ->where('category_id', (string) $ad->category_id)
-//                    ->where('pcity_id', (string) $ad->pcity_id)
-                    ->where('id', (string) $ad->id, '!=')
-                    ->where('user_id', (string) $ad->user_id, '!=')
-//                    ->order('photos', 'DESC')
-                    ->order('regional', 'DESC')
-                    ->order('weight()', 'DESC')
-                    ->order('addtime', 'DESC')
-                    ->limit(BoardConfig::instance()->similars_ads_limit)
-//                    ->option('ranker', 'matchany')
-//                    ->option('ranker', 'bm25')
-                ;
-                $spinx_ads = $query->execute();
-                $sim_count = count($spinx_ads);
-                if($sim_count && $sim_count >= BoardConfig::instance()->similars_ads_limit / 2){
-                    $sim_ads = array();
-                    foreach($spinx_ads as $_ad)
-                        $sim_ads[] = $_ad['id'];
-                    $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $sim_ads).")"))->find_all()->as_array('id');
-                    if(count($sim_ads) && count($sim_ads)>=BoardConfig::instance()->similars_ads_limit / 2){
-                        if(count($sim_ads)< BoardConfig::instance()->similars_ads_limit)
-                            $sim_ads = array_slice($sim_ads, 0, BoardConfig::instance()->similars_ads_limit / 2);
-                        $this->template->content->set(array(
-                            'sim_ads' => $sim_ads,
-                            'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
-                        ));
-                    }
+//            	$query = Model_BoardAd::similarSphinxQuery($ad);
+//                $spinx_ads = $query->execute();
+//                $sim_count = count($spinx_ads);
+//                if($sim_count && $sim_count >= BoardConfig::instance()->similars_ads_limit / 2){
+//                    $sim_ads = array();
+//                    foreach($spinx_ads as $_ad)
+//                        $sim_ads[] = $_ad['id'];
+//                    $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $sim_ads).")"))->find_all()->as_array('id');
+//                    if(count($sim_ads) && count($sim_ads)>=BoardConfig::instance()->similars_ads_limit / 2){
+//                        if(count($sim_ads)< BoardConfig::instance()->similars_ads_limit)
+//                            $sim_ads = array_slice($sim_ads, 0, BoardConfig::instance()->similars_ads_limit / 2);
+//                        $this->template->content->set(array(
+//                            'sim_ads' => $sim_ads,
+//                            'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
+//                        ));
+//                    }
+//                }
+
+	            $sim_ads = Model_BoardAd::similarQuery($ad->getTitle(), array(
+	            	'city_id' => $ad->city_id,
+	            	'category_id' => $ad->category_id,
+	            	'user_id' => $ad->user_id,
+	            ))->execute();
+	            if(!count($sim_ads)){
+		            $sim_ads = Model_BoardAd::similarQuery($ad->getTitle(), array(
+			            'pcity_id' => $ad->pcity_id,
+			            'pcategory_id' => $ad->pcategory_id,
+			            'user_id' => $ad->user_id,
+		            ))->execute();
+	            }
+
+                if(count($sim_ads)){
+	                $sim_ids = array();
+                    foreach($sim_ads as $_ad)
+                        $sim_ids[] = $_ad->id;
+                    $this->template->content->set(array(
+                        'sim_ads' => $sim_ads,
+                        'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList($sim_ids),
+                    ));
                 }
             }
 

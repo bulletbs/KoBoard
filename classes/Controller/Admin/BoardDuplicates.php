@@ -141,7 +141,7 @@ class Controller_Admin_BoardDuplicates extends Controller_System_Admin{
                ->group_by('subtext')
                ->having('cnt','>',1)
                ->order_by('cnt','DESC')
-               ->limit(10);
+               ->limit(50)
 		    ;
 		    $list = $query->execute();
 		    foreach ($list as $row){

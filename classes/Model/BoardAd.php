@@ -847,14 +847,15 @@ class Model_BoardAd extends ORM{
     	return Route::get('board_userads')->uri(array('user'=>$this->user_id));
     }
 
-    public static function similarQuery($query, Array $params = array()){
+    public static function similarQuery($title, Array $params = array()){
     	$ad = ORM::factory('BoardAd');
+    	$title = addslashes($title);
 	    $query = DB::select($ad->table_name().'.*')->from( $ad->table_name() )
           ->as_object(get_class($ad))
           ->select(
-              array(DB::expr('MATCH(`title`) AGAINST ("'.$query.'" IN BOOLEAN MODE)'), 'match')
+              array(DB::expr('MATCH(`title`) AGAINST ("'.$title.'" IN BOOLEAN MODE)'), 'match')
           )
-          ->where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$query."' IN BOOLEAN MODE)"))
+          ->where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$title."' IN BOOLEAN MODE)"))
           ->order_by('match', 'DESC')
           ->order_by('addtime', 'DESC')
           ->limit(BoardConfig::instance()->similars_ads_limit)

@@ -263,9 +263,9 @@ class Model_BoardCity extends ORM_MPTT{
             'all' => array(),
         );
         if($region_id > 0)
-            $sql = DB::select(array('city_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('pcity_id', '=', $region_id);
+            $sql = DB::select(array('city_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('publish','=','1')->and_where('pcity_id', '=', $region_id);
         else
-            $sql = DB::select(array('pcity_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() );
+            $sql = DB::select(array('pcity_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('publish','=','1');
         if($category_id)
             $sql->and_where((Model_BoardCategory::getField('parent_id', $category_id) ? '' : 'p') . 'category_id', '=', $category_id);
         $_ads_count = $sql->group_by('cit_id')->order_by('cnt', 'DESC')->cached(Date::HOUR)->execute()->as_array('cit_id', 'cnt');
@@ -276,7 +276,7 @@ class Model_BoardCity extends ORM_MPTT{
         foreach($_childs as $_city_id=>$_city){
             if(isset($_ads_count[ $_city_id ])){
                 $regions['all'][$_city_id] = $_ads_count[ $_city_id ];
-                if($_ads_count[ $_city_id ]/$_total_count > $big_limit_percent/100)
+                if(!$_total_count || $_ads_count[ $_city_id ]/$_total_count > $big_limit_percent/100)
                     $regions['big'][$_city_id] = $_ads_count[ $_city_id ];
             }
         }

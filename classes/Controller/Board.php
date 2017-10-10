@@ -705,6 +705,13 @@ class Controller_Board extends Controller_System_Page
 			            'user_id' => $ad->user_id,
 		            ))->execute();
 	            }
+	            if(!count($sim_ads)){
+		            $sim_ads = Model_BoardAd::getLastAds(BoardConfig::instance()->similars_ads_limit, array(
+			            'category_id' => $ad->category_id,
+			            'user_id' => $ad->user_id,
+			            'photo_count' => 0,
+		            ));
+	            }
 
                 if(count($sim_ads)){
 	                $sim_ids = array();

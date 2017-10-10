@@ -640,21 +640,57 @@ class Model_BoardAd extends ORM{
         return $count;
     }
 
-    /**
-     * Gets last ads
-     * @param int $count
-     * @return int
-     */
-    public static function getLastAds($count = 20){
-        $ads = ORM::factory('BoardAd')
-            ->select(DB::expr('DISTINCT boardad.user_id user_id'),'boardad.*')
-            ->where('publish', '=', 1)
-            ->and_where('photo_count', '>', 0)
+	/**
+	 * Gets last ads
+	 * @param int $count
+	 * @param array $params
+	 *
+	 * @return Database_Result
+	 */
+    public static function getLastAds($count = 20, $params = array()){
+        $query = ORM::factory('BoardAd');
+
+        /* Список полей для выбора */
+        if(isset($params['select'])){
+	        $query->select($params['select']);
+	        if(isset($params['group_by']))
+	        	$query->group_by($params['group_by']);
+        }
+        else
+	        $query->select(DB::expr('DISTINCT boardad.user_id user_id'),'boardad.*')
+	              ->group_by('user_id');
+
+        /* Сортировка */
+        if(isset($params['order_by']))
+        	$query->order_by($params['order_by']['col'], Arr::get($params['order_by'],'dir'));
+        else
+	        $query->order_by('addtime', 'DESC');
+
+        /* С фото и без */
+        if(isset($params['photo_count']) && $params['photo_count']>0)
+	        $query->and_where('photo_count', '>', $params['photo_count']);
+        elseif(!isset($params['photo_count']))
+            $query->and_where('photo_count', '>', 0);
+
+        /* Стандартные параметры */
+        $query->where('publish', '=', 1)
             ->order_by('addtime', 'DESC')
-            ->group_by('user_id')
             ->cached(Date::MINUTE*5)
-            ->limit($count)
-            ->find_all();
+            ->limit($count);
+
+        /* Дополнительные параметры */
+	    if(isset($params['category_id']))
+		    $query->and_where('category_id', '=', (string) $params['category_id']);
+	    if(isset($params['pcategory_id']))
+		    $query->and_where('pcategory_id', '=', (string) $params['pcategory_id']);
+	    if(isset($params['city_id']))
+		    $query->and_where('city_id', '=', (string) $params['city_id']);
+	    if(isset($params['pcity_id']))
+		    $query->and_where('pcity_id', '=', (string) $params['pcity_id']);
+	    if(isset($params['user_id']))
+		    $query->and_where('user_id', '!=', (string) $params['user_id']);
+        $ads = $query->find_all();
+
         return $ads;
     }
 
@@ -855,7 +891,8 @@ class Model_BoardAd extends ORM{
           ->select(
               array(DB::expr('MATCH(`title`) AGAINST ("'.$title.'" IN BOOLEAN MODE)'), 'match')
           )
-          ->where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$title."' IN BOOLEAN MODE)"))
+		  ->where('publish', '=', '1')
+          ->and_where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$title."' IN BOOLEAN MODE)"))
           ->order_by('match', 'DESC')
           ->order_by('addtime', 'DESC')
           ->limit(BoardConfig::instance()->similars_ads_limit)

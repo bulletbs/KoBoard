@@ -65,7 +65,8 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
             ->from(array('ads','a'))
             ->join(array($user_table,'u'),'INNER')->on('a.user_id','=','u.id')->on('u.no_mails','=', DB::expr(0))->on('u.email_verified','=', DB::expr(1))
             ->where('publish', '=', 1)
-            ->and_where('addtime', '<=', $addtime);
+//            ->and_where('addtime', '<=', $addtime)
+        ;
         Database::instance()->query(Database::INSERT, 'INSERT INTO `ad_mailer` (`user_id`, `email`) '.$query);
 
         Flash::success('Очередь рассылки создана');

@@ -4,6 +4,7 @@
 <?= Flash::render('global/flash') ?>
 
 <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit'))?>" class="pure-button pure-button-primary right"><?php echo __('Add ad') ?></a>
+<?php if($user->has_role('import')):?><a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'import'))?>" class="pure-button pure-button-primary right"><?php echo __('Import') ?></a><?endif?>
 <?if(count($ads)):?><a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'refresh_all'))?>" class="pure-button pure-button right"><i class="fa fa-refresh"></i> <?php echo __('Refresh All') ?></a><?endif?>
 <br class="clear">
 <br class="clear">
@@ -38,6 +39,7 @@
 <?endforeach;?>
 </table>
 <div class="clear"></div>
+<?php echo $pagination->render() ?>
 <?else:?>
 <b>У Вас нет объявлений.<br>Чтоб создать новое объявлений нажмите кнопку "Добавить объявление"</b>
 <?endif?>

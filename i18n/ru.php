@@ -128,9 +128,10 @@ return array(
     '' => '',
 
 /*  BOARD COMPANY & IMPORT */
+    'Import' => 'Импорт',
     '' => '',
-    '' => '',
-    '' => '',
+    'Import limit exceeded (:limit)' => 'Достигнут лимит импорта(:limit)',
+    ':imported rows of :total was imported (errors :errors)' => 'Всего :imported (из :total) строк было импортировано (ошибок :errors)',
 
 /* OTHER */
 //    'Sell' => 'Продам',

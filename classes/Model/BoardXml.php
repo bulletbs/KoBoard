@@ -4,11 +4,15 @@
  * Model of board xml import statistics
  * Class Model_BoardSearch
  */
-class Model_CatalogXml extends ORM{
+class Model_BoardXml extends ORM{
 
-    protected $_table_name = 'ad_import_stat';
+    protected $_table_name = 'ad_import_stats';
+    protected $_handler;
 
-    protected $upload_feed;
+    public $types = array(
+    	'none',
+    	'realty',
+    );
 
     /**
      * @return array
@@ -22,27 +26,87 @@ class Model_CatalogXml extends ORM{
         );
     }
 
-    /**
-     * Set upload feed
-     * @param $upload
-     * @return $this
-     */
-    public function setupUpload($upload){
-        $this->upload_feed = file_get_contents($upload);
-
-        return $this;
+	/**
+	 * Model_BoardXml constructor.
+	 *
+	 * @param null $id
+	 */
+    public function __construct($id = NULL) {
+    	return parent::__construct($id);
     }
 
-
-    public function parseFeed(){
-        $feed = Kohana_Feed::parse($this->upload_feed);
-
-        return $feed;
+	/**
+	 * Set handler from factory
+	 * @param $file
+	 * @param $type
+	 *
+	 * @return $this
+	 */
+    public function addHandler($file, $type){
+    	$this->_handler = Model_Import_Factory::instance($type)->setupUpload($file);
+    	return $this;
     }
 
-    public function parseItem($item){
-        $ad = ORM::factory('BoardAd');
+	/**
+	 * Setup import handler contacts
+	 * @param array $contacts
+	 *
+	 * @return $this
+	 */
+    public function setHandlerContacts(Array $contacts){
+        $this->_handler->contacts = Arr::merge($this->_handler->contacts, $contacts);
+	    return $this;
+    }
 
-        return $ad;
+	/**
+	 * Setup import handler limits
+	 * @param array $limits
+	 * array(
+		'exist' => 5,
+		'limit' => 500,
+	 *
+	 * @return $this
+	 */
+	public function setHandlerLimits(Array $limits){
+		$this->_handler->limits = Arr::merge($this->_handler->limits, $limits);
+		return $this;
+	}
+
+	/**
+	 * Add tish stat ID to handler
+	 * @return $this
+	 */
+	public function setHandlerStatId(){
+		$this->_handler->stat_id = $this->id;
+		return $this;
+	}
+
+	/**
+	 * Handler errors
+	 * @return mixed
+	 */
+	public function getHandlerErrors(){
+		return $this->_handler->errors();
+	}
+
+	/**
+	 * Executes import
+	 */
+	public function execute(){
+		$this->values(array(
+			'user_id' => Auth::instance()->get_user()->id,
+			'addtime' => time(),
+		))->save();
+		$this->setHandlerStatId();
+	    $this->_handler->walkFeed();
+		$this->values( $this->_handler->stats() )->save();
+	}
+
+	/**
+	 * Check if feed valid
+	 * @return bool
+	 */
+    public function isValid(){
+        return $this->_handler->_validated == true;
     }
 }

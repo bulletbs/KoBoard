@@ -7,6 +7,10 @@ class Controller_UserBoard extends Controller_User
 {
     public $auth_required = 'login';
 
+    public $secure_actions = array(
+        'import' => array('login', 'company', 'import'),
+    );
+
     public $company;
 
     public $skip_auto_content_apply = array(
@@ -37,10 +41,26 @@ class Controller_UserBoard extends Controller_User
      * Companies list action
      */
     public function action_list(){
-        $ads = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->order_by('addtime', 'DESC')->find_all()->as_array('id');
+        $ads_cnt = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->order_by('addtime', 'DESC')->count_all();
+        $pagination = Pagination::factory(
+            array(
+                'total_items' => $ads_cnt,
+                'group' => 'board',
+//                'items_per_page' => 10,
+            ))
+            ->route_params(array(
+                'controller' => $this->request->controller(),
+//                'action' => $this->request->action(),
+//                'action' => NULL,
+            ));
+        $ads = ORM::factory('BoardAd')->where('user_id', '=', $this->current_user->id)->order_by('addtime', 'DESC')
+            ->offset($pagination->offset)->limit($pagination->items_per_page)
+            ->find_all()->as_array('id');
         $this->user_content->set(array(
             'ads' => $ads,
             'photos' => Model_BoardAdphoto::adsPhotoList(array_keys($ads)),
+            'user' => $this->current_user,
+            'pagination' => $pagination,
         ));
         $this->right_contents = View::factory('board/cabinet/legend');
     }
@@ -59,7 +79,7 @@ class Controller_UserBoard extends Controller_User
         }
 
         $ad = ORM::factory('BoardAd')->where('id', '=', $id)->and_where('user_id', '=', $this->current_user->id)->find();
-        $photos = $ad->photos->find_all();
+        $photos = $ad->photos->order_by('id', 'ASC')->find_all();
         if($id > 0 && !$ad->loaded())
             $this->redirect(URL::site().Route::get('board_myads')->uri());
         elseif(is_null($id)){
@@ -103,10 +123,9 @@ class Controller_UserBoard extends Controller_User
 
                 if(!$ad->loaded() && Model_BoardAd::checkFrequentlyAdded()){
                     $validation
-                        ->rules('captcha', array(
-                            array('not_empty'),
-                            array('Captcha::checkCaptcha', array(':value', ':validation', ':field'))
-                        ))
+	                    ->rules('g-recaptcha-response', array(
+		                    array('Captcha::check', array(':value', ':validation', ':field'))
+	                    ))
                         ->labels(array(
                             'captcha' => __('Enter captcha code'),
                         ));
@@ -401,6 +420,10 @@ class Controller_UserBoard extends Controller_User
         return $content;
     }
 
+    /**
+     * Notification listing
+     * @throws Kohana_Exception
+     */
     public function action_notices(){
         $notices = ORM::factory('BoardNotice')->where('user_id', '=', $this->current_user->id)->find_all();
         DB::update(ORM::factory('BoardNotice')->table_name())->set(array('received'=>1))->where('user_id','=',$this->current_user)->execute();
@@ -409,6 +432,11 @@ class Controller_UserBoard extends Controller_User
         ));
     }
 
+    /**
+     * Remove notification
+     * @throws HTTP_Exception_404
+     * @throws Kohana_Exception
+     */
     public function action_notice_remove(){
         $id = $this->request->param('id');
         if(is_null($id))
@@ -421,10 +449,67 @@ class Controller_UserBoard extends Controller_User
         $this->redirect(Route::get('board_notices')->uri());
     }
 
+    /**
+     * Clean all of notifications
+     * @throws Kohana_Exception
+     */
     public function action_notice_clean(){
         $table = ORM::factory('BoardNotice')->table_name();
         DB::delete($table)->where('user_id', '=', $this->current_user->id)->execute();
         Flash::success(__('Your notices cleaned'));
         $this->redirect(Route::get('board_notices')->uri());
+    }
+
+    /**
+     * XML Feed Import page
+     */
+    public function action_import(){
+        $errors = array();
+
+        /* Load stats */
+        $stats = array();
+        $stats['maxads'] = $this->company->maxads;
+        $stats['loaded'] = $this->company->countAds();
+        $stats['last'] = $stats['maxads'] - $stats['loaded'];
+
+        if(Request::current()->method() == Request::POST){
+            $file = Arr::get($_FILES, 'feed', array());
+	        $type = Arr::get($_POST, 'type', 'realty');
+            if(count($file)){
+                $feed = ORM::factory('BoardXml')->addHandler($file['tmp_name'], $type);
+                if($feed->isValid()){
+                    $feed->setHandlerLimits(array(
+                        'exist' => $stats['loaded'],
+                        'limit' => $stats['maxads'],
+                        'last' => $stats['last'],
+                    ));
+                    $feed->setHandlerContacts(array(
+                        'user_id' => $this->current_user->id,
+                        'company_id' => $this->company->id,
+                        'email' => $this->current_user->email,
+                        'name' => $this->current_user->profile->name,
+                        'phone' => $this->current_user->profile->phone,
+                    ));
+                    $feed->execute();
+                    if(count($feed->getHandlerErrors()))
+                        $errors[] = "Количество ошибок: ".count($feed->getHandlerErrors());
+
+                    Model_CatalogCompany::updateCompanyCategories($this->company->id);
+                }
+                else{
+                    echo "invalid";
+                }
+            }
+            $this->redirect(URL::site().Route::get('board_myads')->uri(array('action'=>'import')));
+        }
+
+        $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
+        $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
+        $this->scripts[] = "assets/board/js/import.js";
+        $this->user_content->set(array(
+            'errors' => $errors,
+            'stats' => $stats,
+//            'result' => $result,
+        ));
     }
 }

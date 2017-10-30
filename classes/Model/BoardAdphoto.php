@@ -53,6 +53,17 @@ class Model_BoardAdphoto extends ORM{
         chmod($this->getPhoto(true), 0666);
     }
 
+    public function savePhotoImagick($file){
+        if(!$this->loaded() || !is_file($file))
+            return;
+        $this->ext = 'jpg';
+        if(file_exists(APPPATH.'data/watermark.png'))
+            $mark = APPPATH.'data/watermark.png';
+        else
+            $mark = MODPATH.'board/data/watermark.png';
+        exec('convert '.$file.' -resize '.BoardConfig::instance()->image_max_width.'x'.BoardConfig::instance()->image_max_height.' -quality '.self::IMAGES_QUALITY.' miff:- | composite -dissolve 30% -gravity southwest -geometry +20+20 '.$mark.' - '.$this->getPhoto(true));
+    }
+
     public function saveThumb($file){
         if(!$this->loaded() || !is_file($file))
             return;
@@ -62,6 +73,15 @@ class Model_BoardAdphoto extends ORM{
         $image->image_fixed_resize(BoardConfig::instance()->thumb_width, BoardConfig::instance()->thumb_height);
         $image->save($this->getThumb(true), self::IMAGES_QUALITY);
         chmod($this->getThumb(true), 0666);
+    }
+
+    public function saveThumbImagick($file){
+        if(!$this->loaded() || !is_file($file))
+            return;
+
+	    $this->ext = 'jpg';
+	    $size = BoardConfig::instance()->thumb_width.'x'.BoardConfig::instance()->thumb_height;
+	    exec('convert '.$file.' -thumbnail '.$size.'^ -quality '.self::IMAGES_QUALITY.' -gravity center -extent '.$size.' '.$this->getThumb(true));
     }
 
     public function getPhoto($getName = false){

@@ -180,6 +180,26 @@ class Model_BoardAd extends ORM{
     }
 
     /**
+     * Добавить фото к объявлению
+     * @param $file
+     * @return bool
+     */
+    public function addPhotoImagick( $file, $auto_increace = true ){
+        if(!$this->loaded() || !Image::isImage($file))
+            return false;
+        $photo = ORM::factory('BoardAdphoto')->values(array(
+            'ad_id'=>$this->pk(),
+            'name'=>Text::transliterate($this->title, true),
+        ))->save();
+        $photo->savePhotoImagick($file);
+        $photo->saveThumbImagick($file);
+        $photo->update();
+        if($auto_increace)
+            $this->increasePhotos();
+        return true;
+    }
+
+    /**
      * Удалить фото из объхявления
      * @param $file_id
      * @throws Kohana_Exception

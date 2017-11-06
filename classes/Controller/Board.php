@@ -675,24 +675,6 @@ class Controller_Board extends Controller_System_Page
 
             /* Similar ads */
             if(BoardConfig::instance()->similars_ads_show){
-//            	$query = Model_BoardAd::similarSphinxQuery($ad);
-//                $spinx_ads = $query->execute();
-//                $sim_count = count($spinx_ads);
-//                if($sim_count && $sim_count >= BoardConfig::instance()->similars_ads_limit / 2){
-//                    $sim_ads = array();
-//                    foreach($spinx_ads as $_ad)
-//                        $sim_ads[] = $_ad['id'];
-//                    $sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $sim_ads).")"))->find_all()->as_array('id');
-//                    if(count($sim_ads) && count($sim_ads)>=BoardConfig::instance()->similars_ads_limit / 2){
-//                        if(count($sim_ads)< BoardConfig::instance()->similars_ads_limit)
-//                            $sim_ads = array_slice($sim_ads, 0, BoardConfig::instance()->similars_ads_limit / 2);
-//                        $this->template->content->set(array(
-//                            'sim_ads' => $sim_ads,
-//                            'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
-//                        ));
-//                    }
-//                }
-
 	            $sim_ads = Model_BoardAd::similarQuery($ad->getTitle(), array(
 	            	'city_id' => $ad->city_id,
 	            	'category_id' => $ad->category_id,
@@ -706,11 +688,15 @@ class Controller_Board extends Controller_System_Page
 		            ))->execute();
 	            }
 	            if(!count($sim_ads)){
-		            $sim_ads = Model_BoardAd::getLastAds(BoardConfig::instance()->similars_ads_limit, array(
-			            'category_id' => $ad->category_id,
+//		            $sim_ads = Model_BoardAd::getLastAds(BoardConfig::instance()->similars_ads_limit, array(
+//			            'category_id' => $ad->category_id,
+//			            'user_id' => $ad->user_id,
+//			            'photo_count' => 0,
+//		            ));
+		            $sim_ads = Model_BoardAd::similarQuery($ad->getTitle(), array(
+			            'category_id' => $ad->pcategory_id,
 			            'user_id' => $ad->user_id,
-			            'photo_count' => 0,
-		            ));
+		            ))->execute();
 	            }
 
                 if(count($sim_ads)){

@@ -675,37 +675,42 @@ class Controller_Board extends Controller_System_Page
 
             /* Similar ads */
             if(BoardConfig::instance()->similars_ads_show){
-	            $sim_ads = Model_BoardAd::similarQuery($ad->getTitle(), array(
+	            $sim_ads = array();
+
+//	            $sim_ads = Model_BoardAd::similarQueryUni($ad)->execute()->as_array('id');
+
+	            $sim_ads_res = Model_BoardAd::similarQuery($ad->getTitle(), array(
 	            	'city_id' => $ad->city_id,
 	            	'category_id' => $ad->category_id,
 	            	'user_id' => $ad->user_id,
 	            ))->execute();
-	            if(!count($sim_ads)){
-		            $sim_ads = Model_BoardAd::similarQuery($ad->getTitle(), array(
+	            foreach($sim_ads_res as $_ad)
+		            $sim_ads[(string) $_ad->id] = $_ad;
+	            if(count($sim_ads) < BoardConfig::instance()->similars_ads_limit){
+		            $sim_ads_res = Model_BoardAd::similarQuery($ad->getTitle(), array(
 			            'pcity_id' => $ad->pcity_id,
 			            'pcategory_id' => $ad->pcategory_id,
 			            'user_id' => $ad->user_id,
+			            'exclude_ids' => array_keys($sim_ads),
 		            ))->execute();
+		            foreach($sim_ads_res as $_ad)
+			            $sim_ads[(string) $_ad->id] = $_ad;
 	            }
-	            if(!count($sim_ads)){
-//		            $sim_ads = Model_BoardAd::getLastAds(BoardConfig::instance()->similars_ads_limit, array(
-//			            'category_id' => $ad->category_id,
-//			            'user_id' => $ad->user_id,
-//			            'photo_count' => 0,
-//		            ));
-		            $sim_ads = Model_BoardAd::similarQuery($ad->getTitle(), array(
-			            'category_id' => $ad->pcategory_id,
+	            if(count($sim_ads) < BoardConfig::instance()->similars_ads_limit){
+		            $sim_ads_res = Model_BoardAd::similarQuery($ad->getTitle(), array(
+			            'category_id' => $ad->category_id,
 			            'user_id' => $ad->user_id,
+			            'exclude_ids' => array_keys($sim_ads),
 		            ))->execute();
+		            foreach($sim_ads_res as $_ad)
+			            $sim_ads[(string) $_ad->id] = $_ad;
 	            }
 
                 if(count($sim_ads)){
-	                $sim_ids = array();
-                    foreach($sim_ads as $_ad)
-                        $sim_ids[] = $_ad->id;
+	            	$sim_ads = array_slice($sim_ads,0, BoardConfig::instance()->similars_ads_limit);
                     $this->template->content->set(array(
                         'sim_ads' => $sim_ads,
-                        'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList($sim_ids),
+                        'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),
                     ));
                 }
             }

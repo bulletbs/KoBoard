@@ -903,6 +903,24 @@ class Model_BoardAd extends ORM{
     	return Route::get('board_userads')->uri(array('user'=>$this->user_id));
     }
 
+    public static function similarQueryUni($ad){
+	    $query = DB::select($ad->table_name().'.*')->from( $ad->table_name() )
+	               ->as_object(get_class($ad))
+	               ->select(
+		               array(DB::expr('MATCH(`title`) AGAINST ("'.$ad->getTitle().'" IN BOOLEAN MODE)'), 'match'),
+		               array(DB::expr('(`city_id`='.$ad->city_id.') + (`category_id` = '.$ad->category_id.') + (`pcity_id`='.$ad->pcity_id.') + (`pcategory_id` = '.$ad->pcategory_id.')'), 'relevance')
+	               )
+	               ->where('publish', '=', '1')
+	               ->and_where('user_id', '<>', $ad->user_id)
+	               ->and_where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$ad->getTitle()."' IN BOOLEAN MODE)"))
+	               ->order_by('match', 'DESC')
+	               ->order_by('relevance', 'DESC')
+	               ->order_by('addtime', 'DESC')
+	               ->limit(BoardConfig::instance()->similars_ads_limit)
+	    ;
+	    return $query;
+    }
+
     public static function similarQuery($title, Array $params = array()){
     	$ad = ORM::factory('BoardAd');
     	$title = addslashes($title);
@@ -927,6 +945,8 @@ class Model_BoardAd extends ORM{
 			$query->and_where('pcity_id', '=', (string) $params['pcity_id']);
 	    if(isset($params['user_id']))
 			$query->and_where('user_id', '!=', (string) $params['user_id']);
+	    if(isset($params['exclude_ids']) && is_array($params['exclude_ids']) && count($params['exclude_ids']))
+			$query->and_where('id', 'NOT IN', $params['exclude_ids']);
 	    return $query;
     }
 

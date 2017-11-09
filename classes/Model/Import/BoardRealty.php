@@ -79,7 +79,8 @@ class Model_Import_BoardRealty extends Model_Import_Board{
 
 				case 'Площадь':
 				case 'Площадь дома':
-					if(!empty((string)$item->{'area'}))
+//					if(!empty((string)$item->{'area'}))
+					if(!empty($item->{'area'}))
 						$values[$filter_id] = (string) $item->{'area'}->{'value'};
 					break;
 
@@ -89,18 +90,21 @@ class Model_Import_BoardRealty extends Model_Import_Board{
 					break;
 
 				case 'Жилая площадь':
-					if(!empty((string)$item->{'living-space'}))
+//					if(!empty((string)$item->{'living-space'}))
+					if(!empty($item->{'living-space'}))
 						$values[$filter_id] = (string) $item->{'living-space'}->{'value'};
 					break;
 
 				case 'Этаж':
-					if(!empty((string)$item->{'floor'}))
+//					if(!empty((string)$item->{'floor'}))
+					if(!empty($item->{'floor'}))
 						$values[$filter_id] = (string) $item->{'floor'};
 					break;
 
 				case 'Количество комнат':
 				case 'Всего комнат в квартире':
-					if(!empty((string)$item->{'rooms'}))
+//					if(!empty((string)$item->{'rooms'}))
+					if(!empty($item->{'rooms'}))
 						$values[$filter_id] = (string) $item->{'rooms'};
 					break;
 			}

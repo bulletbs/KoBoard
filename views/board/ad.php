@@ -113,6 +113,11 @@
                 </dl>
             </div>
         </div>
+        <div>
+            <?php if($prev->loaded()):?><?php echo HTML::anchor($prev->getUri(), 'Предыдущее', array('class'=>''))?><?endif?>
+            <?php if($prev->loaded() && $next->loaded()):?>&nbsp;|&nbsp;<?endif?>
+            <?php if($next->loaded()):?><?php echo HTML::anchor($next->getUri(), 'Следующее', array('class'=>''))?><?endif?>
+        </div>
         <!--noindex-->
         <div class="message_actions">
             <a rel="nofollow" href="#" id="sendMessage" class="action_mail" data-id="<?php echo $ad->id?>">Написать продавцу</a>

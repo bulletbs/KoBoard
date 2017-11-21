@@ -528,6 +528,22 @@ class Model_BoardAd extends ORM{
         return  Text::stripNL($descr);
     }
 
+	/**
+	 * Find next item
+	 * @return ORM
+	 */
+    public function getNextItem(){
+    	return ORM::factory('BoardAd')->where('id', '>', $this->id)->and_where('publish', '=', '1')->and_where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->order_by('id', 'ASC')->limit(1)->find();
+    }
+
+	/**
+	 * Find pervious item
+	 * @return ORM
+	 */
+    public function getPrevItem(){
+	    return ORM::factory('BoardAd')->where('id', '<', $this->id)->and_where('publish', '=', '1')->and_where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->order_by('id', 'DESC')->limit(1)->find();
+    }
+
     /**
      * Добавить объявление из импорта
      * @param Array $row

@@ -707,7 +707,7 @@ class Controller_Board extends Controller_System_Page
 	            }
 
                 if(count($sim_ads)){
-	            	$sim_ads = array_slice($sim_ads,0, BoardConfig::instance()->similars_ads_limit);
+	            	$sim_ads = array_slice($sim_ads,0, BoardConfig::instance()->similars_ads_limit, TRUE);
                     $this->template->content->set(array(
                         'sim_ads' => $sim_ads,
                         'sim_ads_photos' => Model_BoardAdphoto::adsPhotoList(array_keys($sim_ads)),

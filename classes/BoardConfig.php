@@ -87,4 +87,32 @@ class BoardConfig {
             return $this->_config[ $id ];
         return NULL;
     }
+
+	/**
+	 * Return values array
+	 * by given key=>value_key pairs
+
+	 * input array:
+	  array(
+		'h1'=>'h1_title',
+		'h2'=>'h2_title',
+	  )
+
+	 * output array:
+	  array(
+		'h1'=>'Title for H1',
+		'h2'=>'Title for H2',
+	  )
+
+	 * @param $keys
+	 * @return array
+	 */
+    public function getValuesArray($keys){
+    	$result = array();
+    	foreach ($keys as $key=>$value_key){
+    		if(isset($this->_config[$value_key]))
+    			$result[$key] = $this->_config[$value_key];
+	    }
+	    return $result;
+    }
 }

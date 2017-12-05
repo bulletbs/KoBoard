@@ -97,7 +97,6 @@ class Controller_Board extends Controller_System_Page
             if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
             $city = ORM::factory('BoardCity', $city)->fillNames();
-            $this->description = $city->name_in;
 
             /* Region breadcrumbs */
             if(BoardConfig::instance()->breadcrumbs_search_region_all){
@@ -144,7 +143,6 @@ class Controller_Board extends Controller_System_Page
             else{
                 $ads->and_where('category_id','=',$category->id);
             }
-            $this->description = $category->getDescription() . (!empty($this->description) ? ' '.$this->description : '' );
         }
         else{
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array('id');
@@ -360,9 +358,11 @@ class Controller_Board extends Controller_System_Page
         /*****************
          * Meta tags
          */
+        // assign params
         $title_type = 'region_title';
         $title_params = array(
             'page' => $pagination->current_page,
+	        'project' => $this->config['project']['name'],
         );
         if($city instanceof ORM){
             $title_params['region'] = $city->name;
@@ -377,8 +377,8 @@ class Controller_Board extends Controller_System_Page
         if($category instanceof ORM) {
             $title_type = 'category_title';
             $title_params['category'] = isset($main_filter) && Arr::get($main_filter, 'selected_name', FALSE) ? $main_filter['selected_name'] : $category->name;
-            $title_params['cat_title'] = $category->title;
-            $title_params['cat_descr'] = $category->description;
+//            $title_params['cat_title'] = $category->title;
+//            $title_params['cat_descr'] = $category->description;
         }
         if(!is_null($city) && !is_null($category))
             $title_type = 'region_category_title';
@@ -390,11 +390,30 @@ class Controller_Board extends Controller_System_Page
             $title_type = 'user_search_title';
             $title_params['username'] = $username;
         }
-        $this->title = $this->_generateMetaTitle($title_type, $title_params);
-        $this->description = $this->_generateMetaDescription(str_replace('title', 'description', $title_type), $title_params);
-        $title = $this->_generateMetaTitle(str_replace('title', 'h1', $title_type), $title_params);
-        $subtitle = $this->_generateMetaTitle(str_replace('title', 'h2', $title_type), $title_params);
-        $nothing_found_text = $this->_generateMetaTitle(str_replace('title', 'empty', $title_type), $title_params);
+
+        // get templates
+	    $templates = BoardConfig::instance()->getValuesArray(array(
+		    'title' => $title_type,
+		    'description' => str_replace('title', 'description', $title_type),
+		    'h1' => str_replace('title', 'h1', $title_type),
+		    'h2' => str_replace('title', 'h2', $title_type),
+		    'empty' => str_replace('title', 'empty', $title_type),
+	    ));
+
+        // generate tags
+	    $meta_generator = MetaGenerator::instance()->setValues($title_params);
+	    if($title_type == 'category_title'){
+		    $this->title = !empty($category->title) ? $meta_generator->setTemplate($category->title)->generate() : '';
+		    $this->description = !empty($category->description) ? $meta_generator->setTemplate($category->description)->generate() : '';
+	    }
+	    if(empty($this->title))
+		    $this->title = $meta_generator->setTemplate($templates['title'])->generate();
+	    if(empty($this->description))
+		    $this->description = $meta_generator->setTemplate($templates['description'])->generate();
+        $title = $meta_generator->setTemplate($templates['h1'])->generate();
+        $subtitle = $meta_generator->setTemplate($templates['h2'])->generate();
+        $nothing_found_text = $meta_generator->setTemplate($templates['empty'])->generate();
+
 
         $this->add_meta_content(array('property'=>'og:title', 'content'=>$this->title));
         $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
@@ -743,6 +762,7 @@ class Controller_Board extends Controller_System_Page
             $this->add_meta_content(array('property'=>'og:site_name', 'content'=>$this->config['project']['host']));
             $this->add_meta_content(array('property'=>'og:description', 'content'=>$ad->getMetaDescription()));
             $this->add_meta_content(array('property'=>'og:image', 'content'=> count($photos) ? $photos[0]->getPhotoUri() : URL::base(Request::initial())."media/css/images/logo.png"));
+            $this->add_meta_content(array('tag'=>'link', 'rel'=>'canonical', 'href'=>URL::base(KoMS::protocol()).$ad->getUri()));
 
             if($this->is_mobile){
                 $this->mobile_scripts[] = 'assets/board/js/message.js';
@@ -1639,93 +1659,5 @@ class Controller_Board extends Controller_System_Page
                 ))->render()
                 , true)
             ->send();
-    }
-
-    /**
-     * Generates title string from config templates
-     * @param $config_index - name of template
-     * @param $parameters - replaces <param> labels in config templates
-     *  Known labels:
-     *   ad_title - title of AD
-     *   category - category name
-     *   region   - region name
-     *   project  - name of site
-     *   page  - current page
-     * @return null
-     */
-    protected function _generateMetaTitle($config_index, Array $parameters= array()){
-        $parameters['project'] = $this->config['project']['name'];
-        $parameters['page'] = isset($parameters['page']) && $parameters['page']>1 ? ' - страница '.$parameters['page'] : NULL;
-        $template = NULL;
-        if(isset($this->board_cfg[$config_index]))
-            $template = $this->board_cfg[$config_index];
-        foreach($parameters as $_param=>$_val){
-            $template = $this->_replaceMetaParam($_param, $_val, $template);
-        }
-        return $template;
-    }
-
-    /**
-     * Generates description string from config templates
-     * @param $config_index - name of template
-     * @param $parameters - replaces <param> labels in config templates
-     *  Known labels:
-     *   ad_title - title of AD
-     *   category - category name
-     *   region   - region name
-     *   project  - name of site
-     * @return null
-     */
-    protected function _generateMetaDescription($config_index, Array $parameters= array()){
-        $parameters['project'] = $this->config['project']['name'];
-        $parameters['page'] = isset($parameters['page']) && $parameters['page']>1 ? ' - страница '.$parameters['page'] : NULL;
-        $template = NULL;
-        if(isset($this->board_cfg[$config_index]))
-            $template = $this->board_cfg[$config_index];
-        foreach($parameters as $_param=>$_val){
-            $template = $this->_replaceMetaParam($_param, $_val, $template);
-        }
-        return $template;
-    }
-
-    /**
-     * Generates keywords string from config templates
-     * @param $config_index - name of template
-     * @param $parameters - replaces <param> labels in config templates
-     *  Known labels:
-     *   ad_title - title of AD
-     *   category - category name
-     *   region   - region name
-     *   project  - name of site
-     * @return null
-     */
-    protected function _generateMetaKeywords($config_index, Array $parameters= array()){
-        $template = NULL;
-        if(isset($this->board_cfg[$config_index]))
-            $template = $this->board_cfg[$config_index];
-        foreach($parameters as $_param=>$_val)
-            $template = $this->_replaceMetaParam($_param, $_val, $template);
-        return $template;
-    }
-
-    /**
-     * Replace parameter to value in template
-     * @param $key
-     * @param $value
-     * @param $template
-     * @return mixed
-     */
-    protected function _replaceMetaParam($key, $value, $template){
-
-        if(mb_strstr($template, '<'.$key.':')){
-            preg_match_all('~<'.$key.':(\d+)>~', $template, $matches);
-            foreach($matches as $_match_id=>$_match){
-                if($_match_id == 0)
-                    continue;
-                $template = str_replace('<'.$key.':'.$_match[0].'>', mb_substr($value, 0, $_match[0]), $template);
-            }
-        }
-        $template = str_replace('<'.$key.'>', $value, $template);
-        return $template;
     }
 }

@@ -402,7 +402,7 @@ class Controller_Board extends Controller_System_Page
 
         // generate tags
 	    $meta_generator = MetaGenerator::instance()->setValues($title_params);
-	    if($title_type == 'category_title'){
+	    if($title_type == 'category_title' || $title_type == 'region_category_title'){
 		    $this->title = !empty($category->title) ? $meta_generator->setTemplate($category->title)->generate() : '';
 		    $this->description = !empty($category->description) ? $meta_generator->setTemplate($category->description)->generate() : '';
 	    }
@@ -564,9 +564,18 @@ class Controller_Board extends Controller_System_Page
         }
 
         /* Meta tags init */
-        $title = $this->_generateMetaTitle('tags_h1', array('tag' => Text::mb_ucfirst($_tag->query)));
-        $this->title = $this->_generateMetaTitle('tags_title', array('tag' => Text::mb_ucfirst($_tag->query)));
-        $this->description = $this->_generateMetaTitle('tags_description', array('tag' => Text::mb_ucfirst($_tag->query)));
+	    $templates = BoardConfig::instance()->getValuesArray(array(
+		    'h1' => 'tags_h1',
+		    'title' => 'tags_title',
+		    'description' => 'tags_description',
+		    'keywords' => 'ad_keywords',
+	    ));
+
+	    $meta_generator = MetaGenerator::instance()->setValues(array('tag' => Text::mb_ucfirst($_tag->query)));
+
+        $title = $meta_generator->setTemplate($templates['h1'])->generate();
+        $this->title = $meta_generator->setTemplate($templates['title'])->generate();
+        $this->description = $meta_generator->setTemplate($templates['description'])->generate();
 
         $this->scripts[] = "assets/board/js/search.js";
         $this->scripts[] = "assets/board/js/favorite.js";
@@ -741,6 +750,7 @@ class Controller_Board extends Controller_System_Page
             $ad->increaseViews();
 
             $ad_meta_params = array(
+                'project' => KoMS::config()->project['name'],
                 'ad_id' => $ad->id,
                 'ad_title' => $ad->getTitle(),
                 'ad_price' => html_entity_decode( $ad->getPrice( BoardConfig::instance()->priceTemplate($ad->price_unit) )),
@@ -752,10 +762,23 @@ class Controller_Board extends Controller_System_Page
                 'city_in' => $city->name_in,
                 'region' => $region->name,
             );
-            $title = $this->_generateMetaTitle('ad_h1', $ad_meta_params);
-            $this->title = $this->_generateMetaTitle('ad_title', $ad_meta_params);
-            $this->description = $this->_generateMetaDescription('ad_description', $ad_meta_params);
-            $this->keywords = $this->_generateMetaKeywords('ad_keywords', $ad_meta_params);
+
+            $templates = BoardConfig::instance()->getValuesArray(array(
+            	'h1' => 'ad_h1',
+            	'title' => 'ad_title',
+            	'description' => 'ad_description',
+            	'keywords' => 'ad_keywords',
+            ));
+
+	        $meta_generator = MetaGenerator::instance()->setValues($ad_meta_params);
+
+            $title = $meta_generator->setTemplate($templates['h1'])->generate();
+            $this->title = $meta_generator->setTemplate($templates['title'])->generate();
+            $this->description = $meta_generator->setTemplate($templates['description'])->generate();
+            $this->keywords = $meta_generator->setTemplate($templates['keywords'])->generate();
+
+	        // generate tags
+
             $this->add_meta_content(array('property'=>'og:title', 'content'=>htmlspecialchars($ad->getTitle())));
             $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
             $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial()).$ad->getUri()));
@@ -1032,7 +1055,9 @@ class Controller_Board extends Controller_System_Page
         }
 
         /* META tags */
-        $this->title = $this->_generateMetaTitle('add_title');
+	    $this->title = MetaGenerator::instance( BoardConfig::instance()->add_title )
+	                                ->setValues(array('project'=>KoMS::config()->project['name']))
+	                                ->generate();
 
         /* Templates & styles*/
         if($this->is_mobile){
@@ -1081,7 +1106,9 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_tree(){
         $this->breadcrumbs = Breadcrumbs::factory();
-        $this->title = $this->_generateMetaTitle('region_map_title');
+	    $this->title = MetaGenerator::instance( BoardConfig::instance()->region_map_title )
+	                                ->setValues(array('project'=>KoMS::config()->project['name']))
+	                                ->generate();
         if(!$content = Cache::instance()->get( $this->getCacheName("BoardCityTreePage"))){
             $content = $this->getContentTemplate('board/tree');
             $regions = ORM::factory('BoardCity')->where('lvl', '=', 1)->order_by('name', 'ASC')->find_all();
@@ -1104,7 +1131,9 @@ class Controller_Board extends Controller_System_Page
      */
     public function action_categories(){
         $this->breadcrumbs = Breadcrumbs::factory();
-        $this->title = $this->_generateMetaTitle('category_map_title');
+	    $this->title = MetaGenerator::instance( BoardConfig::instance()->category_map_title )
+            ->setValues(array('project'=>KoMS::config()->project['name']))
+            ->generate();
 
         if(!$content = Cache::instance()->get($this->getCacheName("BoardCategoryTreePage"))){
             $content = $this->getContentTemplate('board/categories');

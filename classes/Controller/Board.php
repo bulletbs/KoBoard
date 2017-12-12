@@ -93,7 +93,7 @@ class Controller_Board extends Controller_System_Page
          */
         $city = NULL;
         $city_alias = $this->request->param('city_alias');
-        if($city_alias && $city_alias!= BoardConfig::instance()->country_alias){
+        if(!is_null($city_alias) && $city_alias!= BoardConfig::instance()->country_alias){
             if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
             $city = ORM::factory('BoardCity', $city)->fillNames();
@@ -125,7 +125,7 @@ class Controller_Board extends Controller_System_Page
          */
         $category_alias = $this->request->param('cat_alias');
         $category = NULL;
-        if($category_alias){
+        if(!is_null($category_alias)){
             if(FALSE === ($category = Model_BoardCategory::getAliases($category_alias)))
                 throw HTTP_Exception::factory('404', __('Page not found'));
             if(!BoardConfig::instance()->breadcrumbs_region_title && $city instanceof ORM)

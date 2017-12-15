@@ -907,7 +907,8 @@ class Model_BoardAd extends ORM{
             }
             $response = $sitemap->render();
             file_put_contents($file, $response);
-            $sitemaps[] = $sitemap_link;
+            if($i>1) // КОСТЫЛЬ: исключаем первую 10К объявлений из общего сайтмапа
+                $sitemaps[] = $sitemap_link;
         }
         return $sitemaps;
     }

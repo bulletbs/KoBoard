@@ -239,8 +239,8 @@ class Model_BoardCategory extends ORM_MPTT{
      * @return string
      * @throws Kohana_Exception
      */
-    public function getUri($city_alias = NULL){
-        if(is_null($this->_uriToMe)){
+    public function getUri($city_alias = NULL, $reset = false){
+        if(is_null($this->_uriToMe) || $reset){
             $this->_uriToMe = Route::get('board_cat')->uri(array(
                 'cat_alias' => $this->alias,
                 'city_alias' => $city_alias,
@@ -310,7 +310,65 @@ class Model_BoardCategory extends ORM_MPTT{
      * Request module parts links array for sitemap generation
      * @return array
      */
-    public function sitemapCategories(){
+    public function sitemapCategories($config){
+	    $step = 10000;
+	    $path = 'media/upload/sitemap/';
+
+	    $priority = isset($config['priority']) ? $config['priority'] : 0.5;
+	    $frequency = isset($config['frequency']) ? $config['frequency'] : 'daily';
+
+	    $cities = ORM::factory('BoardCity')->find_all()->as_array('id', 'alias');
+	    $categories= ORM::factory('BoardCategory')->find_all();
+
+	    $sitemaps = array();
+
+	    $sitemap = new Sitemap();
+	    $sitemap->gzip = TRUE;
+	    $url = new Sitemap_URL;
+
+	    $i = 1;
+	    $links_cnt = 0;
+	    foreach ($categories as $category){
+	    	foreach ($cities as $city_id=>$city_alias){
+			    $url->set_loc(URL::base(KoMS::protocol()).$category->getUri($city_alias, true))
+			        ->set_last_mod(time())
+			        ->set_change_frequency($frequency)
+			        ->set_priority($priority);
+			    $sitemap->add($url);
+			    $links_cnt++;
+
+			    // Save next sitemap
+			    if($links_cnt >= $step){
+				    $file = DOCROOT . $path . "board_categories_".$i.".xml.gz";
+				    $sitemap_link = URL::base(KoMS::protocol()). $path ."board_categories_".$i.".xml.gz";
+				    $sitemaps[] = $sitemap_link;
+				    $response = $sitemap->render();
+				    file_put_contents($file, $response);
+				    $i++;
+
+				    // New Sitemap File
+				    unset($sitemap);
+				    $sitemap = new Sitemap();
+				    $sitemap->gzip = TRUE;
+				    $url = new Sitemap_URL;
+				    $links_cnt = 0;
+			    }
+		    }
+	    }
+	    $file = DOCROOT . $path . "board_categories_".$i.".xml.gz";
+	    $sitemap_link = URL::base(KoMS::protocol()). $path ."board_categories_".$i.".xml.gz";
+	    $response = $sitemap->render();
+	    file_put_contents($file, $response);
+	    $sitemaps[] = $sitemap_link;
+	    return $sitemaps;
+    }
+
+	/**
+	 * Ганенрирует список категорий для карты сайта
+	 * @deprecated
+	 * @return array
+	 */
+    public function simple_sitemapCategories(){
         $links = array();
         $categories = $this->getCategoriesList();
 

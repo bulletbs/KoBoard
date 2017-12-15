@@ -32,6 +32,7 @@ return array(
             array(
                 'file' => 'categories',
                 'model' => 'BoardCategory',
+                'return' => 'sitemaps', // returns links to sitemap files
                 'priority' => '0.9',
                 'frequency' => 'weekly',
                 'get_links_method' => 'sitemapCategories',

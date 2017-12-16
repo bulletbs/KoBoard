@@ -843,17 +843,18 @@ class Controller_Board extends Controller_System_Page
 	        throw new HTTP_Exception_404();
         }
         else{
-            $category_alias = Request::current()->param('cat_alias');
-            $city_alias = Request::current()->param('city_alias');
-            if(!is_null($alias)){
-                $category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
-                if($category->loaded()){
-//                    $this->redirect(URL::base() . $category->getUri($city_alias), 301);
-//                    die();
-	                throw new HTTP_Exception_404();
-                }
-            }
-            throw HTTP_Exception::factory('404', __('Page not found'));
+        	if(BoardConfig::instance()->redirect_noad){
+		        $category_alias = Request::current()->param('cat_alias');
+		        $city_alias = Request::current()->param('city_alias');
+		        if(!is_null($alias)){
+			        $category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
+			        if($category->loaded()){
+				        $this->redirect(URL::base() . $category->getUri($city_alias), 301);
+				        die();
+			        }
+		        }
+	        }
+	        throw new HTTP_Exception_404();
         }
     }
 

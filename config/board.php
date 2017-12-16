@@ -104,6 +104,9 @@ return array(
     'ad_search_form'      => true,
     'ad_last_modify'      => false,
 
+    /* Redirects */
+    'redirect_noad'      => false,
+
     /* Mailer settings */
     'mailer_queue_step' => 3000,
 );

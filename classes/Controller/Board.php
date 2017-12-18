@@ -610,8 +610,19 @@ class Controller_Board extends Controller_System_Page
 		if($ad instanceof ORM && $ad->loaded() && (empty($alias) || Text::transliterate($ad->title, true) == $alias)){
             $this->redirect(URL::base() . $ad->getUri(), 301);
 		}
-		else
-			throw new HTTP_Exception_404();
+		elseif(BoardConfig::instance()->redirect_noad){
+			$alias = Request::current()->param('alias');
+			$category_alias = Request::current()->param('cat_alias');
+			$city_alias = Request::current()->param('city_alias');
+			if(!is_null($alias)){
+				$category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
+				if($category->loaded()){
+					$this->redirect(URL::base() . $category->getUri($city_alias), 301);
+					die();
+				}
+			}
+		}
+		throw new HTTP_Exception_404();
 	}
 
     /**
@@ -785,7 +796,8 @@ class Controller_Board extends Controller_System_Page
             $this->add_meta_content(array('property'=>'og:site_name', 'content'=>$this->config['project']['host']));
             $this->add_meta_content(array('property'=>'og:description', 'content'=>$ad->getMetaDescription()));
             $this->add_meta_content(array('property'=>'og:image', 'content'=> count($photos) ? $photos[0]->getPhotoUri() : URL::base(Request::initial())."media/css/images/logo.png"));
-            $this->add_meta_content(array('tag'=>'link', 'rel'=>'canonical', 'href'=>URL::base(KoMS::protocol()).$ad->getUri()));
+            if(!$this->is_mobile)
+                $this->add_meta_content(array('tag'=>'link', 'rel'=>'canonical', 'href'=>URL::base(KoMS::protocol()).$ad->getUri()));
 
             if($this->is_mobile){
                 $this->mobile_scripts[] = 'assets/board/js/message.js';

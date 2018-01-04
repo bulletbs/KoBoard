@@ -524,6 +524,7 @@ class Model_BoardAd extends ORM{
      */
     public function getMetaDescription(){
         $descr = mb_strlen($this->description)>255 ? mb_substr($this->description, 0, 255, 'UTF-8').'...' : $this->description;
+        $descr = strip_tags($descr);
         $descr = htmlspecialchars($descr);
         return  Text::stripNL($descr);
     }
@@ -533,7 +534,7 @@ class Model_BoardAd extends ORM{
 	 * @return ORM
 	 */
     public function getNextItem(){
-    	return ORM::factory('BoardAd')->where('id', '>', $this->id)->and_where('publish', '=', '1')->and_where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->order_by('id', 'ASC')->limit(1)->find();
+    	return ORM::factory('BoardAd')->where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->and_where('id', '>', $this->id)->and_where('publish', '=', '1')->order_by('id', 'ASC')->limit(1)->find();
     }
 
 	/**
@@ -541,7 +542,7 @@ class Model_BoardAd extends ORM{
 	 * @return ORM
 	 */
     public function getPrevItem(){
-	    return ORM::factory('BoardAd')->where('id', '<', $this->id)->and_where('publish', '=', '1')->and_where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->order_by('id', 'DESC')->limit(1)->find();
+	    return ORM::factory('BoardAd')->where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->and_where('id', '<', $this->id)->and_where('publish', '=', '1')->order_by('id', 'DESC')->limit(1)->find();
     }
 
     /**
@@ -710,11 +711,13 @@ class Model_BoardAd extends ORM{
 
         /* Стандартные параметры */
         $query->where('publish', '=', 1)
-            ->order_by('addtime', 'DESC')
+//            ->order_by('addtime', 'DESC')
             ->cached(Date::MINUTE*5)
             ->limit($count);
 
         /* Дополнительные параметры */
+	    if(isset($params['timefrom']))
+		    $query->and_where('addtime', '>=', (string) $params['timefrom']);
 	    if(isset($params['category_id']))
 		    $query->and_where('category_id', '=', (string) $params['category_id']);
 	    if(isset($params['pcategory_id']))
@@ -887,7 +890,7 @@ class Model_BoardAd extends ORM{
         $step = 10000;
         $path = 'media/upload/sitemap/';
 
-        $priority = isset($config['priority']) ? $config['priority'] : 0.5;
+        $priority = isset($config['priority']) ? $config['priority'] : '0.5';
         $frequency = isset($config['frequency']) ? $config['frequency'] : 'daily';
         $sitemaps = array();
         for($i=0; $i*$step < $amount; $i++){

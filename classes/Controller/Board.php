@@ -30,7 +30,7 @@ class Controller_Board extends Controller_System_Page
         parent::before();
 
         /* Script & style */
-        $this->styles[] = "assets/board/css/board.css";
+        $this->styles[] = "assets/board/css/board.css?ver=1.0";
         $this->styles[] = 'media/libs/pure-release-0.6.0/grids-min.css';
 
         /* Config */
@@ -60,7 +60,9 @@ class Controller_Board extends Controller_System_Page
 
         if(!$content = Cache::instance()->get( $this->getCacheName("BoardMainPage") )){
             if(BoardConfig::instance()->show_ads_on_main){
-                $last_ads = Model_BoardAd::getLastAds(20);
+                $last_ads = Model_BoardAd::getLastAds(20, array(
+                	'timefrom' => strtotime("-1 day"),
+                ));
                 $ads_ids = array();
                 foreach ($last_ads as $_ad)
                     $ads_ids[] = $_ad->id;

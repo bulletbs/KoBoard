@@ -314,7 +314,7 @@ class Model_BoardCategory extends ORM_MPTT{
 	    $step = 10000;
 	    $path = 'media/upload/sitemap/';
 
-	    $priority = isset($config['priority']) ? $config['priority'] : 0.5;
+	    $priority = isset($config['priority']) ? $config['priority'] : '0.5';
 	    $frequency = isset($config['frequency']) ? $config['frequency'] : 'daily';
 
 	    $cities = ORM::factory('BoardCity')->find_all()->as_array('id', 'alias');

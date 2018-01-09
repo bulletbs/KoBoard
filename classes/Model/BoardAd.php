@@ -534,7 +534,7 @@ class Model_BoardAd extends ORM{
 	 * @return ORM
 	 */
     public function getNextItem(){
-    	return ORM::factory('BoardAd')->where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->and_where('id', '>', $this->id)->and_where('publish', '=', '1')->order_by('id', 'ASC')->limit(1)->find();
+    	return ORM::factory('BoardAd')->where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->and_where('id', '<>', $this->id)->and_where('addtime', '>=', $this->addtime)->and_where('publish', '=', '1')->order_by('addtime', 'ASC')->order_by('id', 'ASC')->limit(1)->find();
     }
 
 	/**
@@ -542,7 +542,7 @@ class Model_BoardAd extends ORM{
 	 * @return ORM
 	 */
     public function getPrevItem(){
-	    return ORM::factory('BoardAd')->where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->and_where('id', '<', $this->id)->and_where('publish', '=', '1')->order_by('id', 'DESC')->limit(1)->find();
+	    return ORM::factory('BoardAd')->where('city_id', '=', $this->city_id)->and_where('category_id', '=', $this->category_id)->and_where('id', '<>', $this->id)->and_where('addtime', '<=', $this->addtime)->and_where('publish', '=', '1')->order_by('addtime', 'DESC')->order_by('id', 'DESC')->limit(1)->find();
     }
 
     /**

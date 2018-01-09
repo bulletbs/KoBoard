@@ -182,7 +182,7 @@ class Controller_Board extends Controller_System_Page
          * Поиск по тексту
          */
         $_query = Arr::get($_GET, 'query');
-        if(!empty($_query) && mb_strlen($_query) >= 5){
+        if(!empty($_query)){
             $_query = Text::stripSQL(urldecode($_query));
             $_GET['query'] = $_query;
             if(!empty($_query) && mb_strlen($_query) >= 5){
@@ -204,10 +204,14 @@ class Controller_Board extends Controller_System_Page
                     }
                 }
             }
-        }
-        if(mb_strlen($_query) < 5){
-            unset($_GET['query']);
-            unset($_query);
+            // выдавать страницу с ошибкой, если ищут менее 5 символов и не выбран регион или категория
+	        elseif($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && mb_strlen($_query) < 5){
+		        throw new HTTP_Exception_200(__('Minimal allowed length of search query is :char chars', array(':char'=>5)));
+	        }
+	        else{
+		        unset($_GET['query']);
+		        unset($_query);
+	        }
         }
 
         /*****************
@@ -329,7 +333,6 @@ class Controller_Board extends Controller_System_Page
 
         /* Check if no parameters - than 404 */
         if($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && !isset($_GET['query']) && !isset($_GET['userfrom'])){
-//            die('abc');
             throw new HTTP_Exception_404();
         }
 

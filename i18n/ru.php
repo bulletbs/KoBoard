@@ -38,6 +38,7 @@ return array(
     'Vacancy' => 'Вакансии',
     'with photo only' => 'только с фото',
     'search in title and description' => 'искать в заголовке и описании',
+    'Minimal allowed length of search query is :char chars' => 'Минимально допустимая длина поискового запроса :char символов',
 
     'Price' => 'Цена',
     'Salary' => 'Ставка',

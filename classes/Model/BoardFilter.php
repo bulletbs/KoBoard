@@ -152,6 +152,44 @@ class Model_BoardFilter extends ORM{
         return $filter;
     }
 
+	/**
+	 * Count filter values
+	 * @param $filter_id - ID of counted filter
+	 * @param ORM|NULL $region - Region ORM Model
+	 * @return array - array of values counts (value=>count)
+	 */
+	public static function filterCounter($filter_id, $region){
+    	// SELECT DISTINCT(value), COUNT(*) FROM `ad_filter_values` WHERE filter_id=4 GROUP BY 1
+		$sql = DB::select(array(DB::expr('DISTINCT(afv.value)'),'val'), array(DB::expr('count(*)'), 'cnt'))
+		         ->from( array('ad_filter_values', 'afv'))
+				 ->join(array('ads', 'a'),'INNER')
+				 ->on('afv.ad_id','=','a.id')
+		         ->where('filter_id','=',$filter_id)
+		         ->group_by('val')
+		         ->order_by('cnt', 'DESC')
+		         ->cached(Date::HOUR);
+		$allowed_params = array('city_id','p_city_id');
+		if($region instanceof Model_BoardCity)
+			$sql->and_where('a.'.(!$region->parent_id?'p':'').'city_id','=',$region->id);
+		return $sql->execute()->as_array('val', 'cnt');
+	}
+
+	/**
+	 * Clear main filter empty options
+	 * @param $filter - filter array
+	 * @param $counts - counts of values
+	 *
+	 * @return mixed
+	 */
+	public static function clearMainFilterOptions($filter,$counts){
+		foreach ($filter['options'] as $option_id=>$option){
+			if(!isset($counts[$option['id']]) || !$counts[$option['id']])
+				unset($filter['options'][$option_id]);
+		}
+		$filter['options'] = array_values($filter['options']);
+		return $filter;
+	}
+
     /**
      * Loading filter values by Ad ID
      * Loading child filter options related to selected parent option

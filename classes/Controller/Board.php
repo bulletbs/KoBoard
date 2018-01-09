@@ -287,7 +287,14 @@ class Controller_Board extends Controller_System_Page
                 $_GET['filters'][$main_filter['id']] = $main_filter['aliases'][$filter_alias];
                 $main_filter['value'] = $main_filter['aliases'][$filter_alias];
             }
-            $this->template->content->set('main_filter', $main_filter);
+            // не выводить фильтр, если он уже выбран
+            if(!$main_filter['aliases'][$filter_alias]){
+	            $main_filter_count = Model_BoardFilter::filterCounter($main_filter['id'], $city);
+	            $this->template->content->set(array(
+		            'main_filter'=>Model_BoardFilter::clearMainFilterOptions($main_filter, $main_filter_count),
+		            'main_filter_cnt'=>$main_filter_count,
+	            ));
+            }
         }
 
         /*****************
@@ -678,9 +685,9 @@ class Controller_Board extends Controller_System_Page
 
             /* Check city and category alias */
             if(Request::current()->param('city_alias') != $city->alias)
-            	throw new HTTP_Exception_404();
+	            $this->redirect($ad->getUri(), 301);
             if(Request::current()->param('cat_alias') != $ad->category->alias)
-            	throw new HTTP_Exception_404();
+            	$this->redirect($ad->getUri(), 301);
 
             /* Photos */
             $photos = $ad->photos->order_by('id', 'ASC')->find_all();

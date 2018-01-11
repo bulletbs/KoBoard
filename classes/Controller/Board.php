@@ -863,8 +863,8 @@ class Controller_Board extends Controller_System_Page
             ));
         }
         elseif($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) != $alias){
-//            $this->redirect(URL::base() . $ad->getUri(), 301);
-	        throw new HTTP_Exception_404();
+            $this->redirect(URL::base() . $ad->getUri(), 301);
+//	        throw new HTTP_Exception_404();
         }
         else{
         	if(BoardConfig::instance()->redirect_noad){

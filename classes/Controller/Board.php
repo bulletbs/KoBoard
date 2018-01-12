@@ -434,11 +434,17 @@ class Controller_Board extends Controller_System_Page
         $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
         $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
 
-        // empty search results
+        // robots tag related to results
         if($count[0]['cnt'] == 0){
             $this->replace_meta_content('name', array(
                 'name'=>'robots',
                 'content'=>'noindex,nofollow',
+            ));
+        }
+        elseif($pagination->current_page>=2){
+            $this->replace_meta_content('name', array(
+                'name'=>'robots',
+                'content'=>'noindex,follow',
             ));
         }
 

@@ -510,7 +510,7 @@ class Model_BoardAd extends ORM{
     }
 
     /**
-     * Generate content for META Description tag
+     * Generate short content
      * @return string
      */
     public function getDescription(){
@@ -528,6 +528,16 @@ class Model_BoardAd extends ORM{
         $descr = htmlspecialchars($descr);
         return  Text::stripNL($descr);
     }
+
+	/**
+	 * Generate content for META Description tag
+	 * @return string
+	 */
+	public function getMetaTitle(){
+		$title = strip_tags($this->title);
+		$title = htmlspecialchars($title);
+		return  $title;
+	}
 
 	/**
 	 * Find next item

@@ -41,7 +41,7 @@ class Controller_Admin_BoardCategoryMove extends Controller_System_Admin
             $table = ORM::factory('BoardCategory')->table_name();
             $temp_table = ORM::factory('BoardCategoryTemp')->table_name();
             Database::instance()->query(Database::SELECT, "TRUNCATE TABLE ".$temp_table);
-            Database::instance()->query(Database::INSERT, "INSERT INTO ".$temp_table." ".DB::select()->from($table));
+            Database::instance()->query(Database::INSERT, "INSERT INTO ".$temp_table." ".DB::select('*', 'id')->from($table));
             DB::delete($table)->execute();
             Flash::success('Категории успешно перенесены во временную таблицу');
             Flash::warning('Внимание! Основная таблица категорий очищена для наполнения');

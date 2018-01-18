@@ -338,9 +338,12 @@ class Controller_Board extends Controller_System_Page
             }
         }
 
-        /* Check if no parameters - than 404 */
-        if($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && (!isset($_GET['query']) || empty($_GET['query'])) && !isset($_GET['userfrom'])){
+        /* Check if no parameters - than 404, empty query - 200 error */
+        if($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && isset($_GET['query']) && empty($_GET['query']) && !isset($_GET['userfrom'])){
 	        throw new HTTP_Exception_200(__('Minimal allowed length of search query is :char chars', array(':char'=>5)));
+        }
+        elseif($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && !isset($_GET['query']) && !isset($_GET['userfrom'])){
+	        throw new HTTP_Exception_404();
         }
 
         /* Init Ads pagination */

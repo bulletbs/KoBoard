@@ -897,7 +897,7 @@ class Model_BoardAd extends ORM{
     public function sitemapAds($config){
         $amount = Model_BoardAd::boardOrmCounter()->execute();
         $amount = $amount[0]['cnt'];
-        $step = 10000;
+        $step = isset($config['partable']) ? $config['partable'] : 10000;
         $path = 'media/upload/sitemap/';
 
         $priority = isset($config['priority']) ? $config['priority'] : '0.5';

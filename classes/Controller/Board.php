@@ -148,7 +148,6 @@ class Controller_Board extends Controller_System_Page
         }
         else{
             $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array('id');
-            $childs_categories_col = 4;
         }
 
         /*****************
@@ -288,7 +287,7 @@ class Controller_Board extends Controller_System_Page
                 $main_filter['value'] = $main_filter['aliases'][$filter_alias];
             }
             // не выводить фильтр, если он уже выбран
-            if(!$main_filter['aliases'][$filter_alias]){
+            if(!empty($filter_alias) && !$main_filter['aliases'][$filter_alias]){
 	            $main_filter_count = Model_BoardFilter::filterCounter($main_filter['id'], $city);
 	            $this->template->content->set(array(
 		            'main_filter'=>Model_BoardFilter::clearMainFilterOptions($main_filter, $main_filter_count),
@@ -499,7 +498,6 @@ class Controller_Board extends Controller_System_Page
             'category' => $category,
             'nothing_found_text' => $nothing_found_text,
             'childs_categories' => $childs_categories,
-            'childs_categories_col' => $childs_categories_col,
             'ads' => $ads,
             'photos' => $photos,
             'board_config' => $this->board_cfg,

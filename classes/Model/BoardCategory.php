@@ -365,17 +365,36 @@ class Model_BoardCategory extends ORM_MPTT{
 
 	/**
 	 * Ганенрирует список категорий для карты сайта
-	 * @deprecated
-	 * @return array
+	 * @param array $config
+	 * @return string
 	 */
-    public function simple_sitemapCategories(){
+    public function simple_sitemapCategories($config){
         $links = array();
+	    $path = 'media/upload/sitemap/';
+
         $categories = $this->getCategoriesList();
 
+	    $sitemap = new Sitemap();
+	    $sitemap->gzip = TRUE;
+	    $sitemap_link = URL::base(KoMS::protocol()). $path ."categories.xml.gz";
+
+	    $priority = isset($config['priority']) ? $config['priority'] : '0.5';
+	    $frequency = isset($config['frequency']) ? $config['frequency'] : 'weekly';
+
+	    $url = new Sitemap_URL;
         foreach($categories as $category){
-            $links[] = URL::base(KoMS::protocol()).$category->getUri();
+	        $url->set_loc(URL::base(KoMS::protocol()).$category->getUri())
+	            ->set_last_mod( time() )
+	            ->set_change_frequency($frequency)
+	            ->set_priority($priority);
+	        $sitemap->add($url);
         }
-        return $links;
+
+	    $response = $sitemap->render();
+	    $file = DOCROOT . $path . "categories.xml.gz";
+	    file_put_contents($file, $response);
+
+	    return array($sitemap_link);
     }
 
     /**

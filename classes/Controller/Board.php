@@ -443,12 +443,6 @@ class Controller_Board extends Controller_System_Page
                 'content'=>'noindex,nofollow',
             ));
         }
-        elseif($pagination->current_page>=2){
-            $this->replace_meta_content('name', array(
-                'name'=>'robots',
-                'content'=>'noindex,follow',
-            ));
-        }
 
         // Canonical link on pages more than 1
         if(Request::current()->param('page') > 1){

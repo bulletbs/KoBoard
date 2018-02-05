@@ -37,6 +37,14 @@
         <td><?php echo $_category->getLeveledName()?></td>
         <td><?php echo $_category->parent_id>0 ? Form::select('move_to['.$_category->id.']', $categories_options, $_category->new_id) : ''?></td>
     </tr>
+    <?if(isset($main_filters[$_category->id])):?>
+    <?foreach($main_filters[$_category->id]['options'] as $_option_id=>$_option):?>
+    <tr>
+        <td>.&nbsp;.&nbsp;.&nbsp;.&nbsp;<?php echo $_option; ?></td>
+        <td><?php echo Form::select('move_filter_to['.$main_filters[$_category->id]['id'].']['.$_option_id.']', $categories_options, isset($main_filters[$_category->id]['values'][$_option_id]) ? $main_filters[$_category->id]['values'][$_option_id] : NULL); ?></td>
+    </tr>
+    <?endforeach?>
+    <?endif?>
     <?endforeach?>
     </tbody>
 </table>

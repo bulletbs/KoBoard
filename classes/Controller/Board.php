@@ -90,6 +90,7 @@ class Controller_Board extends Controller_System_Page
     public function action_search(){
         $ads = Model_BoardAd::boardOrmFinder();
 
+
         /**********************
          * Поиск по городу
          */
@@ -341,7 +342,7 @@ class Controller_Board extends Controller_System_Page
         if($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && isset($_GET['query']) && empty($_GET['query']) && !isset($_GET['userfrom'])){
 	        throw new HTTP_Exception_200(__('Minimal allowed length of search query is :char chars', array(':char'=>5)));
         }
-        elseif($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && !isset($_GET['query']) && !isset($_GET['userfrom'])){
+        elseif(!BoardConfig::instance()->allow_all_search && $city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && !isset($_GET['query']) && !isset($_GET['userfrom'])){
 	        throw new HTTP_Exception_404();
         }
 

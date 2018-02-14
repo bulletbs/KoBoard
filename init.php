@@ -44,19 +44,19 @@ if(!Route::cache()){
             'action' => 'ad',
             'print' => true,
         ));
-    Route::set('board_city', $board_base_url . '<city_alias>(/p<page>).html', array('city_alias' => '[\w\-_]+', 'page' => '[0-9]+'))
+    Route::set('board_city', $board_base_url . '<city_alias>(/p<page>).html', array('city_alias' => '[a-z\-_]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',
             'action' => 'search',
             'city_alias' => 'all',
         ));
-    Route::set('board_cat', $board_base_url . '<city_alias>(/<cat_alias>)(/p<page>).html', array('cat_alias' => '[\d\w\-_]+', 'page' => '[0-9]+'))
+    Route::set('board_cat', $board_base_url . '<city_alias>(/<cat_alias>)(/p<page>).html', array('city_alias' => '[a-z\-_]+', 'cat_alias' => '[a-z\-_]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',
             'action' => 'search',
             'city_alias' => 'all',
         ));
-    Route::set('board_subcat', $board_base_url . '<city_alias>(/<cat_alias>)(/<filter_alias>)(/p<page>).html', array('cat_alias' => '[\d\w\-_]+', 'subcat_alias' => '[\d\w\-_]+', 'page' => '[0-9]+'))
+    Route::set('board_subcat', $board_base_url . '<city_alias>(/<cat_alias>)(/<filter_alias>)(/p<page>).html', array('city_alias' => '[a-z\-_]+', 'cat_alias' => '[a-z\-_]+', 'subcat_alias' => '[\da-z\-_]+', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',
             'action' => 'search',

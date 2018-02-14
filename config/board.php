@@ -13,7 +13,8 @@ return array(
     'in_country'       => 'в России',
     'h1_prefix'       => 'Все объявления в ',
     'breadcrumbs_prefix'       => 'Все объявления ',
-    'show_ads_on_main'       => true,
+    'show_ads_on_main'       => true, // выбор шаблона на главной (последние или карта)
+    'allow_all_search'       => false, // разрешить поиск по стране (без параметров, все объявления)
 
     'price_units'       => array(
         'options' => array(

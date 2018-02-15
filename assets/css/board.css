@@ -1027,6 +1027,23 @@ table.tableccat tr:nth-child(2n) td {
             font-size: 12px;
             background: #fff;
         }
+
+    .board_filter_form .filter:after{
+        display: block;
+        content: ' ';
+        clear: both;
+    }
+        .board_filter_form .filter label{
+            color: #000;
+        }
+        .board_filter_form .filter .tipcomplete{
+            width: 45%;
+            float: left;
+            margin-right: 3%;
+        }
+        .board_filter_form .filter select{
+            width: 100%;
+        }
 .region_tree {
     margin-top: 20px;
 }

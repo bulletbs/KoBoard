@@ -851,8 +851,8 @@ class Controller_Board extends Controller_System_Page
             $this->template->content->set(array(
                 'title' => $title,
                 'ad' => $ad,
-                'next' => $ad->getNextItem(),
-                'prev' => $ad->getPrevItem(),
+//                'next' => $ad->getNextItem(),
+//                'prev' => $ad->getPrevItem(),
                 'photos' => $photos,
                 'filters' => $filters,
                 'price_template' => BoardConfig::instance()->priceTemplate($ad->price_unit),

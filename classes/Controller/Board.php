@@ -287,14 +287,14 @@ class Controller_Board extends Controller_System_Page
                 $_GET['filters'][$main_filter['id']] = $main_filter['aliases'][$filter_alias];
                 $main_filter['value'] = $main_filter['aliases'][$filter_alias];
             }
-            // не выводить фильтр, если он уже выбран
-            if(!empty($filter_alias) && !$main_filter['aliases'][$filter_alias]){
-	            $main_filter_count = Model_BoardFilter::filterCounter($main_filter['id'], $city);
-	            $this->template->content->set(array(
-		            'main_filter'=>Model_BoardFilter::clearMainFilterOptions($main_filter, $main_filter_count),
-		            'main_filter_cnt'=>$main_filter_count,
-	            ));
-            }
+            // опустошить фильтр, когда значение уже выбрано
+	        if($main_filter['aliases'][$filter_alias])
+                $main_filter['options'] = array();
+            $main_filter_count = Model_BoardFilter::filterCounter($main_filter['id'], $city);
+            $this->template->content->set(array(
+	            'main_filter'=>Model_BoardFilter::clearMainFilterOptions($main_filter, $main_filter_count),
+	            'main_filter_cnt'=>$main_filter_count,
+            ));
         }
 
         /*****************

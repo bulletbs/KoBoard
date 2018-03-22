@@ -357,10 +357,19 @@ class Controller_Board extends Controller_System_Page
         if(isset($userads) && $userads instanceof Model_User && $userads->loaded()){
         	$route_params['user'] = $userads->id;
         }
-        $pagination = Pagination::factory(array(
-            'total_items' => $count[0]['cnt'],
-            'group' => 'board',
-        ))->route_params($route_params);
+        try{
+	        $pagination = Pagination::factory(array(
+		        'total_items' => $count[0]['cnt'],
+		        'group' => 'board',
+	        ))->route_params($route_params);
+        }
+        catch(HTTP_Exception_404 $e){
+        	$this->redirect(Request::current()->route()->uri(array(
+		        'controller' => Request::current()->controller(),
+		        'city_alias' => $city_alias,
+		        'cat_alias' => $category_alias,
+	        )));
+        }
 
         /* Requesting ads */
         $ads->offset($pagination->offset)->limit($pagination->items_per_page);

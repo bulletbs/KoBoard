@@ -219,7 +219,7 @@ class Controller_UserBoard extends Controller_User
         else {
             $this->scripts[] = "media/libs/poshytip-1.2/jquery.poshytip.min.js";
             $this->styles[] = "media/libs/poshytip-1.2/tip-yellowsimple/tip-yellowsimple.css";
-            $this->scripts[] = "assets/board/js/form.js?ver=1.1";
+            $this->scripts[] = "assets/board/js/form.js";
             $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";
             $this->scripts[] = "media/libs/jquery-form-styler/jquery.formstyler.min.js";
             $this->scripts[] = "media/libs/jquery-input-limit/jquery.limit-1.2.source.js";

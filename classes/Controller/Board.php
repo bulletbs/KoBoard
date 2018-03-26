@@ -454,14 +454,8 @@ class Controller_Board extends Controller_System_Page
             ));
         }
 
-        // Canonical link on pages more than 1
-        if(Request::current()->param('page') > 1){
-        	$this->add_meta_content(array(
-        		'tag' => 'link',
-        		'rel' => 'canonical',
-        		'href' => URL::base(KoMS::protocol()).substr($pagination->url(), 1),
-	        ));
-        }
+        // Canonical pagination
+	    $this->_canonicalPagination($pagination);
 
         /*****************
          * scripts / styles / widgets
@@ -1724,5 +1718,28 @@ class Controller_Board extends Controller_System_Page
                 ))->render()
                 , true)
             ->send();
+    }
+
+    protected function _canonicalPagination($pagination){
+    	$_page = max(1, Request::current()->param('page'));
+	    if($_page > 1){
+		    $this->add_meta_content(array(
+			    'tag' => 'link',
+			    'rel' => 'prev',
+			    'href' => URL::base(KoMS::protocol()).substr($pagination->url($_page-1), 1),
+		    ));
+	    }
+	    if($_page < $pagination->total_pages){
+		    $this->add_meta_content(array(
+			    'tag' => 'link',
+			    'rel' => 'next',
+			    'href' => URL::base(KoMS::protocol()).substr($pagination->url($_page+1), 1),
+		    ));
+	    }
+	    $this->add_meta_content(array(
+		    'tag' => 'link',
+		    'rel' => 'canonical',
+		    'href' => URL::base(KoMS::protocol()).substr($_SERVER['REQUEST_URI'], 1),
+	    ));
     }
 }

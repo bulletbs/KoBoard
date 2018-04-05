@@ -77,6 +77,19 @@ class BoardCurrent {
 
     }
 
+	/**
+	 * Сгененрировать ссылку на текущий регион
+	 * @return string
+	 */
+    public static function cityLink(){
+	    $alias = Request::current()->param('city_alias');
+	    if(is_null($alias) || $alias == BoardConfig::instance()->country_alias)
+		    return $uri = URL::base().Route::get('default')->uri(array());
+	    return $uri = URL::base().Route::get('board_city')->uri(array(
+	    	'city_alias' => $alias,
+	    ));
+    }
+
     /**
      * Сгененрировать ссылку на Объявления с текущими фильтрами
      * @param array $attributes

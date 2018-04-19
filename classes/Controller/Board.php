@@ -88,374 +88,7 @@ class Controller_Board extends Controller_System_Page
      * Категория
      */
     public function action_search(){
-        $ads = Model_BoardAd::boardOrmFinder();
-
-
-        /**********************
-         * Поиск по городу
-         */
-        $city = NULL;
-        $city_alias = $this->request->param('city_alias');
-        if(!is_null($city_alias) && $city_alias!= BoardConfig::instance()->country_alias){
-            if(FALSE === ($city = Model_BoardCity::getAliases($city_alias)))
-                throw HTTP_Exception::factory('404', __('Page not found'));
-            $city = ORM::factory('BoardCity', $city)->fillNames();
-
-            /* Region breadcrumbs */
-            if(BoardConfig::instance()->breadcrumbs_search_region_all){
-                $parents = $city->parents()->as_array('id');
-                foreach($parents as $_parent)
-                        $this->breadcrumbs->add($_parent->name, $_parent->getUri());
-                if(BoardConfig::instance()->breadcrumbs_region_title)
-                    $this->breadcrumbs->add($city->name, $city->getUri());
-            }
-            else{
-                $this->breadcrumbs = Breadcrumbs::factory()->add(BoardConfig::instance()->breadcrumbs_prefix.$city->name_of, $city->getUri());
-            }
-
-            if(!$city->parent_id){
-                $ads->and_where('pcity_id','=',$city->id);
-            }
-            else{
-                $ads->and_where('city_id','=',$city->id);
-            }
-        }
-        elseif($city_alias == BoardConfig::instance()->country_alias){
-        }
-
-        /*************************
-         * Поиск по категории
-         */
-        $category_alias = $this->request->param('cat_alias');
-        $category = NULL;
-        if(!is_null($category_alias)){
-            if(FALSE === ($category = Model_BoardCategory::getAliases($category_alias)))
-                throw HTTP_Exception::factory('404', __('Page not found'));
-            if(!BoardConfig::instance()->breadcrumbs_region_title && $city instanceof ORM)
-                $this->breadcrumbs->add($city->name, $city->getUri());
-            $category = ORM::factory('BoardCategory', $category);
-            $parents = $category->parents()->as_array('id');
-            foreach($parents as $_parent)
-                $this->breadcrumbs->add($_parent->name, $_parent->getUri($city_alias));
-            if(BoardConfig::instance()->breadcrumbs_category_title)
-                $this->breadcrumbs->add($category->name, $category->getUri($city_alias));
-            $childs_categories = ORM::factory('BoardCategory')->where('parent_id','=',$category->id)->order_by('name', 'ASC')->find_all()->as_array('id');
-            if(!$category->parent_id){
-                $ads->and_where('pcategory_id','=',$category->id);
-            }
-            else{
-                $ads->and_where('category_id','=',$category->id);
-            }
-        }
-        else{
-            $childs_categories = ORM::factory('BoardCategory')->where('lvl','=','1')->cached(Model_BoardCategory::CATEGORIES_CACHE_TIME)->order_by('name')->find_all()->as_array('id');
-        }
-
-        /*****************
-         * Подсчет объявлений в категории
-         */
-        if(!$category instanceof ORM || !$category->parent_id){
-            $category_id = $category instanceof ORM ? $category->id : NULL;
-            $city_id = $city instanceof ORM ? $city->id : NULL;
-            $counter = Model_BoardCategory::categoryCounter($category_id, $city_id);
-            $counter = array_intersect_key($counter, $childs_categories);
-            $this->template->content->set(array(
-                'category_counter'=> $counter,
-            ));
-        }
-
-
-        /*****************
-         * Подсчет объявлений в регионе
-         */
-        if(!$city instanceof ORM || !$city->parent_id){
-            $city_id = $city instanceof ORM ? $city->id : NULL;
-            $category_id = $category instanceof ORM ? $category->id : NULL;
-            $ads_count = Model_BoardCity::regionCounter($city_id, $category_id, 0.5);
-            $this->template->content->set(array(
-                'city_counter'=> $ads_count['all'],
-                'big_city_counter'=> $ads_count['big'],
-            ));
-        }
-
-        /*****************
-         * Поиск по тексту
-         */
-        $_query = Arr::get($_GET, 'query');
-        if(!empty($_query)){
-            $_query = Text::stripSQL(urldecode($_query));
-            $_GET['query'] = $_query;
-            if(!empty($_query) && mb_strlen($_query) >= 5){
-                $ads->and_where(DB::expr('MATCH(`title`'.(Arr::get($_GET, 'wdesc') > 0 ? ',description': '').')'), 'AGAINST', DB::expr("('".Arr::get($_GET, 'query')."' IN BOOLEAN MODE)"));
-                /* Save search statistics */
-                if(Request::current()->param('page') == NULL){
-                    try{
-                        $search = Model_BoardSearch::findTag($_query, $category instanceof ORM ? $category->id : 0);
-                        if(!$search->loaded()){
-                            Model_BoardSearch::createTag($_query, $category instanceof ORM ? $category->id : 0);
-                        }
-                        else{
-                            $search->cnt++;
-                            $search->update();
-                        }
-                    }
-                    catch(ORM_Validation_Exception $e){
-                        $e->getMessage();
-                    }
-                }
-            }
-            // выдавать страницу с ошибкой, если ищут менее 5 символов и не выбран регион или категория
-	        elseif($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && mb_strlen($_query) < 5){
-		        throw new HTTP_Exception_200(__('Minimal allowed length of search query is :char chars', array(':char'=>5)));
-	        }
-	        else{
-		        unset($_GET['query']);
-		        unset($_query);
-	        }
-        }
-
-        /*****************
-         * Поиск по типу Все/Бизнес/Частное
-         */
-        if(!is_null(Arr::get($_GET, 'type'))){
-            $ads->and_where('type', '=', Arr::get($_GET, 'type'));
-        }
-
-        /*****************
-         * Фильтр по "только фото"
-         */
-        if(Arr::get($_GET, 'wphoto') > 0){
-            $ads->and_where('photo_count', '>', 0);
-        }
-
-        /*****************
-         * @deprecated
-         * !! Устаревшее !!
-         * Фильтр по пользователю (из объявления)
-         */
-        $this->template->content->set('search_by_user', false);
-        if(Arr::get($_GET, 'userfrom') > 0){
-            $ad = ORM::factory('BoardAd', Arr::get($_GET, 'userfrom'));
-            if($ad->loaded() && $ad->user_id){
-                $ads->and_where('user_id', '=', $ad->user_id);
-                $username = $ad->name;
-                $this->template->content->set('search_by_user', true);
-            }
-            else{
-                throw new HTTP_Exception_404();
-            }
-        }
-
-	    /*****************
-	     * Фильтр по пользователю
-	     */
-	    $userads = Request::current()->param('user');
-        if(!is_null($userads)){
-	        $userads = ORM::factory('User', (int) $userads);
-			if($userads->loaded()){
-				$ads->and_where('user_id', '=', $userads);
-				$username = $userads->profile->name;
-				$this->template->content->set('search_by_user', true);
-			}
-			else{
-				throw new HTTP_Exception_404();
-			}
-        }
-
-        /*****************
-         * Фильтр по цене
-         */
-        if(is_array($price = Arr::get($_GET, 'price')) && ((int) Arr::get($price, 'from')>0 || (int) Arr::get($price, 'to')>0) ){
-            if((int) Arr::get($price, 'from'))
-                $ads->and_where('price', '>=', $price['from']);
-            if((int) Arr::get($price, 'to'))
-                $ads->and_where('price', '<=', $price['to']);
-        }
-
-        /*****************
-         * Поиск по главному фильтру (подкатегория)
-         */
-        if($category instanceof ORM && FALSE !== ($main_filter = Model_BoardFilter::loadMainFilter($category->id))){
-            $main_filter['base_uri'] = URL::site(Route::get('board_subcat')->uri(array(
-                'cat_alias' => Request::$current->param('cat_alias'),
-                'city_alias' => Request::$current->param('city_alias'),
-                'filter_alias' => '{{ALIAS}}',
-            )));
-            if(NULL !== ($filter_alias = Request::$current->param('filter_alias'))){
-                if(!isset($main_filter['aliases'][$filter_alias]))
-                    throw HTTP_Exception::factory('404', __('Page not found'));
-                $_GET['filters'][$main_filter['id']] = $main_filter['aliases'][$filter_alias];
-                $main_filter['value'] = $main_filter['aliases'][$filter_alias];
-            }
-            // опустошить фильтр, когда значение уже выбрано
-	        if($main_filter['aliases'][$filter_alias])
-                $main_filter['options'] = array();
-            $main_filter_count = Model_BoardFilter::filterCounter($main_filter['id'], $city);
-            $this->template->content->set(array(
-	            'main_filter'=>Model_BoardFilter::clearMainFilterOptions($main_filter, $main_filter_count),
-	            'main_filter_cnt'=>$main_filter_count,
-            ));
-        }
-
-        /*****************
-         * Поиск по фильтрам
-         */
-        if($category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
-            $filters = Model_BoardFilter::loadFiltersByCategory($category->id);
-            /* При выбраном главном фильтре устанавливаем title, h1 и добавляем в хлебные крошки */
-            if(isset($main_filter) && isset($filters_values[$main_filter['id']]) && !is_array($filters_values[$main_filter['id']])){
-                $main_filter['selected_name'] = $filters[$main_filter['id']]['options'][ $filters_values[$main_filter['id']] ];
-                $this->title = $main_filter['selected_name'] . (!empty($this->title) ? ' '.$this->title : '' );
-                $this->breadcrumbs->add($main_filter['selected_name'], false);
-            }
-            if(count($filters)){
-                foreach($filters_values as $_id=>$_val){
-                    if(Model_BoardFiltervalue::haveValue($_val) && isset($filters[$_id])){
-                        $ads->join(array('ad_filter_values','afv'.$_id), 'INNER');
-                        $ads->on('afv'.$_id.'.filter_id','=',DB::expr($_id));
-                        $ads->on('afv'.$_id.'.ad_id', '=', 'ads.id');
-                        if($filters[$_id]['type'] == 'digit' && ((int) Arr::get($_val, 'from') || (int) Arr::get($_val, 'to') )){
-                            $ads->where_open();
-                            if((int)Arr::get($_val, 'from'))
-                                $ads->and_where('afv'.$_id.'.value', '>=', $_val['from']);
-                            if((int)Arr::get($_val, 'to'))
-                                $ads->and_where('afv'.$_id.'.value', '<=', $_val['to']);
-                            $ads->where_close();
-                        }
-                        elseif($filters[$_id]['type'] == 'optlist'){
-                            $_bin = Model_BoardFiltervalue::optlist2mysqlBin( array_flip($_val) );
-                            $ads->and_where(DB::expr('afv'.$_id.'.value & '. $_bin), '=', DB::expr($_bin));
-                        }
-                        elseif($filters[$_id]['type'] == 'select' && is_array($_val) && count($_val)){
-                            $ads->and_where('afv'.$_id.'.value', 'IN', $_val);
-                        }
-                        elseif(!empty($_val) && !is_array($_val)){
-                            $ads->and_where('afv'.$_id.'.value', '=', $_val);
-                        }
-                    }
-                }
-                $ads->group_by('ads.id');
-            }
-        }
-
-        /* Check if no parameters - than 404, empty query - 200 error */
-        if($city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && isset($_GET['query']) && empty($_GET['query']) && !isset($_GET['userfrom'])){
-	        throw new HTTP_Exception_200(__('Minimal allowed length of search query is :char chars', array(':char'=>5)));
-        }
-        elseif(!BoardConfig::instance()->allow_all_search && $city_alias == BoardConfig::instance()->country_alias && !$category instanceof ORM && !isset($_GET['query']) && !isset($_GET['userfrom'])){
-	        throw new HTTP_Exception_404();
-        }
-
-        /* Init Ads pagination */
-        $sql = str_replace('`ads`.*', 'COUNT(*) AS cnt', (string) $ads);
-        $count = DB::query(Database::SELECT, $sql)->cached(Model_BoardAd::CACHE_TIME)->as_assoc()->execute();
-        $route_params = array(
-            'controller' => Request::current()->controller(),
-            'city_alias' => $city_alias,
-            'cat_alias' => $category_alias,
-        );
-        if(isset($userads) && $userads instanceof Model_User && $userads->loaded()){
-        	$route_params['user'] = $userads->id;
-        }
-        try{
-	        $pagination = Pagination::factory(array(
-		        'total_items' => $count[0]['cnt'],
-		        'group' => 'board',
-	        ))->route_params($route_params);
-        }
-        catch(HTTP_Exception_404 $e){
-        	$this->redirect(Request::current()->route()->uri(array(
-		        'controller' => Request::current()->controller(),
-		        'city_alias' => $city_alias,
-		        'cat_alias' => $category_alias,
-	        )));
-        }
-
-        /* Requesting ads */
-        $ads->offset($pagination->offset)->limit($pagination->items_per_page);
-        $ads = $ads->execute();
-        $ads_ids = array();
-        foreach($ads as $_ad)
-            $ads_ids[] = $_ad->id;
-        $photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
-
-        /*****************
-         * Meta tags
-         */
-        // assign params
-        $title_type = 'region_title';
-        $title_params = array(
-            'page' => $pagination->current_page,
-	        'project' => $this->config['project']['name'],
-        );
-        if($city instanceof ORM){
-            $title_params['region'] = $city->name;
-            $title_params['region_in'] = $city->name_in;
-            $title_params['region_of'] = $city->name_of;
-        }
-        else{
-            $title_params['region'] = $this->board_cfg['country_name'];
-            $title_params['region_in'] = $this->board_cfg['all_country'];
-            $title_params['region_of'] = $this->board_cfg['all_country'];
-        }
-        if($category instanceof ORM) {
-            $title_type = 'category_title';
-            $title_params['category'] = isset($main_filter) && Arr::get($main_filter, 'selected_name', FALSE) ? $main_filter['selected_name'] : $category->name;
-//            $title_params['cat_title'] = $category->title;
-//            $title_params['cat_descr'] = $category->description;
-        }
-        if(!is_null($city) && !is_null($category))
-            $title_type = 'region_category_title';
-        if(isset($_query)){
-            $title_type = 'query_title';
-            $title_params['query'] = $_query;
-        }
-        if(isset($username)){
-            $title_type = 'user_search_title';
-            $title_params['username'] = $username;
-        }
-
-        // get templates
-	    $templates = BoardConfig::instance()->getValuesArray(array(
-		    'title' => $title_type,
-		    'description' => str_replace('title', 'description', $title_type),
-		    'h1' => str_replace('title', 'h1', $title_type),
-		    'h2' => str_replace('title', 'h2', $title_type),
-		    'empty' => str_replace('title', 'empty', $title_type),
-	    ));
-
-        // generate tags
-	    $meta_generator = MetaGenerator::instance()->setValues($title_params);
-	    if($title_type == 'category_title' || $title_type == 'region_category_title'){
-		    $this->title = !empty($category->title) ? $meta_generator->setTemplate($category->title)->generate() : '';
-		    $this->description = !empty($category->description) ? $meta_generator->setTemplate($category->description)->generate() : '';
-	    }
-	    if(empty($this->title))
-		    $this->title = $meta_generator->setTemplate($templates['title'])->generate();
-	    if(empty($this->description))
-		    $this->description = $meta_generator->setTemplate($templates['description'])->generate();
-        $title = $meta_generator->setTemplate($templates['h1'])->generate();
-        $subtitle = $meta_generator->setTemplate($templates['h2'])->generate();
-        $nothing_found_text = $meta_generator->setTemplate($templates['empty'])->generate();
-
-
-        $this->add_meta_content(array('property'=>'og:title', 'content'=>$this->title));
-        $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
-        $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial())));
-        $this->add_meta_content(array('property'=>'og:site_name', 'content'=>KoMS::config()->project['name']));
-        $this->add_meta_content(array('property'=>'og:description', 'content'=>$this->description));
-        $this->add_meta_content(array('property'=>'og:image', 'content'=> URL::base(Request::initial()) . "media/css/images/logo.png"));
-
-        // robots tag related to results
-        if($count[0]['cnt'] == 0){
-            $this->replace_meta_content('name', array(
-                'name'=>'robots',
-                'content'=>'noindex,nofollow',
-            ));
-        }
-
-        // Canonical pagination
-	    $this->_canonicalPagination($pagination);
+    	$search = BoardSearch::instance();
 
         /*****************
          * scripts / styles / widgets
@@ -473,34 +106,42 @@ class Controller_Board extends Controller_System_Page
         $this->scripts[] = "media/libs/toastr/build/toastr.min.js";
 
         $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
-
-//        $this->add_meta_content(array(
-//            'name'=>'revisit-after',
-//            'content'=>'1 days',
-//        ));
-//        $this->add_meta_content(array(
-//            'tag' => 'link',
-//            'rel' => 'canonical',
-//            'href' => $pagination->url($pagination->current_page),
-//        ));
-
         $this->template->search_form = Widget::factory('BoardSearch')->render();
-        if(is_null($city))
-            $this->template->content->set(array(
-                'regions' => Model_BoardCity::getRegionsArray(),
-            ));
-        $this->template->content->set(array(
-            'title' => $title,
-            'subtitle' => $subtitle,
-            'city' => $city,
-            'category' => $category,
-            'nothing_found_text' => $nothing_found_text,
-            'childs_categories' => $childs_categories,
-            'ads' => $ads,
-            'photos' => $photos,
-            'board_config' => $this->board_cfg,
-            'pagination' => $pagination,
-        ));
+
+	    /* Trying to load cache (выключено в моб.версии) */
+	    if(!$this->isMobile() && BoardConfig::instance()->board_cache && FALSE !== ($cache_content = $search->read_search_cache())){
+		    $search->cached();
+		    $this->template->content = $cache_content['content'];
+		    if(isset($cache_content['page_data']))
+		        $this->_addPageData($cache_content['page_data']);
+		    return true;
+	    }
+	    /* Generate page */
+	    else{
+		    $search->init();
+		    try{
+			    $search->search();
+		    }
+		    catch(HTTP_Exception_404 $e){
+			    $this->redirect(Request::current()->route()->uri(array(
+				    'controller' => Request::current()->controller(),
+				    'city_alias' => $search->city_alias,
+				    'cat_alias' => $search->category_alias,
+			    )));
+		    }
+			/* Meta tags */
+			$page_data = $search->generateFullPageData();
+			$this->_addPageData($page_data);
+		    $this->template->content->set( $search->template );
+	    }
+
+	    /* Сохранить страницу в кеш (выключено в моб.версии) */
+	    if(!$this->isMobile() && BoardConfig::instance()->board_cache){
+		    $search->write_search_cache(array(
+			    'content' => $this->template->content->render(),
+			    'page_data' => $page_data,
+		    ));
+	    }
     }
 
     /**
@@ -1720,26 +1361,46 @@ class Controller_Board extends Controller_System_Page
             ->send();
     }
 
-    protected function _canonicalPagination($pagination){
-    	$_page = max(1, Request::current()->param('page'));
-	    if($_page > 1){
-		    $this->add_meta_content(array(
-			    'tag' => 'link',
-			    'rel' => 'prev',
-			    'href' => URL::base(KoMS::protocol()).substr($pagination->url($_page-1), 1),
-		    ));
+
+	/**
+	 * Добавляет META теги для страницы поиска
+	 * @param $page_data
+	 */
+    protected function _addPageData($page_data){
+    	// Meta tags
+    	if(isset($page_data['meta_add']) && is_array($page_data['meta_add']))
+		    foreach ($page_data['meta_add'] as $_meta)
+			    $this->add_meta_content($_meta);
+	    // Canonical pagination
+	    if(isset($page_data['meta_canonical']) && is_array($page_data['meta_canonical']))
+		    foreach ($page_data['meta_canonical'] as $_canonical)
+			    $this->add_meta_content($_canonical);
+	    // Meta tags replacement
+	    if(isset($page_data['meta_replace']) && is_array($page_data['meta_replace']))
+		    foreach ($page_data['meta_replace'] as $_meta_id=>$_meta)
+			    $this->replace_meta_content($_meta_id, $_meta);
+	    // Breadcrumbs
+	    if(isset($page_data['breadcrumbs']) && is_array($page_data['breadcrumbs'])){
+		    $this->breadcrumbs = Breadcrumbs::factory();
+		    foreach ($page_data['breadcrumbs'] as $_crumb)
+			    $this->breadcrumbs->add($_crumb[0], $_crumb[1]);
 	    }
-	    if($_page < $pagination->total_pages){
-		    $this->add_meta_content(array(
-			    'tag' => 'link',
-			    'rel' => 'next',
-			    'href' => URL::base(KoMS::protocol()).substr($pagination->url($_page+1), 1),
-		    ));
+
+	    // Title & description
+	    if(isset($page_data['titles'])){
+		    if(isset($page_data['titles']['title']))
+			    $this->title = $page_data['titles']['title'];
+		    if(isset($page_data['titles']['description']))
+			    $this->description = $page_data['titles']['description'];
+
+		    if($this->template->content instanceof View){
+			    if(isset($page_data['titles']['pagetitle']))
+				    $this->template->content->set('title', $page_data['titles']['pagetitle']);
+			    if(isset($page_data['titles']['subtitle']))
+				    $this->template->content->set('subtitle', $page_data['titles']['subtitle']);
+			    if(isset($page_data['titles']['nothing_found_text']))
+				    $this->template->content->set('nothing_found_text', $page_data['titles']['nothing_found_text']);
+		    }
 	    }
-	    $this->add_meta_content(array(
-		    'tag' => 'link',
-		    'rel' => 'canonical',
-		    'href' => URL::base(KoMS::protocol()).substr($_SERVER['REQUEST_URI'], 1),
-	    ));
     }
 }

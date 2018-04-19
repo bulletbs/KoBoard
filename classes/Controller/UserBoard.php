@@ -324,8 +324,26 @@ class Controller_UserBoard extends Controller_User
             ->find_all()
         ;
         try{
-            foreach($ads as $model)
-                $model->refresh();
+        	$cleanArray = array();
+            foreach($ads as $model){
+	            /**
+	             * @var Model_BoardAd $model
+	             */
+	            $model->refresh( false );
+	            // add refreshed ads cache ids (city+category region+part city+part region+category)
+	            if(!isset($cleanArray[$model->city_id]) || !in_array($model->category_id, $cleanArray[$model->city_id]))
+	                $cleanArray[$model->city_id][] = $model->category_id;
+	            if(!isset($cleanArray[$model->pcity_id]) || !in_array($model->pcategory_id, $cleanArray[$model->pcity_id]))
+	                $cleanArray[$model->pcity_id][] = $model->pcategory_id;
+	            if(!in_array($model->pcategory_id, $cleanArray[$model->city_id]))
+	                $cleanArray[$model->city_id][] = $model->pcategory_id;
+	            if(!in_array($model->category_id, $cleanArray[$model->pcity_id]))
+		            $cleanArray[$model->pcity_id][] = $model->category_id;
+            }
+            // Clean board cache
+	        foreach ($cleanArray as $_city_id=>$_categories)
+		        foreach ($_categories as $_category_id)
+		            BoardCache::cleanList($_city_id, $_category_id, false);
             Flash::success(__('Your ads has been refreshed'));
         }
         catch(ORM_Validation_Exception $e){

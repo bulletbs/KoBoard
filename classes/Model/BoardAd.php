@@ -234,7 +234,7 @@ class Model_BoardAd extends ORM{
 
     /**
      * @param Validation $validation
-     * @return ORM|void
+     * @return ORM
      */
     public function save(Validation $validation=NULL){
         if(!$this->addtime)
@@ -250,12 +250,14 @@ class Model_BoardAd extends ORM{
             $this->pcategory_id = Model_BoardCategory::getField('parent_id', $this->category_id);
 //            $this->pcategory_id = ORM::factory('BoardCategory', $this->category_id)->parent_id;
         }
+        /* Clear cache */
+	    BoardCache::cleanList($this->city_id, $this->category_id);
         return parent::save($validation);
     }
 
     /**
      * Удалить
-     * @return ORM|void
+     * @return ORM
      */
     public function delete(){
         foreach( ORM::factory('BoardAdphoto')->where('ad_id','=',$this->pk())->find_all()  as $photo)
@@ -264,18 +266,23 @@ class Model_BoardAd extends ORM{
             $item->delete();
         foreach( ORM::factory('BoardAbuse')->where('ad_id','=',$this->pk())->find_all()  as $item)
             $item->delete();
-        parent::delete();
+	    /* Clear cache */
+	    BoardCache::cleanList($this->city_id, $this->category_id);
+        return parent::delete();
     }
 
-    /**
-     *
-     * @throws Kohana_Exception
-     */
-    public function refresh(){
+	/**
+	 * Обновить объявление до актальной даты
+	 *
+	 * @param bool $clearCache
+	 */
+    public function refresh($clearCache = true){
         $this->addtime = time();
         if($this->publish == 0)
             $this->publish = 1;
         $this->update();
+        if($clearCache === true)
+	        BoardCache::cleanList($this->city_id, $this->category_id);
     }
 
     /**
@@ -286,6 +293,8 @@ class Model_BoardAd extends ORM{
             $this->key = '';
         $this->publish = $this->publish == 0 ? 1 : 0;
         $this->update();
+	    /* Clear cache */
+	    BoardCache::cleanList($this->city_id, $this->category_id);
     }
 
     /**
@@ -950,6 +959,42 @@ class Model_BoardAd extends ORM{
 	    ;
 	    return $query;
     }
+
+	/**
+	 *
+	 */
+	protected function _clearBoardCache(){
+    	$cat_alias = Model_BoardCategory::getField('alias', $this->category_id);
+    	$pcat_alias = Model_BoardCategory::getField('alias', $this->pcategory_id);
+    	$region_alias = Model_BoardCity::getField('alias', $this->pcity_id);
+    	$city_alias = Model_BoardCity::getField('alias', $this->city_id);
+
+		$paths = array();
+		$paths[] = BoardCache::instance()->filenameByParams(array(
+			'city_alias' => $city_alias,
+			'page' => '*',
+		));
+		$paths[] = BoardCache::instance()->filenameByParams(array(
+			'city_alias' => $region_alias,
+			'page' => '*',
+		));
+		$paths[] = BoardCache::instance()->filenameByParams(array(
+			'city_alias' => BoardConfig::instance()->country_alias,
+			'cat_alias' => $cat_alias,
+			'page' => '*',
+		));
+		$paths[] = BoardCache::instance()->filenameByParams(array(
+			'city_alias' => BoardConfig::instance()->country_alias,
+			'cat_alias' => $pcat_alias,
+			'page' => '*',
+		));
+    	foreach ($paths as $path){
+    		var_dump($path);
+		    BoardCache::instance()->cleanData($path);
+	    }
+		die();
+
+	}
 
     public static function similarQuery($title, Array $params = array()){
     	$ad = ORM::factory('BoardAd');

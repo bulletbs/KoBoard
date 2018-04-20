@@ -94,11 +94,19 @@ class BoardSearch {
     public function search(){
 	    $this->_searchAds();
 
+	    if($this->searchByUser){
+		    $this->template += array(
+			    'search_by_user' => true,
+		    );
+	    }
+	    else{
+		    $this->template += array(
+			    'city' => $this->city,
+			    'category' => $this->category,
+			    'childs_categories' => $this->childs_categories,
+		    );
+	    }
 	    $this->template += array(
-		    'city' => $this->city,
-		    'category' => $this->category,
-		    'childs_categories' => $this->childs_categories,
-
 		    'ads' => $this->ads,
 		    'photos' => $this->photos,
 		    'pagination' => $this->pagination,
@@ -498,9 +506,9 @@ class BoardSearch {
 			$this->title_type = 'query_title';
 			$this->title_params['query'] = $this->query;
 		}
-		if(isset($username)){
+		if($this->user instanceof Model_User && $this->user->loaded()){
 			$this->title_type = 'user_search_title';
-			$this->title_params['username'] = $this->username;
+			$this->title_params['username'] = $this->user->profile->name;
 		}
 
 		// get templates
@@ -567,6 +575,10 @@ class BoardSearch {
 		return $result;
 	}
 
+	/**
+	 * Список условий для замены META Тегов
+	 * @return array
+	 */
 	public function generateMetaReplace(){
 		$result = array();
 		// robots tag related to results

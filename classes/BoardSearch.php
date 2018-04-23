@@ -64,9 +64,8 @@ class BoardSearch {
 	    if(is_null($this->city_alias))
 	        $this->city_alias = BoardConfig::instance()->country_alias;
 	    $this->category_alias = Request::current()->param('cat_alias');
-	    $this->breadcrumbs = array(
-	    	array(BoardConfig::instance()->breadcrumbs_prefix .' '. BoardConfig::instance()->all_country, '/')
-	    );
+
+	    $this->breadcrumbs = array(array(KoMS::config()->breadcrumb_root, '/'));
     }
 
 
@@ -347,14 +346,14 @@ class BoardSearch {
 			    'filter_alias' => '{{ALIAS}}',
 		    )));
 		    if(NULL !== ($this->filter_alias = Request::$current->param('filter_alias'))){
-			    if(!isset($main_filter['aliases'][$this->filter_alias]))
+			    if(!isset($this->main_filter['aliases'][$this->filter_alias]))
 				    throw HTTP_Exception::factory('404', __('Page not found'));
 			    $_GET['filters'][$this->main_filter['id']] = $this->main_filter['aliases'][$this->filter_alias];
 			    $main_filter['value'] = $this->main_filter['aliases'][$this->filter_alias];
 		    }
 		    // опустошить фильтр, когда значение уже выбрано
 		    if($this->main_filter['aliases'][$this->filter_alias])
-			    $main_filter['options'] = array();
+			    $this->main_filter['options'] = array();
 		    $main_filter_count = Model_BoardFilter::filterCounter($this->main_filter['id'], $this->city);
 		    $this->template += array(
 			    'main_filter'=>Model_BoardFilter::clearMainFilterOptions($this->main_filter, $main_filter_count),
@@ -373,10 +372,10 @@ class BoardSearch {
 	    if($this->category instanceof ORM && NULL !== ($filters_values = Arr::get($_GET, 'filters')) && Model_BoardFiltervalue::haveValues($filters_values)){
 		    $filters = Model_BoardFilter::loadFiltersByCategory($this->category->id);
 		    /* При выбраном главном фильтре устанавливаем title, h1 и добавляем в хлебные крошки */
-		    if(isset($this->main_filter) && isset($filters_values[$main_filter['id']]) && !is_array($filters_values[$this->main_filter['id']])){
-			    $main_filter['selected_name'] = $filters[$this->main_filter['id']]['options'][ $filters_values[$this->main_filter['id']] ];
-			    $this->title = $main_filter['selected_name'] . (!empty($this->title) ? ' '.$this->title : '' );
-			    $this->breadcrumbs[] = array($main_filter['selected_name'], false);
+		    if(isset($this->main_filter) && isset($filters_values[$this->main_filter['id']]) && !is_array($filters_values[$this->main_filter['id']])){
+			    $this->main_filter['selected_name'] = $filters[$this->main_filter['id']]['options'][ $filters_values[$this->main_filter['id']] ];
+			    $this->title = $this->main_filter['selected_name'] . (!empty($this->title) ? ' '.$this->title : '' );
+			    $this->breadcrumbs[] = array($this->main_filter['selected_name'], false);
 		    }
 		    if(count($filters)){
 			    foreach($filters_values as $_id=>$_val){

@@ -109,7 +109,7 @@ class Controller_Board extends Controller_System_Page
         $this->template->search_form = Widget::factory('BoardSearch')->render();
 
 	    /* Trying to load cache (выключено в моб.версии) */
-	    if(!$this->isMobile() && BoardConfig::instance()->board_cache && FALSE !== ($cache_content = $search->read_search_cache())){
+	    if(!$this->is_mobile && BoardConfig::instance()->board_cache && FALSE !== ($cache_content = $search->read_search_cache())){
 		    $search->cached();
 		    $this->template->content = $cache_content['content'];
 		    if(isset($cache_content['page_data']))
@@ -136,7 +136,7 @@ class Controller_Board extends Controller_System_Page
 	    }
 
 	    /* Сохранить страницу в кеш (выключено в моб.версии) */
-	    if(!$this->isMobile() && BoardConfig::instance()->board_cache){
+	    if(!$this->is_mobile && BoardConfig::instance()->board_cache){
 		    $search->write_search_cache(array(
 			    'content' => $this->template->content->render(),
 			    'page_data' => $page_data,

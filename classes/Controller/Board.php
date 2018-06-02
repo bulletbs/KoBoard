@@ -156,27 +156,10 @@ class Controller_Board extends Controller_System_Page
             throw new HTTP_Exception_404();
         $_GET['query'] = $_tag->query;
 
-        /* Queries init */
-        $sphinxql = new SphinxQL;
-        $cnt_query = $sphinxql->new_query()
-            ->add_index(BoardConfig::instance()->sphinx_index)
-            ->add_field('count(*)', 'cnt')
-            ->search('@title "'.$_tag->query.'"/1')
-            ->option('ranker', 'matchany')
-        ;
-        $ads_query = $sphinxql->new_query()
-            ->add_index(BoardConfig::instance()->sphinx_index)
-            ->add_field('id')
-            ->search('@title "'.$_tag->query.'"/1')
-            ->order('weight()', 'DESC')
-            ->order('addtime', 'DESC')
-            ->option('ranker', 'matchany')
-        ;
-
-        /* Category instance */
+        $ads_query = Model_BoardAd::boardOrmFinder();
+        /* Category search */
         if($cat_alias == 'all'){
-            $ads_query->where('pcategory_id', 0);
-            $cnt_query->where('pcategory_id', 0);
+//            $ads_query->where('pcategory_id', '=', 0);
         }
         elseif($cat_alias){
             $category = ORM::factory('BoardCategory', Model_BoardCategory::getCategoryIdByAlias($cat_alias));
@@ -186,15 +169,16 @@ class Controller_Board extends Controller_System_Page
             if(BoardConfig::instance()->breadcrumbs_category_title)
                 $this->breadcrumbs->add($category->name, $category->getUri(BoardConfig::instance()->country_alias));
             if(!$category->parent_id){
-                $ads_query->where('pcategory_id', $category->id);
-                $cnt_query->where('pcategory_id', $category->id);
+                $ads_query->where('pcategory_id', '=', $category->id);
             }
             else{
-                $ads_query->where('category_id', $category->id);
-                $cnt_query->where('category_id', $category->id);
+                $ads_query->where('category_id', '=', $category->id);
             }
             $this->description = $category->getDescription() . (!empty($this->description) ? ' '.$this->description : '' );
         }
+	    /* Query search & count */
+	    $ads_query->and_where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$_tag->query."' IN BOOLEAN MODE)"));
+	    $cnt_query = DB::query(Database::SELECT, str_replace('`ads`.*', 'COUNT(*) AS cnt', (string) $ads_query))->cached(Model_BoardAd::CACHE_TIME)->as_assoc();
         $count = $cnt_query->execute();
         $count = min(1000, $count[0]['cnt']);
 
@@ -216,7 +200,7 @@ class Controller_Board extends Controller_System_Page
         $spinx_ads = $ads_query->execute();
         if($spinx_ads && count($spinx_ads)){
             foreach($spinx_ads as $_ad)
-                $ads[] = $_ad['id'];
+                $ads[] = $_ad->id;
             $ads = ORM::factory('BoardAd')->where('id', 'IN', $ads)->and_where('publish', '=', 1)->order_by(DB::expr("FIELD(id, ".implode(',', $ads).")"))->find_all()->as_array('id');
             $photos = Model_BoardAdphoto::adsPhotoList(array_keys($ads));
         }

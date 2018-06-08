@@ -6,7 +6,7 @@
     <br> Запрещено подавать объявления с одинаковыми (похожими) заголовками, содержимым и фотографиями.<br />
     Запрещено использовать в тексте и в заголовке объявления ЗАГЛАВНЫЕ буквы и восклицательные знаки (!).<br />
     <b>Подобные объявления будут удаляться без предупреждения пользователя.</b><br />
-    С полными правилами вы можете ознакомиться <a title="Правила" target="_blank" href="http://zxcc.ru/page/terms"><b>здесь</b></a>.
+    С полными правилами вы можете ознакомиться <a title="Правила" target="_blank" href="/page/terms"><b>здесь</b></a>.
 </p>
 
 <?php echo Form::open('', array('class' => 'pure-form  pure-form-stacked', 'enctype' => 'multipart/form-data','id'=>'addForm'))?>
@@ -15,7 +15,7 @@
         <legend>Заголовок и описание</legend>
         <?php echo Form::label('title', 'Заголовок')?>
         <?php echo Form::input('title', $model->title, array('class'=>'poshytip'.(isset($errors['title']) ? ' error-input': ''), 'id'=>'titleInput'))?>
-        <p style="display: none;" id="titleInputTip"><b>Введите наименование товара, объекта или услуги.</b><br>В заголовке <b>не допускается: номер телефона, электронный адрес, ссылки</b><br>Так же не допускаются заглавные буквы (кроме аббревиатур).</p>
+        <p style="display: none;" id="titleInputTip"><b>Введите наименование товара, объекта или услуги.</b><br>В заголовке <b>не допускается: город, номер телефона, электронный адрес, ссылки</b><br>Так же не допускаются заглавные буквы (кроме аббревиатур).</p>
         <div class="quiet">Осталось символов: <span id="titleLeft"></span></div><br>
 
         <?php echo Form::label('maincategory_id', 'Категория')?>

@@ -280,6 +280,7 @@ class Model_BoardAd extends ORM{
         $this->addtime = time();
         if($this->publish == 0)
             $this->publish = 1;
+        $this->views = 0;
         $this->update();
         if($clearCache === true)
 	        BoardCache::cleanList($this->city_id, $this->category_id);

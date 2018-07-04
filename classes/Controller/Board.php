@@ -465,7 +465,7 @@ class Controller_Board extends Controller_System_Page
             }
 
             /* Bottom breadcrumbs */
-            $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
+            $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_ad');
             $breadcrumbs = clone $this->breadcrumbs;
             $breadcrumbs->setOption('addon_class', 'bread_crumbs_message');
 
@@ -1366,6 +1366,7 @@ class Controller_Board extends Controller_System_Page
 	    // Breadcrumbs
 	    if(isset($page_data['breadcrumbs']) && is_array($page_data['breadcrumbs'])){
 		    $this->breadcrumbs = Breadcrumbs::factory();
+		    $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
 		    foreach ($page_data['breadcrumbs'] as $_crumb)
 			    $this->breadcrumbs->add($_crumb[0], $_crumb[1]);
 	    }

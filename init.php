@@ -110,6 +110,11 @@ if(!Route::cache()){
             'controller' => 'Board',
             'action' => 'tags',
         ));
+    Route::set('board_term', 'term/<term>(/p<page>)', array('term' => '[\s\d\wА-Яа-я]+', 'page' => '[0-9]+'))
+        ->defaults(array(
+            'controller' => 'Board',
+            'action' => 'search',
+        ));
     Route::set('board_autocomplete', 'autocomplete')
         ->defaults(array(
             'controller' => 'Board',

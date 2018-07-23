@@ -26,6 +26,7 @@ class BoardSearch {
 
     public $ads;
     public $photos;
+    public $terms;
 
     public $city;
     public $city_alias;
@@ -37,6 +38,7 @@ class BoardSearch {
 	public $main_filter;
 	public $filter_alias;
 	public $query;
+	public $term;
 
     public $user;
     public $username;
@@ -108,6 +110,7 @@ class BoardSearch {
 	    $this->template += array(
 		    'ads' => $this->ads,
 		    'photos' => $this->photos,
+		    'terms' => $this->terms,
 		    'pagination' => $this->pagination,
 	    );
     }
@@ -135,6 +138,8 @@ class BoardSearch {
 	    );
 	    if($this->user instanceof Model_User && $this->user->loaded())
 		    $route_params['user'] = $this->user->id;
+	    if(!is_null($this->term))
+		    $route_params['term'] = $this->term;
 	    $this->pagination = Pagination::factory(array(
 		    'total_items' => $this->count,
 		    'group' => 'board',
@@ -144,9 +149,13 @@ class BoardSearch {
 	    $this->finder->offset($this->pagination->offset)->limit($this->pagination->items_per_page);
 	    $this->ads = $this->finder->execute();
 	    $ads_ids = array();
-	    foreach($this->ads as $_ad)
-		    $ads_ids[] = $_ad->id;
-	    $this->photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
+	    $ads_titles = array();
+	    foreach($this->ads as $_ad){
+            $ads_ids[] = $_ad->id;
+            $ads_titles[] = $_ad->title;
+        }
+        $this->photos = Model_BoardAdphoto::adsPhotoList($ads_ids);
+        $this->terms = BoardTerms::seokeywords(implode(' ', $ads_titles),5, 5);
     }
 
 
@@ -264,6 +273,9 @@ class BoardSearch {
 	 */
     protected function _addText(){
 	    $this->query = Arr::get($_GET, 'query');
+	    $this->term = Request::current()->param('term');
+	    if(empty($this->query) && !is_null($this->term))
+	        $this->query = $this->term;
 	    if(!empty($this->query)){
 		    $this->query = Text::stripSQL(urldecode($this->query));
 		    $_GET['query'] = $this->query;
@@ -501,7 +513,11 @@ class BoardSearch {
 		}
 		if(!is_null($this->city) && !is_null($this->category))
 			$this->title_type = 'region_category_title';
-		if(isset($this->query)){
+		if(isset($this->term)){
+            $this->title_type = 'tags_title';
+            $this->title_params['tag'] = $this->term;
+        }
+		elseif(isset($this->query)){
 			$this->title_type = 'query_title';
 			$this->title_params['query'] = $this->query;
 		}

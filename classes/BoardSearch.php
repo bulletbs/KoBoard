@@ -102,6 +102,7 @@ class BoardSearch {
 	    }
 	    else{
 		    $this->template += array(
+                'search_by_user' => false,
 			    'city' => $this->city,
 			    'category' => $this->category,
 			    'childs_categories' => $this->childs_categories,

@@ -106,7 +106,9 @@ return array(
     'ad_last_modify'      => false,
 
     /* Redirects */
-    'redirect_noad'      => false,
+    'redirect_noad'         => false, // перенаправлять, если объявление не найдено (вместо 404)
+    'redirect_ad_wrong_city'   => true, // перенаправлять объявление, если алиас города не совпадает
+    'redirect_ad_wrong_cat'    => true, // перенаправлять объявление, если алиас категории не совпадает
 
     /* Mailer settings */
     'mailer_queue_step' => 3000,

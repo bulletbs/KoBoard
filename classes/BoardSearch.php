@@ -67,7 +67,7 @@ class BoardSearch {
 	        $this->city_alias = BoardConfig::instance()->country_alias;
 	    $this->category_alias = Request::current()->param('cat_alias');
 
-	    $this->breadcrumbs = array(array(KoMS::config()->breadcrumb_root, '/'));
+	    $this->breadcrumbs = array(array(KoMS::config()->breadcrumb_root, Route::get('default')->uri()));
     }
 
 

@@ -435,12 +435,12 @@ class Controller_Board extends Controller_System_Page
 
             $this->add_meta_content(array('property'=>'og:title', 'content'=>htmlspecialchars($ad->getTitle())));
             $this->add_meta_content(array('property'=>'og:type', 'content'=>'website'));
-            $this->add_meta_content(array('property'=>'og:url', 'content'=>URL::base(Request::initial()).$ad->getUri()));
+            $this->add_meta_content(array('property'=>'og:url', 'content'=>$ad->getUrl()));
             $this->add_meta_content(array('property'=>'og:site_name', 'content'=>$this->config['project']['host']));
             $this->add_meta_content(array('property'=>'og:description', 'content'=>$ad->getMetaDescription()));
             $this->add_meta_content(array('property'=>'og:image', 'content'=> count($photos) ? $photos[0]->getPhotoUri() : URL::base(Request::initial())."media/css/images/logo.png"));
             if(!$this->is_mobile)
-                $this->add_meta_content(array('tag'=>'link', 'rel'=>'canonical', 'href'=>URL::base(KoMS::protocol()).$ad->getUri()));
+                $this->add_meta_content(array('tag'=>'link', 'rel'=>'canonical', 'href'=>$ad->getUrl()));
 
             if($this->is_mobile){
                 $this->mobile_scripts[] = 'assets/board/js/message.js';

@@ -439,7 +439,7 @@ class Model_BoardAd extends ORM{
      * @throws Kohana_Exception
      */
     public function getUrl(){
-        return URL::base(KoMS::protocol()) . $this->getUri();
+        return URL::site($this->getUri(), KoMS::protocol());
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');?>
 <div class="board_search_form board_filter_form">
-<?php echo Form::open($form_action, array('id'=>'boardTopForm', 'method'=>'get'))?>
+<?php echo Form::open($form_action, array('id'=>'boardFilterForm', 'method'=>'get'))?>
 
 	<?if(count($filters)):?>
 		<?foreach($filters as $filter_id=>$data):?>
@@ -73,7 +73,7 @@
             });
         </script>
 	<?endif?>
-	<?php echo Form::submit(NULL, 'Фильтр', array('id'=>'boardTopSubmit', 'class'=>'boardSubmit'))?>
+	<?php echo Form::submit(NULL, 'Фильтр', array('id'=>'boardFilterSubmit', 'class'=>'boardSubmit'))?>
     <div class="clear"></div>
 <?php echo Form::close()?>
 </div>

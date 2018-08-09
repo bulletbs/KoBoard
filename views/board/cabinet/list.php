@@ -3,9 +3,9 @@
 
 <?= Flash::render('global/flash') ?>
 
-<a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit'))?>" class="pure-button pure-button-primary right"><?php echo __('Add ad') ?></a>
-<?php if($user->has_role('import')):?><a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'import'))?>" class="pure-button pure-button-primary right"><?php echo __('Import') ?></a><?endif?>
-<?if(count($ads)):?><a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'refresh_all'))?>" class="pure-button pure-button right"><i class="fa fa-refresh"></i> <?php echo __('Refresh All') ?></a><?endif?>
+<a href="<?php echo Route::get('board_myads')->uri(array('action'=>'edit'))?>" class="pure-button pure-button-primary right"><?php echo __('Add ad') ?></a>
+<?php if($user->has_role('import')):?><a href="<?php echo Route::get('board_myads')->uri(array('action'=>'import'))?>" class="pure-button pure-button-primary right"><?php echo __('Import') ?></a><?endif?>
+<?if(count($ads)):?><a href="<?php echo Route::get('board_myads')->uri(array('action'=>'refresh_all'))?>" class="pure-button pure-button right"><i class="fa fa-refresh"></i> <?php echo __('Refresh All') ?></a><?endif?>
 <br class="clear">
 <br class="clear">
 
@@ -22,14 +22,14 @@
                     <span class="quiet"><?php echo Model_BoardCategory::getField('name', $ad->category_id)?><br><b><?php echo Model_BoardCity::getField('name', $ad->city_id)?></b><br><?= Date::smart_date($ad->addtime)?> <?= date('G:i', $ad->addtime) ?> </span>
                 </td>
                 <td class="list_button">
-                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i></a>
-                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'enable', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Status')?>"><i class="fa fa-eye<?php echo !$ad->publish ? '-slash' : ''?>"></i></a>
+                    <a href="<?php echo Route::get('board_myads')->uri(array('action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i></a>
+                    <a href="<?php echo Route::get('board_myads')->uri(array('action'=>'enable', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Status')?>"><i class="fa fa-eye<?php echo !$ad->publish ? '-slash' : ''?>"></i></a>
                     <?if($ad->isRefreshable()):?>
-                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'refresh', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Refresh')?>"><i class="fa fa-refresh"></i></a>
+                    <a href="<?php echo Route::get('board_myads')->uri(array('action'=>'refresh', 'id'=>$ad->id))?>" class='pure-button pure-button' title="<?php echo __('Refresh')?>"><i class="fa fa-refresh"></i></a>
                     <?else:?>
                     <a class='pure-button pure-button pure-button-disabled' title="Обновление доступно один раз в 7 дней"><i class="fa fa-refresh"></i></a>
                     <?endif?>
-                    <a href="<?php echo URL::site().Route::get('board_myads')->uri(array('action'=>'remove', 'id'=>$ad->id))?>" class='pure-button pure-button-error' title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i></a>
+                    <a href="<?php echo Route::get('board_myads')->uri(array('action'=>'remove', 'id'=>$ad->id))?>" class='pure-button pure-button-error' title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i></a>
                     <br/><br/>
                     <span class="quiet">Просмотров за <?php echo Date::currentMonth()?>: <?php echo $ad->views ?></span>
                 </td>

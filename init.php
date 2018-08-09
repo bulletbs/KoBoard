@@ -10,6 +10,12 @@ if(!Route::cache()){
         'goto',
         'favorites',
     );
+    Route::set('board_all', '')
+        ->defaults(array(
+            'controller' => 'board',
+            'action' => 'main',
+        ))
+    ;
     Route::set('board', $board_base_url . '<action>(/<id>)(/p<page>)', array('action' => '('.implode('|', $_init_actions).')', 'page' => '[0-9]+'))
         ->defaults(array(
             'controller' => 'board',

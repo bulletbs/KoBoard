@@ -5,7 +5,7 @@
 class BoardTerms {
 
     static public $rearray = array("~","!","@","#","$","%","^","&","*","(",")","_","+","`",'"',"№",";",":","?","-","=","|","\"","","/",
-    "[","]","{","}","'",",",".","<",">","rn","n","t","«","»");
+    "[","]","{","}","'",",",".","<",">","\r\n","\n","\t","«","»");
 
     static public $adjectivearray = array(
         "ые","ое","ие","ий","ая","ый","ой","ми","ых","ее","ую","их","ым",
@@ -23,10 +23,10 @@ class BoardTerms {
         $contents = @preg_replace(array("'<[/!]*?[^<>]*?>'si","'([rn])[s]+'si","'&[a-z0-9]{1,6};'si","'( +)'si"),
             array("","1 "," "," "),strip_tags($contents));
 
-        $contents = @str_replace(static::$rearray," ",$contents);
+        $contents = str_replace(static::$rearray," ",$contents);
         $contents = mb_strtolower($contents);
 
-        $keywordcache = @explode(" ",$contents);
+        $keywordcache = explode(" ",$contents);
         static::$rearray = array();
 
         foreach($keywordcache as $word){

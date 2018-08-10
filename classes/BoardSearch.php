@@ -489,7 +489,7 @@ class BoardSearch {
 		$tags_array[] =array(
 			'tag' => 'link',
 			'rel' => 'canonical',
-			'href' => URL::base(KoMS::protocol()).substr($this->pagination->url(1), 1),
+            'href' => URL::base(KoMS::protocol()).substr( BoardConfig::instance()->search_page_to_first ?  $this->pagination->url(1) : $_SERVER['REQUEST_URI'], 1),
 		);
 		return $tags_array;
 	}

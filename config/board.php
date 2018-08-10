@@ -110,6 +110,9 @@ return array(
     'redirect_ad_wrong_city'   => true, // перенаправлять объявление, если алиас города не совпадает
     'redirect_ad_wrong_cat'    => true, // перенаправлять объявление, если алиас категории не совпадает
 
+    /* Canonical */
+    'search_page_to_first' => true,
+
     /* Mailer settings */
     'mailer_queue_step' => 3000,
 );

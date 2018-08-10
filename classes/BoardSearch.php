@@ -353,7 +353,7 @@ class BoardSearch {
 	 */
     protected function _addMainFilter(){
 	    if($this->category instanceof ORM && FALSE !== ($this->main_filter = Model_BoardFilter::loadMainFilter($this->category->id))){
-		    $this->main_filter['base_uri'] = URL::site(Route::get('board_subcat')->uri(array(
+	        $this->main_filter['base_uri'] = URL::site(Route::get('board_subcat')->uri(array(
 			    'cat_alias' => Request::current()->param('cat_alias'),
 			    'city_alias' => Request::current()->param('city_alias'),
 			    'filter_alias' => '{{ALIAS}}',
@@ -373,6 +373,9 @@ class BoardSearch {
 			    'main_filter_cnt'=>$main_filter_count,
 		    );
 	    }
+        elseif(NULL !== ($this->filter_alias = Request::$current->param('filter_alias'))){
+	        throw new HTTP_Exception_404;
+        }
 	    return $this;
     }
 

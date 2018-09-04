@@ -81,7 +81,7 @@ class Controller_UserBoard extends Controller_User
         $ad = ORM::factory('BoardAd')->where('id', '=', $id)->and_where('user_id', '=', $this->current_user->id)->find();
         $photos = $ad->photos->order_by('id', 'ASC')->find_all();
         if($id > 0 && !$ad->loaded())
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
+            $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
         elseif(is_null($id)){
             $ad->values( $this->current_user->as_array() );
             $ad->values( $this->current_user->profile->as_array() );
@@ -94,7 +94,7 @@ class Controller_UserBoard extends Controller_User
 
         if(HTTP_Request::POST == $this->request->method()){
             if(Arr::get($_POST, 'cancel'))
-                $this->redirect(URL::site().Route::get('board_myads')->uri());
+                $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
 
             $ad->category_id =  Arr::get($_POST, 'category_id');
             $ad->values($_POST);
@@ -162,7 +162,7 @@ class Controller_UserBoard extends Controller_User
                     Flash::success(__('Your ad successfully saved'));
                 else
                     Flash::info($this->getContentTemplate('board/published')->set('ad', $ad)->render());
-                $this->redirect(URL::site().Route::get('board_myads')->uri());
+                $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
             }
             catch(ORM_Validation_Exception $e){
                 $errors = $e->errors('validation');
@@ -250,7 +250,7 @@ class Controller_UserBoard extends Controller_User
         $id = $this->request->param('id');
         $model = ORM::factory('BoardAd')->where('id', '=', $id)->and_where('user_id', '=', $this->current_user->id)->find();
         if($id > 0 && !$model->loaded()){
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
+            $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
             Flash::warning(__('Ad not found'));
         }
         else{
@@ -264,7 +264,7 @@ class Controller_UserBoard extends Controller_User
                 $errors = $e->errors('validation', TRUE);
                 Flash::error('- ' . implode("<br>- ", $errors));
             }
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
+            $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
 
         }
     }
@@ -276,7 +276,7 @@ class Controller_UserBoard extends Controller_User
         $id = $this->request->param('id');
         $model = ORM::factory('BoardAd')->where('id', '=', $id)->and_where('user_id', '=', $this->current_user->id)->find();
         if($id > 0 && !$model->loaded()){
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
+            $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
             Flash::warning(__('Ad not found'));
         }
         else{
@@ -284,7 +284,7 @@ class Controller_UserBoard extends Controller_User
             Flash::success(__('Your ad has been removed'));
             if($this->company instanceof Model_CatalogCompany && $this->company->loaded())
                 Model_CatalogCompany::updateCompanyCategories($this->company->id);
-            $this->redirect(URL::site().Route::get('board_myads')->uri());
+            $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
         }
     }
 
@@ -310,7 +310,7 @@ class Controller_UserBoard extends Controller_User
                 Flash::error('- ' . implode("<br>- ", $errors));
             }
         }
-        $this->redirect(URL::site().Route::get('board_myads')->uri());
+        $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
     }
 
     /**
@@ -350,7 +350,7 @@ class Controller_UserBoard extends Controller_User
             $errors = $e->errors('validation', TRUE);
             Flash::error('- ' . implode("<br>- ", $errors));
         }
-        $this->redirect(URL::site().Route::get('board_myads')->uri());
+        $this->redirect(URL::site(Route::get('board_myads')->uri(), KoMS::protocol()));
     }
 
     /**
@@ -518,7 +518,7 @@ class Controller_UserBoard extends Controller_User
                     echo "invalid";
                 }
             }
-            $this->redirect(URL::site().Route::get('board_myads')->uri(array('action'=>'import')));
+            $this->redirect(Route::get('board_myads')->uri(array('action'=>'import')));
         }
 
         $this->styles[] = "media/libs/jquery-form-styler/jquery.formstyler.css";

@@ -315,9 +315,9 @@ class Controller_Board extends Controller_System_Page
 
             /* Check city and category alias */
             if(BoardConfig::instance()->redirect_ad_wrong_city && Request::current()->param('city_alias') != $city->alias)
-                $this->redirect($ad->getUri(), 301);
+                $this->redirect($ad->getUrl(), 301);
             if(BoardConfig::instance()->redirect_ad_wrong_cat && Request::current()->param('cat_alias') != $ad->category->alias)
-                $this->redirect($ad->getUri(), 301);
+                $this->redirect($ad->getUrl(), 301);
 
 
             /* Photos */
@@ -494,7 +494,7 @@ class Controller_Board extends Controller_System_Page
             ));
         }
         elseif($ad instanceof ORM && $ad->loaded() && Text::transliterate($ad->title, true) != $alias){
-            $this->redirect(URL::base() . $ad->getUri(), 301);
+            $this->redirect($ad->getUrl(), 301);
 //	        throw new HTTP_Exception_404();
         }
         else{
@@ -504,7 +504,7 @@ class Controller_Board extends Controller_System_Page
 		        if(!is_null($alias)){
 			        $category = ORM::factory('BoardCategory')->where('alias','=',$category_alias)->find();
 			        if($category->loaded()){
-				        $this->redirect(URL::base() . $category->getUri($city_alias), 301);
+				        $this->redirect(URL::site($category->getUri($city_alias), KoMS::protocol()), 301);
 				        die();
 			        }
 		        }
@@ -526,7 +526,7 @@ class Controller_Board extends Controller_System_Page
 
         /* Добавление для зарегистрированых проводить через личный кабинет */
         if(Auth::instance()->logged_in('login')){
-            $this->redirect( Route::get('board_myads')->uri(array('action'=>'edit')) );
+            $this->redirect( URL::site(Route::get('board_myads')->uri(array('action'=>'edit')), KoMS::protocol()));
         }
 
         $user = $this->current_user;
@@ -1160,10 +1160,10 @@ class Controller_Board extends Controller_System_Page
                         $message = View::factory('board/mail/user_message_notify', array(
                             'name' => $dialog->opponent_name,
                             'title'=> $dialog->subject,
-                            'dialog_link'=> URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('messaging', $dialog->opponent_id, array('dialog_id' => $dialog->id)),
+                            'dialog_link'=> URL::site(Model_User::generateCryptoLink('messaging', $dialog->opponent_id, array('dialog_id' => $dialog->id)), KoMS::protocol()),
                             'site_name'=> $this->config['project']['name'],
                             'server_name'=> URL::base(KoMS::protocol()),
-                            'unsubscribe_link'=> URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('unsubscribe', $dialog->opponent_id),
+                            'unsubscribe_link'=> URL::site(Model_User::generateCryptoLink('unsubscribe', $dialog->opponent_id), KoMS::protocol()),
                         ))->render();
 //                        file_put_contents(DOCROOT. '/debug_mail.txt', PHP_EOL.PHP_EOL. $message, FILE_APPEND);
                         Email::instance()

@@ -67,7 +67,7 @@ class Task_BoardAdsCleaner extends Minion_Task
                         'user_ads'=>$ads,
                         'site_name'=> $cfg['project']['name'],
                         'server_name'=> $server_name,
-                        'unsubscribe_link' => Model_User::generateCryptoLink('unsubscribe', $user_id),
+                        'unsubscribe_link' => URL::site(Model_User::generateCryptoLink('unsubscribe', $user_id), KoMS::protocol()),
                     ))->render()
                         , true)
                     ->send();

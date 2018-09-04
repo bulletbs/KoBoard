@@ -3,9 +3,9 @@
     <div class="first message">
         <?php if(Auth::instance()->logged_in('admin')):?>
         <div class="right">
-            <a href="<?php echo URL::site().Route::get('admin')->uri(array('controller'=>'board', 'id'=>$ad->id))?>?user_id=<?php echo $ad->user_id?>" class='pure-button' target="_blank" title="<?php echo __('All user ads')?>"><i class="fa fa-user"></i> <?php echo __('All user ads')?></a>
-            <a href="<?php echo URL::site().Route::get('admin')->uri(array('controller'=>'board', 'action'=>'edit', 'id'=>$ad->id))?>" class='pure-button pure-button' target="_blank" title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i> <?php echo __('Edit')?></a>
-            <a href="<?php echo URL::site().Route::get('admin')->uri(array('controller'=>'board', 'action'=>'delete', 'id'=>$ad->id))?>" class='pure-button pure-button-error' target="_blank" title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i> <?php echo __('Delete')?></a>
+            <a href="<?php echo URL::site(Route::get('admin')->uri(array('controller'=>'board', 'id'=>$ad->id)), KoMS::protocol())?>?user_id=<?php echo $ad->user_id?>" class='pure-button' target="_blank" title="<?php echo __('All user ads')?>"><i class="fa fa-user"></i> <?php echo __('All user ads')?></a>
+            <a href="<?php echo URL::site(Route::get('admin')->uri(array('controller'=>'board', 'action'=>'edit', 'id'=>$ad->id)), KoMS::protocol())?>" class='pure-button pure-button' target="_blank" title="<?php echo __('Edit')?>"><i class="fa fa-edit"></i> <?php echo __('Edit')?></a>
+            <a href="<?php echo URL::site(Route::get('admin')->uri(array('controller'=>'board', 'action'=>'delete', 'id'=>$ad->id)), KoMS::protocol())?>" class='pure-button pure-button-error' target="_blank" title="<?php echo __('Delete')?>"><i class="fa fa-trash-o"></i> <?php echo __('Delete')?></a>
         </div>
         <script type="text/javascript">
             $('.pure-button-error').on('click', function(e){

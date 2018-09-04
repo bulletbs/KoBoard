@@ -54,7 +54,7 @@ class Task_BoardSender extends Minion_Task
 			'user_ads'=> array(self::MAILER_DAYS_AGO => $ads),
 			'site_name'=> KoMS::config()->project['name'],
 			'server_name'=> URL::base(KoMS::protocol()),
-			'unsubscribe_link' => URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('unsubscribe', $user_id),
+			'unsubscribe_link' => URL::site(Model_User::generateCryptoLink('unsubscribe', $user_id), KoMS::protocol()),
 		));
 
 		Email::instance()

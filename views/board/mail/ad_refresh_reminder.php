@@ -12,7 +12,7 @@
 <br>
 Объявления, которые не обновлялись более <?php echo $days?> дней:<br />
 <?foreach($ads as $_ad):?>
-- <?php echo HTML::anchor($server_name . $_ad->getUri(), $_ad->title)?><br />
+- <?php echo HTML::anchor($_ad->getUrl(), $_ad->title)?><br />
 <?endforeach?>
 <?endforeach?><br />
 Если Вы желаете обновить объявление, зайдите в свой <a href="<?php echo $server_name ?>my-ads">Личный кабинет</a>.<br />

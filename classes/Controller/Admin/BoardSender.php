@@ -38,7 +38,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
             'user_ads' => array(self::MAILER_DAYS_AGO=>ORM::factory('BoardAd')->limit(1)->find_all()),
             'site_name'=> $this->config['project']['name'],
             'server_name'=> URL::base(KoMS::protocol()),
-            'unsubscribe_link' => URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('unsubscribe', $user_id),
+            'unsubscribe_link' => URL::site(Model_User::generateCryptoLink('unsubscribe', 0), KoMS::protocol()),
         ));
         $total = ORM::factory(self::MAILER_MODEL)->count_all();
         $last = ORM::factory(self::MAILER_MODEL)->where('sended', '=', 0)->count_all();
@@ -123,7 +123,7 @@ class Controller_Admin_BoardSender extends Controller_Admin_UserSender
             'user_ads'=> array(self::MAILER_DAYS_AGO => $ads),
             'site_name'=> $this->config['project']['name'],
             'server_name'=> URL::base(KoMS::protocol()),
-            'unsubscribe_link' => URL::base(KoMS::protocol()) . Model_User::generateCryptoLink('unsubscribe', $user_id),
+            'unsubscribe_KoMS::protocol()) . k' => URL::site(Model_User::generateCryptoLink('unsubscribe', $user_id), KoMS::protocol()),
         ));
 
         Email::instance()

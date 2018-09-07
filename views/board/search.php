@@ -16,11 +16,6 @@
     <div class="clear"></div>
 <?endif?>
 <?if(isset($main_filter)):?>
-    <script type="text/javascript">
-        var basecat_uri = '<?php echo $main_filter['base_uri'] ;?>';
-        var subcat_options = <?php echo json_encode(array_flip($main_filter['aliases'])) ?>;
-        <?if(isset($main_filter['value'])):?>var subcat_selected = <?php echo $main_filter['value']?>;<?endif?>
-    </script>
     <?if(count($main_filter['options'])):?>
     <div class="line_nobg"></div>
     <ul class="search_sub_col"><?$_step = ceil(count($main_filter['options'])/5)?>

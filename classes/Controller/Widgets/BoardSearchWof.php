@@ -15,6 +15,10 @@ class Controller_Widgets_BoardSearchWof extends Controller_System_Widgets {
     const PART_LIST_CACHE = 'searchPartsRendered';
     const CATEGORY_LIST_CACHE = 'searchCategoriesRendered';
 
+    public $base_uri = '';
+    public $subcat_options = [];
+    public $subcat_selected;
+    
     public $template = 'widgets/board_search_wof_form';    // Шаблон виждета
 
     /**
@@ -43,8 +47,10 @@ class Controller_Widgets_BoardSearchWof extends Controller_System_Widgets {
         $category_name = '';
         if($cat_alias){
             $category_id = Model_BoardCategory::getCategoryIdByAlias($cat_alias);
-            if($category_id)
+            if($category_id){
                 $category_name = Model_BoardCategory::getField('name', $category_id);
+                $this->_addMainFilter($category_id);
+            }
         }
 
         /* REGION NAME */
@@ -64,6 +70,10 @@ class Controller_Widgets_BoardSearchWof extends Controller_System_Widgets {
 
             'category_name' => $category_name,
             'category_alias' => $cat_alias,
+
+            'base_uri' => $this->base_uri,
+            'subcat_options' => $this->subcat_options,
+            'subcat_selected' => $this->subcat_selected,
 
             'is_job_category' => isset($category_id) && in_array($category_id, Model_BoardCategory::getJobIds()),
             'priced_category' => !(isset($category_id) && in_array($category_id, Model_BoardCategory::getNopriceIds())),
@@ -228,5 +238,19 @@ class Controller_Widgets_BoardSearchWof extends Controller_System_Widgets {
 
     protected function _filterListRender(){
 
+    }
+
+    protected function _addMainFilter($category_id){
+        if(FALSE !== ($main_filter = Model_BoardFilter::loadMainFilter($category_id))){
+            $this->base_uri = URL::site(Route::get('board_subcat')->uri(array(
+                'cat_alias' => Request::initial()->param('cat_alias'),
+                'city_alias' => Request::initial()->param('city_alias'),
+                'filter_alias' => '{{ALIAS}}',
+            )));
+            $this->subcat_options = $main_filter['aliases'];
+            if(NULL !== ($filter_alias = Request::initial()->param('filter_alias'))){
+                $this->subcat_selected = $main_filter['aliases'][$filter_alias];
+            }
+        }
     }
 }

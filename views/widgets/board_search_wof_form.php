@@ -21,3 +21,8 @@
     <div class="clear"></div>
 <?php echo Form::close()?>
 </div>
+<script type="text/javascript">
+    var basecat_uri = '<?php echo $base_uri ;?>';
+    var subcat_options = <?php echo json_encode(array_flip($subcat_options)) ?>;
+    <?if(!is_null($subcat_selected)):?>var subcat_selected = <?php echo $subcat_selected?>;<?endif?>
+</script>

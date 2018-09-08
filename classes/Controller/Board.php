@@ -315,9 +315,9 @@ class Controller_Board extends Controller_System_Page
 
             /* Check city and category alias */
             if(BoardConfig::instance()->redirect_ad_wrong_city && Request::current()->param('city_alias') != $city->alias)
-                $this->redirect($ad->getUrl(), 301);
+                $this->redirect($ad->getUri(), 301);
             if(BoardConfig::instance()->redirect_ad_wrong_cat && Request::current()->param('cat_alias') != $ad->category->alias)
-                $this->redirect($ad->getUrl(), 301);
+                $this->redirect($ad->getUri(), 301);
 
 
             /* Photos */

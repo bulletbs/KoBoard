@@ -596,7 +596,7 @@ class BoardSearch {
 	public function generateMetaReplace(){
 		$result = array();
 		// robots tag related to results
-		if($this->count == 0){
+		if(BoardConfig::instance()->nofollow_on_empty && $this->count == 0){
 			$result = array(
 				'name' => array(
 					'name'=>'robots',

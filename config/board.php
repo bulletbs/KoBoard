@@ -83,11 +83,11 @@ return array(
     'ad_keywords'               => '<pcategory>, <category>',
 
     /* Breadcrumbs */
-    'breadcrumbs_ad_title' => true, // выводить заголовок объявления в крошках (объявление)
-    'breadcrumbs_category_title' => true, // выводить заголовок категории в крошках (поиск)
-    'breadcrumbs_region_title' => true, // выводить заголовок региона в кошках (поиск)
+    'breadcrumbs_ad_title' => true,         // выводить заголовок объявления в крошках (объявление)
+    'breadcrumbs_category_title' => true,   // выводить заголовок категории в крошках (поиск)
+    'breadcrumbs_region_title' => true,     // выводить заголовок региона в кошках (поиск)
 
-    'breadcrumbs_ad_region_all' => true, // выводить все вложности регионов в крошках (объявление)
+    'breadcrumbs_ad_region_all' => true,    // выводить все вложности регионов в крошках (объявление)
     'breadcrumbs_search_region_all' =>true, // выводить все вложности регионов в крошках (поиск)
 
     /* Images settings */
@@ -97,22 +97,23 @@ return array(
     'thumb_height'      => 105,
 
     /* AD page settings */
-    'user_ads_show'        => true,
-    'user_ads_limit'       => 5,
-    'similars_ads_show'    => true,
-    'similars_ads_limit'   => 8,
-    'title_in_search'      => false,
-    'ad_search_form'      => true,
-    'ad_last_modify'      => false,
+    'user_ads_show'        => true,     // показывать объявления пользователя
+    'user_ads_limit'       => 5,        //количество объявлений
+    'similars_ads_show'    => true,     // показывать похожие
+    'similars_ads_limit'   => 8,        // количество похожих
+    'title_in_search'      => false,    // заголовок объявления в поисковой строке
+    'ad_search_form'      => true,      // форма поиска в объявлении
+    'ad_last_modify'      => false,     // выводить заголовок с датой последнго изменения
 
     /* Redirects */
-    'redirect_noad'         => false, // перенаправлять, если объявление не найдено (вместо 404)
+    'redirect_noad'         => false,   // перенаправлять, если объявление не найдено (вместо 404)
     'redirect_ad_wrong_city'   => true, // перенаправлять объявление, если алиас города не совпадает
     'redirect_ad_wrong_cat'    => true, // перенаправлять объявление, если алиас категории не совпадает
 
     /* Canonical */
-    'search_page_to_first' => true,
+    'search_page_to_first' => true,     // Canonical указывает на первую страницу поиска
+    'nofollow_on_empty' => false,        // выводить nofollow в пустых категориях
 
     /* Mailer settings */
-    'mailer_queue_step' => 3000,
+    'mailer_queue_step' => 3000,        // количество писем рассылки за один проход
 );

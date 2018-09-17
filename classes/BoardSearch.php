@@ -546,6 +546,7 @@ class BoardSearch {
 		if($this->title_type == 'category_title' || $this->title_type == 'region_category_title'){
 			$this->title = !empty($this->category->title) ? $meta_generator->setTemplate($this->category->title)->generate() : '';
 			$this->description = !empty($this->category->description) ? $meta_generator->setTemplate($this->category->description)->generate() : '';
+			$this->category->seo = $meta_generator->setTemplate($this->category->seo)->generate();
 		}
 		// Generate meta title
 		if(empty($this->title))

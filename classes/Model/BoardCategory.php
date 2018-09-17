@@ -23,7 +23,9 @@ class Model_BoardCategory extends ORM_MPTT{
     public static $aliases;
     public static $fields = array();
 
-
+    protected static $_exclude_from_chaching = array(
+        'seo',
+    );
 
     public function labels(){
         return array(
@@ -36,6 +38,7 @@ class Model_BoardCategory extends ORM_MPTT{
             'subcats' => 'Sub Categories',
             'title' => 'Meta Title',
             'description' => 'Meta Description',
+            'seo' => 'Seo Text',
         );
     }
 
@@ -70,7 +73,7 @@ class Model_BoardCategory extends ORM_MPTT{
                 ->as_array('id');
             if(is_array($list))
                 foreach($list as $id=>$category){
-                    $array[$id] = $category;
+                    $array[$id] = static::_removeExcluded($category, static::$_exclude_from_chaching);
                 }
             Cache::instance()->set(self::BOARD_CATEGORIES_CACHE, $array, self::CATEGORIES_CACHE_TIME);
         }
@@ -88,6 +91,7 @@ class Model_BoardCategory extends ORM_MPTT{
                 ->as_array('id');
             if(is_array($list))
                 foreach($list as $id=>$category){
+                    $array[$id] = static::_removeExcluded($category, static::$_exclude_from_chaching);
                     $array[$category->parent_id][$id] = $category;
                 }
             Cache::instance()->set(self::BOARD_TREE_CACHE, $array, self::CATEGORIES_CACHE_TIME);
@@ -475,5 +479,18 @@ class Model_BoardCategory extends ORM_MPTT{
             return self::$aliases;
         }
         return parent::__get($name);
+    }
+
+    /**
+     * Remove excluded fields from object
+     * @param ORM|ORM_MPTT $object - object to operate
+     * @param array $remove - array of fields to remove
+     * @return ORM|ORM_MPTT
+     */
+    protected static function _removeExcluded(&$object, Array $remove){
+        foreach ($remove as $field)
+            if(isset($object->$field))
+                unset($object->$field);
+        return $object;
     }
 }

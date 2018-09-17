@@ -36,6 +36,7 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
         'subcats' => array('type'=>'call_view', 'data'=>'admin/categories/boardCategoryOptions'),
         'title' => array('type'=>'text'),
         'description' => array('type'=>'text'),
+        'seo' => array('type'=>'textarea'),
     );
 
     public $_filter_fields = array(

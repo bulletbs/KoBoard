@@ -1368,8 +1368,8 @@ class Controller_Board extends Controller_System_Page
 	    if(isset($page_data['breadcrumbs']) && is_array($page_data['breadcrumbs'])){
 		    $this->breadcrumbs = Breadcrumbs::factory();
 		    $this->breadcrumbs->setOption('addon_class', 'bread_crumbs_search');
-		    foreach ($page_data['breadcrumbs'] as $_crumb)
-			    $this->breadcrumbs->add($_crumb[0], $_crumb[1]);
+		    foreach ($page_data['breadcrumbs'] as $_crumb_id=>$_crumb)
+			    $this->breadcrumbs->add($_crumb[0], $_crumb_id == count($page_data['breadcrumbs'])-1 ? FALSE : $_crumb[1]);
 	    }
 
 	    // Title & description

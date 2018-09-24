@@ -89,11 +89,12 @@ class Model_BoardCategory extends ORM_MPTT{
                 ->order_by('name', 'ASC')
                 ->find_all()
                 ->as_array('id');
-            if(is_array($list))
+            if(is_array($list)){
+                $array = array();
                 foreach($list as $id=>$category){
-                    $array[$id] = static::_removeExcluded($category, static::$_exclude_from_chaching);
-                    $array[$category->parent_id][$id] = $category;
+                    $array[$category->parent_id][$id] = static::_removeExcluded($category, static::$_exclude_from_chaching) ;
                 }
+            }
             Cache::instance()->set(self::BOARD_TREE_CACHE, $array, self::CATEGORIES_CACHE_TIME);
         }
         return $array;

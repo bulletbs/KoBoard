@@ -130,12 +130,14 @@ class BoardSearch {
     protected function _searchAds(){
     	/* Paginate */
 	    $sql = str_replace('`ads`.*', 'COUNT(*) AS cnt', (string) $this->finder);
+	    $sql = str_replace('GROUP BY `ads`.`id`', '', $sql);
 	    $this->count = DB::query(Database::SELECT, $sql)->cached(Model_BoardAd::CACHE_TIME)->as_assoc()->execute();
 	    $this->count = $this->count['0']['cnt'];
 	    $route_params = array(
 		    'controller' => Request::current()->controller(),
 		    'city_alias' => $this->city_alias,
 		    'cat_alias' => $this->category_alias,
+		    'filter_alias' => $this->filter_alias,
 	    );
 	    if($this->user instanceof Model_User && $this->user->loaded())
 		    $route_params['user'] = $this->user->id;

@@ -95,14 +95,28 @@ class Controller_Admin_BoardCategories extends Controller_Admin_Crud{
 
         /* Changed parent: create new category or move present (by deleting and create new) */
         if(Arr::get($_POST, 'parent_id') && $model->parent_id != Arr::get($_POST, 'parent_id')){
-            if($model->loaded())
+            if($model->loaded()){
+                $old_ids = ['parent'=>$model->parent_id, 'id'=> $model->id];
                 $model->delete();
+            }
             $parent = ORM::factory('BoardCategory', Arr::get($_POST, 'parent_id'));
             $model = ORM::factory('BoardCategory');
             $model->values($_POST);
             if(empty($model->alias))
                 $model->alias = Text::transliterate($model->name, true);
             $model->insert_as_last_child($parent);
+
+            if(isset($old_ids)){
+            // category ID to old one
+                DB::update('ad_categories')->set([
+                    'id'=>$old_ids['id'],
+                ])->where('id', '=', $model->id)->execute();
+                $model->reload();
+            // update ADS parent category_id
+                DB::update('ads')->set([
+                    'pcategory_id'=>$model->parent_id,
+                ])->where('category_id', '=', $model->id)->execute();
+            }
         }
         else{
             $model->values($_POST)->save();

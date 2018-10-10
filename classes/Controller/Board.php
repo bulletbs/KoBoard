@@ -123,11 +123,13 @@ class Controller_Board extends Controller_System_Page
 			    $search->search();
 		    }
 		    catch(HTTP_Exception_404 $e){
-			    $this->redirect(Request::current()->route()->uri(array(
-				    'controller' => Request::current()->controller(),
-				    'city_alias' => $search->city_alias,
-				    'cat_alias' => $search->category_alias,
-			    )));
+		    	if(BoardSearch::isSearchRoute())
+					$this->redirect(Request::current()->route()->uri(array(
+						'controller' => Request::current()->controller(),
+						'city_alias' => $search->city_alias,
+						'cat_alias' => $search->category_alias,
+					)));
+		    	throw $e;
 		    }
 			/* Meta tags */
 			$page_data = $search->generateFullPageData();

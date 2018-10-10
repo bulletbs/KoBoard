@@ -668,6 +668,18 @@ class BoardSearch {
 //        ));
 	}
 
+	/**
+	 * Check if the route is searchable
+	 * @return bool
+	 */
+	public static function isSearchRoute(){
+		return in_array( Route::name(Request::initial()->route()), [
+			'board_city',
+			'board_cat',
+			'board_subcat',
+		]);
+	}
+
 
     /**
      * Config getter

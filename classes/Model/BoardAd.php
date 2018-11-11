@@ -943,24 +943,6 @@ class Model_BoardAd extends ORM{
     	return Route::get('board_userads')->uri(array('user'=>$this->user_id));
     }
 
-    public static function similarQueryUni($ad){
-	    $query = DB::select($ad->table_name().'.*')->from( $ad->table_name() )
-	               ->as_object(get_class($ad))
-	               ->select(
-		               array(DB::expr('MATCH(`title`) AGAINST ("'.$ad->getTitle().'" IN BOOLEAN MODE)'), 'match'),
-		               array(DB::expr('(`city_id`='.$ad->city_id.') + (`category_id` = '.$ad->category_id.') + (`pcity_id`='.$ad->pcity_id.') + (`pcategory_id` = '.$ad->pcategory_id.')'), 'relevance')
-	               )
-	               ->where('publish', '=', '1')
-	               ->and_where('user_id', '<>', $ad->user_id)
-	               ->and_where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$ad->getTitle()."' IN BOOLEAN MODE)"))
-	               ->order_by('match', 'DESC')
-	               ->order_by('relevance', 'DESC')
-	               ->order_by('addtime', 'DESC')
-	               ->limit(BoardConfig::instance()->similars_ads_limit)
-	    ;
-	    return $query;
-    }
-
 	/**
 	 *
 	 */
@@ -997,36 +979,119 @@ class Model_BoardAd extends ORM{
 
 	}
 
+	/**
+	 * MySQL similar query generator
+	 * @param $title
+	 * @param array $params
+	 * @return $this
+	 */
     public static function similarQuery($title, Array $params = array()){
     	$ad = ORM::factory('BoardAd');
     	$title = addslashes($title);
+
+    	$_use_index = self::setIndex($params);
+
 	    $query = DB::select($ad->table_name().'.*')->from( $ad->table_name() )
           ->as_object(get_class($ad))
           ->select(
               array(DB::expr('MATCH(`title`) AGAINST ("'.$title.'" IN BOOLEAN MODE)'), 'match')
-          )
-		  ->where('publish', '=', '1')
-          ->and_where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$title."' IN BOOLEAN MODE)"))
+          );
+		if(isset($params['category_id']))
+			$query->and_where('category_id', '=', (string) $params['category_id']);
+		if(isset($params['pcategory_id']))
+			$query->and_where('pcategory_id', '=', (string) $params['pcategory_id']);
+		if(isset($params['city_id']))
+			$query->and_where('city_id', '=', (string) $params['city_id']);
+		if(isset($params['pcity_id']))
+			$query->and_where('pcity_id', '=', (string) $params['pcity_id']);
+		if(isset($params['user_id']))
+		  $query->and_where('publish', '=', '1')
+          	->use_index($_use_index)
+//			->and_where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$title."' IN BOOLEAN MODE)"))
           ->order_by('match', 'DESC')
           ->order_by('addtime', 'DESC')
           ->limit(BoardConfig::instance()->similars_ads_limit)
 	    ;
-	    if(isset($params['category_id']))
-		    $query->and_where('category_id', '=', (string) $params['category_id']);
-	    if(isset($params['pcategory_id']))
-		    $query->and_where('pcategory_id', '=', (string) $params['pcategory_id']);
-	    if(isset($params['city_id']))
-			$query->and_where('city_id', '=', (string) $params['city_id']);
-	    if(isset($params['pcity_id']))
-			$query->and_where('pcity_id', '=', (string) $params['pcity_id']);
-	    if(isset($params['user_id']))
 			$query->and_where('user_id', '!=', (string) $params['user_id']);
 	    if(isset($params['exclude_ids']) && is_array($params['exclude_ids']) && count($params['exclude_ids']))
 			$query->and_where('id', 'NOT IN', $params['exclude_ids']);
 	    return $query;
     }
 
-    public static function similarSphinxQuery($ad){
+    public static function setIndex($params){
+    	$index = 'title';
+    	if(isset($params['pcategory_id']))
+    		$index = 'pcategory_id';
+    	elseif(isset($params['category_id']))
+    		$index = 'category_id';
+    	elseif(isset($params['pcity_id']))
+    		$index = 'pcity_id';
+    	elseif(isset($params['city_id']))
+    		$index = 'city_id';
+    	return $index;
+	}
+
+	/**
+	 * SphinxQL similar query generator
+	 * @param $title - find title
+	 * @param $params - parameters
+	 * @return SphinxQL_Query
+	 */
+    public static function similarSphinxQuery($title, $params){
+	    $sphinxql = new SphinxQL;
+        $query = $sphinxql->new_query()
+            ->add_index(BoardConfig::instance()->sphinx_index)
+            ->add_field('id')
+            ->add_field('(pcity_id='.$params['pcity_id'].')+(city_id='.$params['city_id'].')', 'regional')
+            ->search('@title "'.$title.'"/1')
+		;
+		if(isset($params['category_id']))
+            $query->where('category_id', (string) $params['category_id']);
+		if(isset($params['pcategory_id']))
+            $query->where('category_id', (string) $params['pcategory_id']);
+		if(isset($params['user_id']))
+			$query->where('user_id', (string) $params['user_id'], '!=');
+		if(isset($params['exclude_ids']) && is_array($params['exclude_ids']) && count($params['exclude_ids']))
+			$query->where('id', '('.implode(',', $params['exclude_ids']).')', 'NOT IN');
+		$query
+            ->order('regional', 'DESC')
+            ->order('weight()', 'DESC')
+            ->order('addtime', 'DESC')
+            ->limit(BoardConfig::instance()->similars_ads_limit)
+        ;
+//		var_dump((string) $query);
+        return $query;
+    }
+
+	/**
+	 * !!Old one!!  MySQL similar query generator
+	 * @param $ad
+	 * @return $this
+	 */
+	public static function similarQueryUni($ad){
+		$query = DB::select($ad->table_name().'.*')->from( $ad->table_name() )
+			->as_object(get_class($ad))
+			->select(
+				array(DB::expr('MATCH(`title`) AGAINST ("'.$ad->getTitle().'" IN BOOLEAN MODE)'), 'match'),
+				array(DB::expr('(`city_id`='.$ad->city_id.') + (`category_id` = '.$ad->category_id.') + (`pcity_id`='.$ad->pcity_id.') + (`pcategory_id` = '.$ad->pcategory_id.')'), 'relevance')
+			)
+			->where('publish', '=', '1')
+			->and_where('user_id', '<>', $ad->user_id)
+			->and_where(DB::expr('MATCH(`title`)'), 'AGAINST', DB::expr("('".$ad->getTitle()."' IN BOOLEAN MODE)"))
+			->order_by('match', 'DESC')
+			->order_by('relevance', 'DESC')
+			->order_by('addtime', 'DESC')
+			->limit(BoardConfig::instance()->similars_ads_limit)
+		;
+		return $query;
+	}
+
+	/**
+	 * !!Old one!!  SphinxQL similar query generator
+	 * @param $ad
+	 * @return SphinxQL_Query
+	 */
+    public static function similarSphinxQueryUni($ad){
 	    $sphinxql = new SphinxQL;
         $query = $sphinxql->new_query()
             ->add_index(BoardConfig::instance()->sphinx_index)

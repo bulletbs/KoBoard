@@ -419,7 +419,7 @@ class Model_BoardCategory extends ORM_MPTT{
         if($category_id > 0)
             $sql = DB::select(array('category_id','cat_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('publish','=','1')->and_where('pcategory_id', '=', $category_id);
         else
-            $sql = DB::select(array('pcategory_id', 'cat_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('publish','=','1');
+            $sql = DB::select(array('pcategory_id', 'cat_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->use_index('publish_pcategory_id')->table_name() )->where('publish','=','1');
         if($city_id)
             $sql->and_where( (Model_BoardCity::getField('parent_id', $city_id) ? '' : 'p') .'city_id', '=', $city_id);
         $sql->group_by('cat_id')->order_by('cnt', 'DESC')->cached(Date::HOUR);

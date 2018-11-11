@@ -265,7 +265,7 @@ class Model_BoardCity extends ORM_MPTT{
         if($region_id > 0)
             $sql = DB::select(array('city_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('publish','=','1')->and_where('pcity_id', '=', $region_id);
         else
-            $sql = DB::select(array('pcity_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->table_name() )->where('publish','=','1');
+            $sql = DB::select(array('pcity_id', 'cit_id'), array(DB::expr('count(*)'), 'cnt'))->from( ORM::factory('BoardAd')->use_index('publish_pcity_id')->table_name() )->where('publish','=','1');
         if($category_id)
             $sql->and_where((Model_BoardCategory::getField('parent_id', $category_id) ? '' : 'p') . 'category_id', '=', $category_id);
         $_ads_count = $sql->group_by('cit_id')->order_by('cnt', 'DESC')->cached(Date::HOUR)->execute()->as_array('cit_id', 'cnt');

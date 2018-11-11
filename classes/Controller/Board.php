@@ -370,7 +370,8 @@ class Controller_Board extends Controller_System_Page
 						'exclude_ids' => $ad->id,
 					))->execute();
 					$sim_ads = 	array_map(function($n){return $n['id'];}, $sim_ads_res);
-					$sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->find_all()->as_array('id');
+					if(count($sim_ads))
+						$sim_ads = ORM::factory('BoardAd')->where('id', 'IN', $sim_ads)->find_all()->as_array('id');
 				}
 				else{
 					$sim_ads_res = Model_BoardAd::similarQuery($ad->getTitle(), array(

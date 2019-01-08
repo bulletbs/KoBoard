@@ -469,24 +469,28 @@ class BoardSearch {
 	public function canonicalPagination(){
 		$tags_array = array();
 		$_page = max(1, Request::current()->param('page'));
+		$_params = $this->pagination->route_params();
 		if($_page > 1){
 			$tags_array[] = array(
 				'tag' => 'link',
 				'rel' => 'prev',
-				'href' => URL::base(KoMS::protocol()).substr($this->pagination->url($_page-1), 1),
+//				'href' => URL::base(KoMS::protocol()).substr($this->pagination->url($_page-1), 1),
+				'href' => URL::site(Request::current()->route()->uri($_params+['page'=>$_page-1]), KoMS::protocol()),
 			);
 		}
 		if($_page < $this->pagination->total_pages){
 			$tags_array[] = array(
 				'tag' => 'link',
 				'rel' => 'next',
-				'href' => URL::base(KoMS::protocol()).substr($this->pagination->url($_page+1), 1),
+//				'href' => URL::base(KoMS::protocol()).substr($this->pagination->url($_page+1), 1),
+				'href' => URL::site(Request::current()->route()->uri($_params+['page'=>$_page+1]), KoMS::protocol()),
 			);
 		}
 		$tags_array[] =array(
 			'tag' => 'link',
 			'rel' => 'canonical',
-            'href' => URL::base(KoMS::protocol()).substr( BoardConfig::instance()->search_page_to_first ?  $this->pagination->url(1) : $_SERVER['REQUEST_URI'], 1),
+//            'href' => URL::base(KoMS::protocol()).substr( BoardConfig::instance()->search_page_to_first ?  $this->pagination->url(1) : $_SERVER['REQUEST_URI'], 1),
+            'href' => URL::site(BoardConfig::instance()->search_page_to_first ?  $this->pagination->url(1) : $_SERVER['REQUEST_URI'], KoMS::protocol()),
 		);
 		return $tags_array;
 	}
